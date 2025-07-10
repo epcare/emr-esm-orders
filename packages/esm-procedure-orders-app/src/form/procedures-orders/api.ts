@@ -7,7 +7,7 @@ import useSWRImmutable from 'swr/immutable';
 import { type ProcedureOrderBasketItem } from '../../types';
 
 export interface ProcedureOrderPost extends OrderPost {
-  scheduledDate?: Date | string;
+  scheduledDate?: any;
   commentToFulfilleON_SCHEDULED_DATEr?: string;
   specimenSource?: string;
   specimenType?: string;

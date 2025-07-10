@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import classNames from 'classnames';
-import { launchPatientWorkspace, useOrderBasket } from '@openmrs/esm-patient-common-lib';
+import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import {
   translateFrom,
   useLayoutType,
@@ -8,6 +8,7 @@ import {
   useConfig,
   ExtensionSlot,
   type DefaultWorkspaceProps,
+  launchWorkspace,
 } from '@openmrs/esm-framework';
 import { careSettingUuid, prepProceduresOrderPostData, useOrderReasons, useConceptById, type Concept } from '../api';
 import {
@@ -143,7 +144,7 @@ export function ProceduresOrderForm({
       newOrders[orderIndex] = data;
       setOrders(newOrders);
       closeWorkspaceWithSavedChanges({
-        onWorkspaceClose: () => launchPatientWorkspace('order-basket'),
+        onWorkspaceClose: () => launchWorkspace('order-basket'),
       });
     },
     [orders, setOrders, closeWorkspace, session?.currentProvider?.uuid, defaultValues],
@@ -152,7 +153,7 @@ export function ProceduresOrderForm({
   const cancelOrder = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== defaultValues.testType.conceptUuid));
     closeWorkspace({
-      onWorkspaceClose: () => launchPatientWorkspace('order-basket'),
+      onWorkspaceClose: () => launchWorkspace('order-basket'),
     });
   }, [closeWorkspace, orders, setOrders, defaultValues]);
 

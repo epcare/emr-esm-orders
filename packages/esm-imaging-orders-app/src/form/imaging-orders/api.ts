@@ -35,7 +35,7 @@ export function useOrderReasons(conceptUuids: Array<string>) {
 }
 
 export interface ImagingOrderPost extends OrderPost {
-  scheduledDate?: Date | string;
+  scheduledDate?: string;
   commentToFulfiller?: string;
   laterality?: string;
   bodySite?: string;

@@ -13,7 +13,6 @@
   "confirmationMessages": "Do you want to amend this order {{orderName}} - {{orderNumber}}?",
   "confirmationPickupMessages": "Do you want to pick this order: {{orderName}} - {{orderNumber}}?",
   "confirmationRejectMessages": "Do you want to reject this order: {{orderName}} - {{orderNumber}}?",
-  "date": "Date",
   "discard": "Discard",
   "error": "Error",
   "errorLoadingTestTypes": "Error occurred when loading test types",

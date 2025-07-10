@@ -3,7 +3,7 @@ import { configSchema } from './config-schema';
 import MedicalSupplyOrderBasketPanelExtension from './form/add-medical-supply-order/medical-supply-order-basket-panel/medical-supply-order-basket-panel.extension';
 import AddMedicalSupplyOrderWorkspace from './form/add-medical-supply-order/medical-supply-order/add-medical-supply-order.workspace';
 
-const moduleName = '@ugandaemr/esm-medical-supply-orders-app';
+const moduleName = '@epcare/esm-medical-supply-orders-app';
 
 const options = {
   featureName: 'esm-medical-supply-orders-app',

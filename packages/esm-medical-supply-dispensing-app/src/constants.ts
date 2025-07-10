@@ -1,4 +1,4 @@
-export const moduleName = '@ugandaemr/esm-medical-supply-dispensing-app';
+export const moduleName = '@epcare/esm-medical-supply-dispensing-app';
 export const spaRoot = window['getOpenmrsSpaBase'];
 export const basePath = '/dispensing';
 export const spaBasePath = `${window.spaBase}${basePath}`;
