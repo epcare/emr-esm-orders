@@ -27,24 +27,27 @@
       "order": 3
     }
   ],
-  "workspaces": [
+  "workspaces2": [
     {
       "name": "add-imaging-order",
       "type": "order",
       "component": "addImagingOrderWorkspace",
-      "title": "Add Imaging order"
+      "title": "Add Imaging order",
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imaging-report-form",
       "component": "imagingReportForm",
       "title": "Imaging Report Form",
-      "type": "form"
+      "type": "form",
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imaging-review-form",
       "type": "order",
       "component": "imagingReviewForm",
-      "title": "Review form"
+      "title": "Review form",
+      "window": "patient-chart-order-basket"
     }
   ],
   "modals": [

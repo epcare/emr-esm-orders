@@ -23,7 +23,7 @@ import PrescriptionExpanded from './prescription-expanded.component';
 import { type PharmacyConfig } from '../config-schema';
 import styles from './prescriptions.scss';
 import { useAllOrders } from '../hooks/useOrdersWorklist';
-import { PrescriptionsTableRow } from '../types';
+import { type PrescriptionsTableRow } from '../types';
 
 interface PrescriptionTabPanelProps {
   searchTerm: string;
@@ -114,12 +114,12 @@ const PrescriptionTabPanel: React.FC<PrescriptionTabPanelProps> = ({ searchTerm,
                                 {cell.id.endsWith('created')
                                   ? formatDatetime(parseDate(cell.value))
                                   : cell.id.endsWith('patient')
-                                  ? cell.value.name
-                                  : cell.id.endsWith('status')
-                                  ? cell.value
-                                    ? t(cell.value)
-                                    : '--'
-                                  : cell.value}
+                                    ? cell.value.name
+                                    : cell.id.endsWith('status')
+                                      ? cell.value
+                                        ? t(cell.value)
+                                        : '--'
+                                      : cell.value}
                               </TableCell>
                             ))}
                           </TableExpandRow>

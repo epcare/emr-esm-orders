@@ -5,7 +5,7 @@ import {
   translateFrom,
   useLayoutType,
   useSession,
-  DefaultWorkspaceProps,
+  type DefaultWorkspaceProps,
   ExtensionSlot,
   launchWorkspace,
 } from '@openmrs/esm-framework';

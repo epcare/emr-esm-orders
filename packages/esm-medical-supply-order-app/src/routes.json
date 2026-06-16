@@ -13,13 +13,13 @@
     }
   
   ],
-  "workspaces": [
+  "workspaces2": [
     {
       "name": "add-medical-supply-order",
       "type": "order",
       "component": "addMedicalSupplyOrderWorkspace",
-      "title": "Add medical supply order"
-      
+      "title": "Add medical supply order",
+      "window": "patient-chart-order-basket"
     }
   ],
   "pages": [

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Tile } from '@carbon/react';
 import { Add, ChevronDown, ChevronUp } from '@carbon/react/icons';
-import { useLayoutType, closeWorkspace, launchWorkspace } from '@openmrs/esm-framework';
+import { useLayoutType, closeWorkspace, launchWorkspace2 } from '@openmrs/esm-framework';
 import { type OrderBasketItem, useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { prepMedicalSupplyOrderPostData } from '../api';
 import styles from './medical-supply-order-basket-panel.scss';
@@ -59,16 +59,28 @@ export default function MedicalSupplyOrderBasketPanelExtension() {
   }, [orders]);
 
   const openNewMedicalSupplyForm = useCallback(() => {
+    if (!closeWorkspace || !launchWorkspace2) {
+      alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
+      return;
+    }
     closeWorkspace('order-basket', {
       ignoreChanges: true,
-      onWorkspaceClose: () => launchWorkspace('add-medical-supply-order'),
+      onWorkspaceClose: () => {
+        launchWorkspace2('add-medical-supply-order', {});
+      },
     });
   }, []);
 
   const openEditMedicalSupplyForm = useCallback((order: OrderBasketItem) => {
+    if (!closeWorkspace || !launchWorkspace2) {
+      alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
+      return;
+    }
     closeWorkspace('order-basket', {
       ignoreChanges: true,
-      onWorkspaceClose: () => launchWorkspace('add-medical-supply-order', { order }),
+      onWorkspaceClose: () => {
+        launchWorkspace2('add-medical-supply-order', { order });
+      },
     });
   }, []);
 

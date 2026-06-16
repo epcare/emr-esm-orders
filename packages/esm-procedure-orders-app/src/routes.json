@@ -124,18 +124,20 @@
       "order": 4
     }
   ],
-  "workspaces": [
+  "workspaces2": [
     {
       "name": "add-procedures-order",
       "type": "order",
       "title": "Add procedure order",
-      "component": "addProceduresOrderWorkspace"
+      "component": "addProceduresOrderWorkspace",
+      "window": "patient-chart-order-basket"
     },
      {
       "name": "procedure-report-form",
       "component": "postProcedureResults",
       "title": "Procedure Report Form",
-      "type": "form"
+      "type": "form",
+      "window": "patient-chart-order-basket"
     }
   ],
    "modals": [

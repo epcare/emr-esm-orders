@@ -1,37 +1,88 @@
 {
+  "env": {
+    "node": true
+  },
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:jest-dom/recommended"],
+  "overrides": [
+    {
+      "files": ["**/*.test.tsx", "**/*.test.ts", "**/*.spec.tsx", "**/*.spec.ts"],
+      "extends": ["plugin:testing-library/react"],
+      "parserOptions": {
+        "project": null
+      },
+      "rules": {
+        "@typescript-eslint/consistent-type-exports": "off",
+        "@typescript-eslint/consistent-type-imports": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-unsafe-function-type": "off",
+        "testing-library/no-container": "off",
+        "testing-library/no-node-access": "off",
+        "testing-library/prefer-screen-queries": "off"
+      }
+    },
+    {
+      "files": ["e2e/**/*.ts"],
+      "extends": ["plugin:playwright/recommended"],
+      "rules": {
+        "testing-library/prefer-screen-queries": "off",
+        "react-hooks/rules-of-hooks": "off"
+      }
+    }
+  ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
-  "extends": ["ts-react-important-stuff", "plugin:prettier/recommended"],
+  "parserOptions": {
+    "project": true
+  },
+  "plugins": ["@typescript-eslint", "import", "jest-dom", "react-hooks", "testing-library"],
+  "root": true,
   "rules": {
-    "curly": ["error", "all"],
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-wrapper-object-types": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/consistent-type-exports": "error",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "import/no-duplicates": "error",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
     "no-restricted-imports": [
       "error",
       {
         "paths": [
           {
             "name": "lodash",
-            "message": "Import specific methods from `lodash-es`. e.g. `import map from 'lodash-es/map'`"
+            "message": "Import specific methods from `lodash`. e.g. `import map from 'lodash/map'`"
           },
           {
             "name": "lodash-es",
-            "message": "Import specific methods from `lodash-es`. e.g. `import map from 'lodash-es/map'`"
-          }
-        ],
-        "patterns": [
+            "importNames": ["default"],
+            "message": "Import specific methods from `lodash-es`. e.g. `import { map } from 'lodash-es'`"
+          },
           {
-            "group": ["carbon-components-react"],
+            "name": "carbon-components-react",
             "message": "Import from `@carbon/react` directly. e.g. `import { Toggle } from '@carbon/react'`"
           },
           {
-            "group": ["@carbon/icons-react"],
+            "name": "@carbon/icons-react",
             "message": "Import from `@carbon/react/icons`. e.g. `import { ChevronUp } from '@carbon/react/icons'`"
-          },
-          {
-            "group": ["@import '~carbon-components/src/globals/scss/vars'"],
-            "message": "Import from `@carbon/styles/scss`. e.g. `@use '@carbon/styles/scss/type'`"
           }
         ]
       }
-    ]
+    ],
+    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/rules-of-hooks": "error"
   }
 }

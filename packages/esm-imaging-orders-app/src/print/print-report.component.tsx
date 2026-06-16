@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { IdentifierType, Person } from '../utils/functions';
 import startCase from 'lodash-es/startCase';
 import dayjs from 'dayjs';
-import { Order } from '../types';
+import { type Order } from '../types';
 
 interface PrintableReportProps {
   approvedOrders: Order;
@@ -43,8 +43,8 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ approvedOrders }) => 
               {approvedOrders?.patient?.person?.gender === 'M'
                 ? ' Male'
                 : approvedOrders?.patient?.person?.gender === 'F'
-                ? ' Female'
-                : ' Unknown'}
+                  ? ' Female'
+                  : ' Unknown'}
             </p>
             <p className={styles.itemLabel}>
               {t('orderDate', 'Order date')} {formatDate(new Date(approvedOrders?.dateActivated))}

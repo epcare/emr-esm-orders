@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import capitalize from 'lodash-es/capitalize';
 import { useTranslation } from 'react-i18next';
@@ -7,55 +7,51 @@ import { ArrowLeft } from '@carbon/react/icons';
 import {
   age,
   formatDate,
+  getPatientName,
   parseDate,
   useLayoutType,
   usePatient,
+  launchWorkspace2,
   type DefaultWorkspaceProps,
-  launchWorkspace,
 } from '@openmrs/esm-framework';
-import { type OrderBasketItem } from '@openmrs/esm-patient-common-lib';
 import { TestTypeSearch } from './procedures-type-search';
 import { ProceduresOrderForm } from './procedures-order-form.component';
 import styles from './add-procedures-order.scss';
 import { type ProcedureOrderBasketItem } from '../../../types';
 
-export interface AddProcedureOrderWorkspaceAdditionalProps {
-  order?: OrderBasketItem;
+interface AddProceduresOrderWorkspaceProps extends DefaultWorkspaceProps {
+  order?: ProcedureOrderBasketItem;
 }
-
-export interface AddProceduresOrderWorkspace extends DefaultWorkspaceProps, AddProcedureOrderWorkspaceAdditionalProps {}
 
 export default function AddProceduresOrderWorkspace({
   order: initialOrder,
   closeWorkspace,
-  closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
-}: AddProceduresOrderWorkspace) {
+}: AddProceduresOrderWorkspaceProps) {
   const { t } = useTranslation();
-
   const { patient, isLoading: isLoadingPatient } = usePatient();
-  const [currentLabOrder, setCurrentLabOrder] = useState(initialOrder as ProcedureOrderBasketItem);
+  const [currentLabOrder, setCurrentLabOrder] = useState(initialOrder);
 
   const isTablet = useLayoutType() === 'tablet';
 
-  const patientName = `${patient?.name?.[0]?.given?.join(' ')} ${patient?.name?.[0].family}`;
+  const patientName = patient ? getPatientName(patient) : '';
 
-  const cancelOrder = useCallback(() => {
-    closeWorkspace({
-      ignoreChanges: true,
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
-  }, [closeWorkspace]);
+  const handleBack = () => {
+    launchWorkspace2('order-basket', {});
+  };
+
+  const handleCancel = () => {
+    closeWorkspace();
+  };
 
   return (
     <div className={styles.container}>
-      {isTablet && !isLoadingPatient && (
+      {isTablet && !isLoadingPatient && patient && (
         <div className={styles.patientHeader}>
           <span className={styles.bodyShort02}>{patientName}</span>
           <span className={classNames(styles.text02, styles.bodyShort01)}>
-            {capitalize(patient?.gender)} &middot; {age(patient?.birthDate)} &middot;{' '}
+            {capitalize(patient.gender)} &middot; {age(patient.birthDate)} &middot;{' '}
             <span>
-              {formatDate(parseDate(patient?.birthDate), {
+              {formatDate(parseDate(patient.birthDate), {
                 mode: 'wide',
                 time: false,
               })}
@@ -70,7 +66,7 @@ export default function AddProceduresOrderWorkspace({
             renderIcon={(props) => <ArrowLeft size={24} {...props} />}
             iconDescription="Return to order basket"
             size="sm"
-            onClick={cancelOrder}>
+            onClick={handleBack}>
             <span>{t('backToOrderBasket', 'Back to order basket')}</span>
           </Button>
         </div>
@@ -83,9 +79,9 @@ export default function AddProceduresOrderWorkspace({
         <div>
           <ProceduresOrderForm
             initialOrder={currentLabOrder}
-            closeWorkspace={closeWorkspace}
-            closeWorkspaceWithSavedChanges={closeWorkspaceWithSavedChanges}
-            promptBeforeClosing={promptBeforeClosing}
+            closeWorkspace={handleCancel}
+            closeWorkspaceWithSavedChanges={handleCancel}
+            promptBeforeClosing={() => true}
           />
         </div>
       )}

@@ -1,8 +1,10 @@
 {
   "additionalInstructions": "Additional instructions",
+  "close": "Close",
   "discard": "Discard",
   "error": "Error",
   "medicalSupplyType": "Medical supply type",
+  "noOrderSelected": "No order selected",
   "orderActionDiscontinue": "Discontinue",
   "orderActionIncomplete": "Incomplete",
   "orderActionNew": "New",

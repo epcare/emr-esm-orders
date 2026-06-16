@@ -1,67 +1,48 @@
-import React, { useCallback, useState } from 'react';
-import classNames from 'classnames';
-import capitalize from 'lodash-es/capitalize';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@carbon/react';
-import { ArrowLeft } from '@carbon/react/icons';
-import { age, formatDate, parseDate, useLayoutType, usePatient, launchWorkspace } from '@openmrs/esm-framework';
-import { type DefaultPatientWorkspaceProps } from '@openmrs/esm-patient-common-lib';
-import { MedicalSupplyTypeSearch } from './medical-supply-type-search';
+import { launchWorkspace2, type DefaultWorkspaceProps } from '@openmrs/esm-framework';
 import { MedicalSupplyOrderForm } from './medical-supply-form.component';
 import styles from './add-medical-supply-order.scss';
 import { type MedicalSupplyOrderBasketItem } from '../../../types';
 
-export interface AddMedicalSupplyOrderWorkspaceAdditionalProps {
+interface AddMedicalSupplyOrderWorkspaceProps extends DefaultWorkspaceProps {
   order?: MedicalSupplyOrderBasketItem;
 }
-
-export interface AddMedicalSupplyOrderWorkspace
-  extends DefaultPatientWorkspaceProps,
-    AddMedicalSupplyOrderWorkspaceAdditionalProps {}
 
 export default function AddMedicalSupplyOrderWorkspace({
   order: initialOrder,
   closeWorkspace,
-  closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
-}: AddMedicalSupplyOrderWorkspace) {
+}: AddMedicalSupplyOrderWorkspaceProps) {
   const { t } = useTranslation();
+  const [currentOrder, setCurrentOrder] = useState(initialOrder);
 
-  const [currentMedicalSupplyOrder, setCurrentMedicalSupplyOrder] = useState(initialOrder);
+  const handleCancel = () => {
+    closeWorkspace();
+  };
 
-  const isTablet = useLayoutType() === 'tablet';
+  const handleClose = () => {
+    launchWorkspace2('order-basket', {});
+  };
 
-  const cancelOrder = useCallback(() => {
-    closeWorkspace({
-      ignoreChanges: true,
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
-  }, [closeWorkspace]);
-
-  if (!currentMedicalSupplyOrder) {
+  if (!currentOrder) {
     return (
-      <>
-        <div className={styles.backButton}>
-          <Button
-            kind="ghost"
-            renderIcon={(props) => <ArrowLeft size={24} {...props} />}
-            iconDescription="Return to order basket"
-            size="sm"
-            onClick={cancelOrder}>
-            <span>{t('backToOrderBasket', 'Back to order basket')}</span>
-          </Button>
+      <div className={styles.container}>
+        <div className={styles.emptyState}>
+          <p>{t('noOrderSelected', 'No order selected')}</p>
+          <button onClick={handleClose}>{t('close', 'Close')}</button>
         </div>
-        <MedicalSupplyTypeSearch openMedicalSupplyForm={setCurrentMedicalSupplyOrder} />
-      </>
-    );
-  } else {
-    return (
-      <MedicalSupplyOrderForm
-        initialOrder={currentMedicalSupplyOrder}
-        closeWorkspace={closeWorkspace}
-        closeWorkspaceWithSavedChanges={closeWorkspaceWithSavedChanges}
-        promptBeforeClosing={promptBeforeClosing}
-      />
+      </div>
     );
   }
+
+  return (
+    <div className={styles.container}>
+      <MedicalSupplyOrderForm
+        initialOrder={currentOrder}
+        closeWorkspace={handleClose}
+        closeWorkspaceWithSavedChanges={handleClose}
+        promptBeforeClosing={() => true}
+      />
+    </div>
+  );
 }

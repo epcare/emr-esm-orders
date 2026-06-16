@@ -9,14 +9,14 @@ import {
   useSubstitutionTypeValueSet,
 } from '../medication-dispense/medication-dispense.resource';
 import { PRIVILEGE_CREATE_DISPENSE_MODIFY_DETAILS } from '../constants';
-import { NonDrugMedicationDispense, type Medication, type MedicationDispense } from '../types/index';
+import { type NonDrugMedicationDispense, type Medication, type MedicationDispense } from '../types/index';
 import { type PharmacyConfig } from '../config-schema';
 import styles from '../components/medication-dispense-review.scss';
 import dayjs from 'dayjs';
 
 interface MedicationDispenseReviewProps {
   medicationDispense: NonDrugMedicationDispense;
-  updateMedicationDispense: Function;
+  updateMedicationDispense: (data: NonDrugMedicationDispense | React.SetStateAction<NonDrugMedicationDispense>) => void;
 }
 
 const MedicationDispenseReview: React.FC<MedicationDispenseReviewProps> = ({
@@ -193,9 +193,7 @@ const MedicationDispenseReview: React.FC<MedicationDispenseReviewProps> = ({
             const selectedDate = dayjs(input);
             updateMedicationDispense({
               ...medicationDispense,
-              dateDispensed: currentDate?.isSame(selectedDate, 'day')
-                ? currentDate.toISOString()
-                : selectedDate.toISOString(), // to preserve any time component, only update if the day actually changes
+              dateDispensed: currentDate?.isSame(selectedDate, 'day') ? currentDate.toDate() : selectedDate.toDate(), // to preserve any time component, only update if the day actually changes
             });
           }}></OpenmrsDatePicker>
 

@@ -4,7 +4,7 @@ import { Button } from '@carbon/react';
 import { showModal, launchWorkspace } from '@openmrs/esm-framework';
 import { Order } from '@openmrs/esm-patient-common-lib';
 import OrderActionExtension from './order-action-extension.component';
-import { Result } from '../../../../types';
+import { type Result } from '../../../../types';
 import { launchOverlay } from '../../../../components/overlay/hook';
 import PostProcedureForm from '../../../../form/post-procedures/post-procedure-form.component';
 import styles from './action-button.scss';

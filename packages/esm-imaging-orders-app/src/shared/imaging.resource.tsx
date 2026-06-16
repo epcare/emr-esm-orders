@@ -1,9 +1,9 @@
 import useSWR, { mutate } from 'swr';
 import { openmrsFetch, restBaseUrl, useConfig } from '@openmrs/esm-framework';
 
-import { Result } from '../imaging-tabs/work-list/work-list.resource';
+import { type Result } from '../imaging-tabs/work-list/work-list.resource';
 import { useCallback, useMemo } from 'react';
-import { ImagingConfig } from '../config-schema';
+import { type ImagingConfig } from '../config-schema';
 
 /**
  * Hook to fetch and process imaging order statistics based on fulfiller status.
@@ -52,7 +52,7 @@ export function useImagingOrderStats(fulfillerStatus: string) {
   }, [data, fulfillerStatus, radiologyConceptClassUuid]);
 
   const count = useMemo(
-    () => (fulfillerStatus != null ? radiologyOrders?.length ?? 0 : 0),
+    () => (fulfillerStatus != null ? (radiologyOrders?.length ?? 0) : 0),
     [fulfillerStatus, radiologyOrders],
   );
 

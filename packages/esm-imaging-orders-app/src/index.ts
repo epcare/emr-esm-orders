@@ -2,11 +2,10 @@ import Root from './root.component';
 import { moduleName } from './constants';
 import { configSchema } from './config-schema';
 
-import { defineConfigSchema, getSyncLifecycle } from '@openmrs/esm-framework';
+import { defineConfigSchema, getSyncLifecycle, getAsyncLifecycle } from '@openmrs/esm-framework';
 import { createLeftPanelLink } from './left-panel-link';
 import RejectImagingOrderModal from './imaging-tabs/test-ordered/reject-order-dialog/reject-order-dialog.component';
 import ImagingReportForm from './form/imaging-report-form/imaging-report-form.component';
-import AddImagingOrderWorkspace from './form/imaging-orders/add-imaging-orders/add-imaging-order.workspace';
 import ImagingOrderBasketPanelExtension from './form/imaging-orders/imaging-order-basket-panel/imaging-order-basket-panel.extension';
 import AddImagingToWorkListModal from './imaging-tabs/test-ordered/pick-imaging-order/add-to-worklist-dialog.component';
 import AmendModal from './imaging-tabs/test-ordered/amend-order-dialog/amend-imaging-dialog.component';
@@ -41,7 +40,10 @@ export const rejectImagingOrderModal = getSyncLifecycle(RejectImagingOrderModal,
 export const printReportModal = getSyncLifecycle(PrintPreviewModal, options);
 
 // t('addImagingOrderWorkspaceTitle', 'Add Imaging order')
-export const addImagingOrderWorkspace = getSyncLifecycle(AddImagingOrderWorkspace, options);
+export const addImagingOrderWorkspace = getAsyncLifecycle(
+  () => import('./form/imaging-orders/add-imaging-orders/add-imaging-order.workspace'),
+  options,
+);
 
 export const imagingReportForm = getSyncLifecycle(ImagingReportForm, options);
 export const imagingReviewForm = getSyncLifecycle(ImagingReviewForm, options);

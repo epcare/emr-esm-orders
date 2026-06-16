@@ -1,11 +1,20 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 declare global {
   interface Window {
     openmrsBase: string;
     spaBase: string;
+    getOpenmrsSpaBase: () => string;
   }
 }
+
+const jest = {
+  mock: (modulePath: string, factory?: () => unknown) => {
+    vi.mock(modulePath, factory);
+  },
+  fn: vi.fn,
+};
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({

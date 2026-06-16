@@ -1,5 +1,5 @@
 import { type OrderUrgency, type OrderBasketItem } from '@openmrs/esm-patient-common-lib';
-import { Link } from './patient-queue';
+import { type Link } from './patient-queue';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 
 export enum SearchTypes {
@@ -448,7 +448,7 @@ export interface CommonProceduresValueCoded extends CommonProceduresProps {
   valueCoded: string;
 }
 
-export * from './patient-queue';
+export type * from './patient-queue';
 
 export type CodedCondition = {
   concept: {

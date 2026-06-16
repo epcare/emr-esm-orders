@@ -47,7 +47,7 @@ function useProceduresConceptsSWR(labOrderableConcepts?: Array<string>) {
     }
     return labOrderableConcepts
       ? (data as Array<ConceptResult>)?.flatMap((d) => d.data.setMembers)
-      : (data as ConceptResults)?.data.setMembers ?? ([] as Concept[]);
+      : ((data as ConceptResults)?.data.setMembers ?? ([] as Concept[]));
   }, [data, isLoading, error]);
 
   return {
