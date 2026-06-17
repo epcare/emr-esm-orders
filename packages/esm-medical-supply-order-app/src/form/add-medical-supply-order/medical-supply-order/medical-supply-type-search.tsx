@@ -15,9 +15,8 @@ import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import styles from './medical-supply-type-search.scss';
 import { type MedicalSupplyOrderBasketItem } from '../../../types';
 import { createEmptyMedicalSupplyOrder } from './medical-supply-order';
-import { type MedicalSupplyType } from '../../../hooks/useMedicalSupplyTypes';
+import { type MedicalSupplyType, useMedicalSupplyTypes } from '../../../hooks/useMedicalSupplyTypes';
 import { prepMedicalSupplyOrderPostData } from '../api';
-import { useMedicalSupplySearch } from './medical-supply-order.resource';
 
 export interface MedicalSupplyTypeSearchProps {
   openMedicalSupplyForm: (searchResult: MedicalSupplyOrderBasketItem) => void;
@@ -73,10 +72,7 @@ function MedicalSupplyTypeSearchResults({
 }: MedicalSupplyTypeSearchResultsProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
-  const { searchResults, isLoading, error } = useMedicalSupplySearch(searchTerm, 'Medical supply');
-  if (!searchTerm) {
-    return <div className={styles.container}></div>;
-  }
+  const { medicalSupplyTypes, isLoading, error } = useMedicalSupplyTypes(searchTerm);
 
   if (isLoading) {
     return <MedicalSupplyTypeSearchSkeleton />;
@@ -101,13 +97,13 @@ function MedicalSupplyTypeSearchResults({
 
   return (
     <>
-      {searchResults?.length ? (
+      {medicalSupplyTypes?.length ? (
         <div className={styles.container}>
           {searchTerm && (
             <div className={styles.orderBasketSearchResultsHeader}>
-              <span className={styles.searchResultsCount}>
-                {t('searchResultsMatchesForTerm', '{{count}} results for "{{searchTerm}}"', {
-                  count: searchResults?.length,
+              <span className={styles.medicalSupplyTypesCount}>
+                {t('medicalSupplyTypesMatchesForTerm', '{{count}} results for "{{searchTerm}}"', {
+                  count: medicalSupplyTypes?.length,
                   searchTerm,
                 })}
               </span>
@@ -117,7 +113,7 @@ function MedicalSupplyTypeSearchResults({
             </div>
           )}
           <div className={styles.resultsContainer}>
-            {searchResults.map((testType) => (
+            {medicalSupplyTypes.map((testType) => (
               <MedicalSupplyTypeSearchResultItem
                 key={testType.conceptUuid}
                 testType={testType}
