@@ -11,7 +11,6 @@ import {
   parseDate,
   useLayoutType,
   usePatient,
-  launchWorkspace2,
   type DefaultWorkspaceProps,
 } from '@openmrs/esm-framework';
 import { TestTypeSearch } from './procedures-type-search';
@@ -34,10 +33,6 @@ export default function AddProceduresOrderWorkspace({
   const isTablet = useLayoutType() === 'tablet';
 
   const patientName = patient ? getPatientName(patient) : '';
-
-  const handleBack = () => {
-    launchWorkspace2('order-basket', {});
-  };
 
   const handleCancel = () => {
     closeWorkspace();
@@ -66,24 +61,20 @@ export default function AddProceduresOrderWorkspace({
             renderIcon={(props) => <ArrowLeft size={24} {...props} />}
             iconDescription="Return to order basket"
             size="sm"
-            onClick={handleBack}>
+            onClick={handleCancel}>
             <span>{t('backToOrderBasket', 'Back to order basket')}</span>
           </Button>
         </div>
       )}
       {!currentLabOrder ? (
-        <div>
-          <TestTypeSearch openLabForm={setCurrentLabOrder} />
-        </div>
+        <TestTypeSearch openLabForm={setCurrentLabOrder} />
       ) : (
-        <div>
-          <ProceduresOrderForm
-            initialOrder={currentLabOrder}
-            closeWorkspace={handleCancel}
-            closeWorkspaceWithSavedChanges={handleCancel}
-            promptBeforeClosing={() => true}
-          />
-        </div>
+        <ProceduresOrderForm
+          initialOrder={currentLabOrder}
+          closeWorkspace={handleCancel}
+          closeWorkspaceWithSavedChanges={handleCancel}
+          promptBeforeClosing={() => true}
+        />
       )}
     </div>
   );

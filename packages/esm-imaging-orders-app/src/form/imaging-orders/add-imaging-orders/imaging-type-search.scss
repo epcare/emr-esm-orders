@@ -113,3 +113,16 @@
   background: $ui-04;
   border-radius: layout.$spacing-02;
 }
+
+.separatorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: layout.$spacing-03;
+  margin-top: layout.$spacing-05;
+}
+
+.separator {
+  @include type.type-style('body-01');
+  color: $text-02;
+}

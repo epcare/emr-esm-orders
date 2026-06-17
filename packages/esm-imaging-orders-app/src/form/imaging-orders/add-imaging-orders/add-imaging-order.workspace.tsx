@@ -11,7 +11,6 @@ import {
   parseDate,
   useLayoutType,
   usePatient,
-  launchWorkspace2,
   type DefaultWorkspaceProps,
 } from '@openmrs/esm-framework';
 import { TestTypeSearch } from './imaging-type-search';
@@ -34,10 +33,6 @@ export default function AddImagingOrderWorkspace({
 
   const handleCancel = () => {
     closeWorkspace();
-  };
-
-  const handleBack = () => {
-    launchWorkspace2('order-basket', {});
   };
 
   return (
@@ -63,7 +58,7 @@ export default function AddImagingOrderWorkspace({
             renderIcon={(props) => <ArrowLeft size={24} {...props} />}
             iconDescription="Return to order basket"
             size="sm"
-            onClick={handleBack}>
+            onClick={handleCancel}>
             <span>{t('backToOrderBasket', 'Back to order basket')}</span>
           </Button>
         </div>

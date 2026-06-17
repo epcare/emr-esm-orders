@@ -141,6 +141,14 @@ function MedicalSupplyTypeSearchResults({
         </Tile>
       )}
       <hr className={classNames(styles.divider, isTablet ? styles.tabletDivider : styles.desktopDivider)} />
+      {isTablet && (
+        <div className={styles.separatorContainer}>
+          <p className={styles.separator}>{t('or', 'or')}</p>
+          <Button kind="ghost" onClick={() => launchWorkspace('order-basket')}>
+            {t('returnToOrderBasket', 'Return to order basket')}
+          </Button>
+        </div>
+      )}
     </>
   );
 }
