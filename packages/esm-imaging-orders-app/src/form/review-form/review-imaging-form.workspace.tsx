@@ -37,11 +37,7 @@ type ImagingReviewFormWorkspaceProps = {
   order: Result;
 };
 
-type ImagingReviewFormWindowProps = {
-  patientUuid: string;
-};
-
-type ReviewOrderDialogProps = Workspace2DefinitionProps<ImagingReviewFormWorkspaceProps, ImagingReviewFormWindowProps>;
+type ReviewOrderDialogProps = Workspace2DefinitionProps<ImagingReviewFormWorkspaceProps, null>;
 
 const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   const { t } = useTranslation();
@@ -51,12 +47,12 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get workspace context
-  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
+  const { workspaceProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
     ImagingReviewFormWorkspaceProps,
-    ImagingReviewFormWindowProps
+    null
   >;
   const order = workspaceProps?.order;
-  const patientUuid = windowProps?.patientUuid || order?.patient?.uuid;
+  const patientUuid = order?.patient?.uuid;
 
   const tableData = useMemo(
     () =>
@@ -123,7 +119,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   };
 
   // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !windowProps || !order) {
+  if (!workspaceProps || !order) {
     return <InlineLoading status="active" iconDescription="Loading workspace..." />;
   }
 

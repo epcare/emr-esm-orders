@@ -20,23 +20,12 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
   const { t } = useTranslation();
 
   const handleOpenImagingReportForm = () => {
-    launchWorkspace2(
-      'imaging-report-form',
-      // workspaceProps - specific to this workspace
-      { order },
-      // windowProps - shared by all workspaces in patient-chart-order-basket window
-      { patientUuid: order.patient.uuid },
-    );
+    launchWorkspace2('imaging-report-form', { order });
   };
 
+
   const handleOpeningReviewWorkspace = () => {
-    launchWorkspace2(
-      'imaging-review-form',
-      // workspaceProps - specific to this workspace
-      { order },
-      // windowProps - shared by all workspaces in patient-chart-order-basket window
-      { patientUuid: order.patient.uuid },
-    );
+    launchWorkspace2('imaging-review-form', { order });
   };
 
   const renderActionButton = () => {

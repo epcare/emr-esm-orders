@@ -24,11 +24,7 @@ type ImagingReportFormWorkspaceProps = {
   order: Result;
 };
 
-type ImagingReportFormWindowProps = {
-  patientUuid: string;
-};
-
-type ResultFormProps = Workspace2DefinitionProps<ImagingReportFormWorkspaceProps, ImagingReportFormWindowProps>;
+type ResultFormProps = Workspace2DefinitionProps<ImagingReportFormWorkspaceProps, null>;
 
 const imagingReportSchema = z.object({
   procedureReport: z.string({ required_error: 'Imaging report is required' }).min(1, {
@@ -43,14 +39,14 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
   const isTablet = useLayoutType() === 'tablet';
 
   // Use the workspace context to get the workspace props and functions
-  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
+  const { workspaceProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
     ImagingReportFormWorkspaceProps,
-    ImagingReportFormWindowProps
+    null
   >;
 
-  // Extract custom props - patientUuid comes from windowProps (shared across window), order from workspaceProps
-  const patientUuid = windowProps?.patientUuid;
+  // Extract props - both patientUuid and order come from workspaceProps (via order.patient.uuid)
   const order = workspaceProps?.order;
+  const patientUuid = order?.patient?.uuid;
 
   const { patient, isLoading } = usePatient(patientUuid);
   const { concept, isLoading: isLoadingConcepts } = useGetOrderConceptByUuid(order?.concept?.uuid);
@@ -116,7 +112,7 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
     }
   };
   // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !windowProps || !patientUuid || !order) {
+  if (!workspaceProps || !patientUuid || !order) {
     return <InlineLoading status="active" iconDescription="Loading workspace..." />;
   }
 
