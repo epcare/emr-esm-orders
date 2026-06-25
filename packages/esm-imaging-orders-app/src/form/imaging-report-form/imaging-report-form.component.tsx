@@ -3,13 +3,14 @@ import { mutate } from 'swr';
 import styles from './imaging-report-form.scss';
 import { useTranslation } from 'react-i18next';
 import {
-  type DefaultWorkspaceProps,
+  type Workspace2DefinitionProps,
   ExtensionSlot,
   ResponsiveWrapper,
   showNotification,
   showSnackbar,
   useLayoutType,
   usePatient,
+  useWorkspace2Context,
 } from '@openmrs/esm-framework';
 import { type Result } from '../../imaging-tabs/work-list/work-list.resource';
 import { Controller, useForm } from 'react-hook-form';
@@ -19,10 +20,15 @@ import classNames from 'classnames';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-type ResultFormProps = DefaultWorkspaceProps & {
-  patientUuid: string;
+type ImagingReportFormWorkspaceProps = {
   order: Result;
 };
+
+type ImagingReportFormWindowProps = {
+  patientUuid: string;
+};
+
+type ResultFormProps = Workspace2DefinitionProps<ImagingReportFormWorkspaceProps, ImagingReportFormWindowProps>;
 
 const imagingReportSchema = z.object({
   procedureReport: z.string({ required_error: 'Imaging report is required' }).min(1, {
@@ -32,17 +38,22 @@ const imagingReportSchema = z.object({
 
 type ImagingReportFormData = z.infer<typeof imagingReportSchema>;
 
-const ImagingReportForm: React.FC<ResultFormProps> = ({
-  order,
-  patientUuid,
-  closeWorkspace,
-  closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
-}) => {
+const ImagingReportForm: React.FC<ResultFormProps> = () => {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
+
+  // Use the workspace context to get the workspace props and functions
+  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
+    ImagingReportFormWorkspaceProps,
+    ImagingReportFormWindowProps
+  >;
+
+  // Extract custom props - patientUuid comes from windowProps (shared across window), order from workspaceProps
+  const patientUuid = windowProps?.patientUuid;
+  const order = workspaceProps?.order;
+
   const { patient, isLoading } = usePatient(patientUuid);
-  const { concept, isLoading: isLoadingConcepts } = useGetOrderConceptByUuid(order.concept.uuid);
+  const { concept, isLoading: isLoadingConcepts } = useGetOrderConceptByUuid(order?.concept?.uuid);
   const {
     formState: { isSubmitting, errors, isDirty },
     control,
@@ -65,11 +76,8 @@ const ImagingReportForm: React.FC<ResultFormProps> = ({
     }
   }, [patient, patientUuid]);
 
-  useEffect(() => {
-    if (promptBeforeClosing && isDirty) {
-      promptBeforeClosing(() => isDirty);
-    }
-  }, [promptBeforeClosing, isDirty, closeWorkspace]);
+  // Note: promptBeforeClosing is not available in Workspace v2
+  // The unsaved changes prompt is handled automatically by the workspace system
 
   const onSubmit = async (formData: ImagingReportFormData) => {
     const reportPayload = {
@@ -93,7 +101,7 @@ const ImagingReportForm: React.FC<ResultFormProps> = ({
           ),
           isLowContrast: true,
         });
-        closeWorkspaceWithSavedChanges();
+        await closeWorkspace({ discardUnsavedChanges: true });
         mutate((key) => typeof key === 'string' && key.startsWith('/ws/rest/v1/order'), undefined, {
           revalidate: true,
         });
@@ -107,6 +115,11 @@ const ImagingReportForm: React.FC<ResultFormProps> = ({
       });
     }
   };
+  // Show loading state if workspace props are not available yet
+  if (!workspaceProps || !windowProps || !patientUuid || !order) {
+    return <InlineLoading status="active" iconDescription="Loading workspace..." />;
+  }
+
   return (
     <>
       {patient ? (
@@ -136,7 +149,7 @@ const ImagingReportForm: React.FC<ResultFormProps> = ({
           </Stack>
         </div>
         <ButtonSet className={classNames({ [styles.tablet]: isTablet, [styles.desktop]: !isTablet })}>
-          <Button style={{ maxWidth: '50%' }} kind="secondary" onClick={closeWorkspace}>
+          <Button style={{ maxWidth: '50%' }} kind="secondary" onClick={() => closeWorkspace()}>
             {t('cancel', 'Cancel')}
           </Button>
           <Button

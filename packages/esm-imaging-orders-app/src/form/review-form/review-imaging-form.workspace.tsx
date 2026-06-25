@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { mutate } from 'swr';
 import styles from './review-imaging-form.scss';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,9 @@ import {
   showNotification,
   showSnackbar,
   useLayoutType,
+  useWorkspace2Context,
   type UploadedFile,
+  type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
 import {
   Stack,
@@ -31,19 +33,35 @@ import {
 import { DocumentAttachment } from '@carbon/react/icons';
 import { type Result } from '../../imaging-tabs/work-list/work-list.resource';
 
-interface ReviewOrderDialogProps {
+type ImagingReviewFormWorkspaceProps = {
   order: Result;
-  closeWorkspace: () => void;
-}
+};
 
-const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = ({ order, closeWorkspace }) => {
+type ImagingReviewFormWindowProps = {
+  patientUuid: string;
+};
+
+type ReviewOrderDialogProps = Workspace2DefinitionProps<ImagingReviewFormWorkspaceProps, ImagingReviewFormWindowProps>;
+
+const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const { allowedFileExtensions } = useAllowedFileExtensions();
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const patientUuid = order?.patient?.uuid;
+  // Get workspace context
+  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
+    ImagingReviewFormWorkspaceProps,
+    ImagingReviewFormWindowProps
+  >;
+  const order = workspaceProps?.order;
+  const patientUuid = windowProps?.patientUuid || order?.patient?.uuid;
+
+  // Show loading state if workspace props are not available yet
+  if (!workspaceProps || !windowProps || !order) {
+    return <InlineLoading status="active" iconDescription="Loading workspace..." />;
+  }
 
   const tableData = useMemo(
     () => [
@@ -91,7 +109,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = ({ order, closeWorks
             kind: 'success',
             subtitle: t('pickSuccessfully', 'You have successfully created a review'),
           });
-          closeWorkspace();
+          await closeWorkspace({ discardUnsavedChanges: true });
           mutate((key) => typeof key === 'string' && key.startsWith('/ws/rest/v1/procedure'));
           mutate((key) => typeof key === 'string' && key.startsWith('/ws/rest/v1/order'));
         }
@@ -163,7 +181,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = ({ order, closeWorks
             </div>
           </div>
           <ButtonSet className={styles.buttonSet}>
-            <Button size="lg" kind="secondary" onClick={closeWorkspace}>
+            <Button size="lg" kind="secondary" onClick={() => closeWorkspace()}>
               {t('cancel', 'Cancel')}
             </Button>
             <Button disabled={isSubmitting} kind="primary" type="submit">

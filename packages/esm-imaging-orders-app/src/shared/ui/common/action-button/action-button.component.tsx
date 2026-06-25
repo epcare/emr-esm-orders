@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@carbon/react';
-import { showModal, launchWorkspace } from '@openmrs/esm-framework';
+import { showModal, launchWorkspace2 } from '@openmrs/esm-framework';
 import { Order } from '@openmrs/esm-patient-common-lib';
 import OrderActionExtension from './order-action-extension.component';
 import { type Result } from '../../../../imaging-tabs/work-list/work-list.resource';
@@ -20,16 +20,23 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
   const { t } = useTranslation();
 
   const handleOpenImagingReportForm = () => {
-    launchWorkspace('imaging-report-form', {
-      patientUuid,
-      order,
-    });
+    launchWorkspace2(
+      'imaging-report-form',
+      // workspaceProps - specific to this workspace
+      { order },
+      // windowProps - shared by all workspaces in patient-chart-order-basket window
+      { patientUuid: order.patient.uuid },
+    );
   };
 
   const handleOpeningReviewWorkspace = () => {
-    launchWorkspace('imaging-review-form', {
-      order,
-    });
+    launchWorkspace2(
+      'imaging-review-form',
+      // workspaceProps - specific to this workspace
+      { order },
+      // windowProps - shared by all workspaces in patient-chart-order-basket window
+      { patientUuid: order.patient.uuid },
+    );
   };
 
   const renderActionButton = () => {
