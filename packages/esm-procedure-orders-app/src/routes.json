@@ -130,26 +130,14 @@
       "type": "order",
       "title": "Add procedure order",
       "component": "addProceduresOrderWorkspace",
-      "window": "procedure-app-order-window"
+      "window": "patient-chart-order-basket"
     },
      {
       "name": "procedure-report-form",
       "component": "postProcedureResults",
       "title": "Procedure Report Form",
       "type": "form",
-      "window": "procedure-app-order-window"
-    }
-  ],
-  "workspaceWindows2": [
-    {
-      "name": "procedure-app-order-window",
-      "group": "procedure-app-group"
-    }
-  ],
-  "workspaceGroups2": [
-    {
-      "name": "procedure-app-group",
-      "scopePattern": "/home/laboratory"
+      "window": "patient-chart-order-basket"
     }
   ],
    "modals": [

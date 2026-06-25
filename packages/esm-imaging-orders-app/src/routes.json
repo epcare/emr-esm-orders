@@ -33,33 +33,21 @@
       "type": "order",
       "component": "addImagingOrderWorkspace",
       "title": "Add Imaging order",
-      "window": "imaging-app-order-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imaging-report-form",
       "component": "imagingReportForm",
       "title": "Imaging Report Form",
       "type": "form",
-      "window": "imaging-app-order-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imaging-review-form",
       "type": "order",
       "component": "imagingReviewForm",
       "title": "Review form",
-      "window": "imaging-app-order-window"
-    }
-  ],
-  "workspaceWindows2": [
-    {
-      "name": "imaging-app-order-window",
-      "group": "imaging-app-group"
-    }
-  ],
-  "workspaceGroups2": [
-    {
-      "name": "imaging-app-group",
-      "scopePattern": "/home/laboratory"
+      "window": "patient-chart-order-basket"
     }
   ],
   "modals": [
