@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  type DefaultWorkspaceProps,
+  type Workspace2DefinitionProps,
   OpenmrsDatePicker,
   showSnackbar,
   useConfig,
   useDebounce,
   useSession,
+  useWorkspace2Context,
 } from '@openmrs/esm-framework';
 import {
   Form,
@@ -49,18 +50,24 @@ const validationSchema = z.object({
 
 type PostProcedureFormSchema = z.infer<typeof validationSchema>;
 
-type PostProcedureFormProps = DefaultWorkspaceProps & {
-  patientUuid: string;
+type PostProcedureFormWorkspaceProps = {
+  patient: any;
   order: Result;
 };
 
-const PostProcedureForm: React.FC<PostProcedureFormProps> = ({
-  patientUuid,
-  order,
-  closeWorkspace,
-  closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
-}) => {
+type PostProcedureFormWindowProps = {
+  patient: any;
+  patientUuid: string;
+  encounterUuid: string;
+};
+
+type PostProcedureFormProps = Workspace2DefinitionProps<PostProcedureFormWorkspaceProps, PostProcedureFormWindowProps>;
+
+const PostProcedureForm: React.FC<PostProcedureFormProps> = () => {
+  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as PostProcedureFormProps;
+
+  const patientUuid = windowProps?.patientUuid;
+  const order = workspaceProps?.order;
   const { sessionLocation } = useSession();
   const { t } = useTranslation();
 
@@ -132,11 +139,7 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = ({
     setSelectedProvider(selectedProvider);
   }, []);
 
-  useEffect(() => {
-    if (promptBeforeClosing && isDirty) {
-      promptBeforeClosing(() => isDirty);
-    }
-  }, [promptBeforeClosing, isDirty, closeWorkspace]);
+  // Note: promptBeforeClosing is handled automatically in Workspace v2 based on form state
 
   const onSubmit = async (data: PostProcedureFormSchema) => {
     if (!data.startDatetime || !data.endDatetime) {
@@ -207,7 +210,7 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = ({
         mutate((key) => typeof key === 'string' && key.startsWith('/ws/rest/v1/order'), undefined, {
           revalidate: true,
         });
-        closeWorkspaceWithSavedChanges();
+        closeWorkspace();
       }
     } catch (error) {
       console.error(error);

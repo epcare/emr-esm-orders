@@ -21,10 +21,18 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
   const { t } = useTranslation();
 
   const handleOpenProcedureResultForm = () => {
-    launchWorkspace2('procedure-report-form', {
-      patientUuid,
-      order,
-    });
+    launchWorkspace2(
+      'procedure-report-form',
+      {
+        patient: order.patient,
+        order,
+      },
+      {
+        patient: order.patient,
+        patientUuid: order.patient.uuid,
+        encounterUuid: order.encounter?.uuid ?? '',
+      },
+    );
   };
   switch (action.actionName) {
     case 'add-procedure-to-worklist-dialog':

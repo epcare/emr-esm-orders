@@ -34,10 +34,17 @@ import { DocumentAttachment } from '@carbon/react/icons';
 import { type Result } from '../../imaging-tabs/work-list/work-list.resource';
 
 type ImagingReviewFormWorkspaceProps = {
+  patient: any;
   order: Result;
 };
 
-type ReviewOrderDialogProps = Workspace2DefinitionProps<ImagingReviewFormWorkspaceProps, null>;
+type ImagingReviewFormWindowProps = {
+  patient: any;
+  patientUuid: string;
+  encounterUuid: string;
+};
+
+type ReviewOrderDialogProps = Workspace2DefinitionProps<ImagingReviewFormWorkspaceProps, ImagingReviewFormWindowProps>;
 
 const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   const { t } = useTranslation();
@@ -47,12 +54,13 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get workspace context
-  const { workspaceProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
+  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
     ImagingReviewFormWorkspaceProps,
-    null
+    ImagingReviewFormWindowProps
   >;
+  const patient = workspaceProps?.patient;
   const order = workspaceProps?.order;
-  const patientUuid = order?.patient?.uuid;
+  const patientUuid = windowProps?.patientUuid;
 
   const tableData = useMemo(
     () =>
@@ -119,7 +127,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   };
 
   // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !order) {
+  if (!workspaceProps || !windowProps || !order || !patientUuid) {
     return <InlineLoading status="active" iconDescription="Loading workspace..." />;
   }
 

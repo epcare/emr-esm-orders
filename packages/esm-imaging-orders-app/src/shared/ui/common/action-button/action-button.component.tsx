@@ -20,12 +20,34 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
   const { t } = useTranslation();
 
   const handleOpenImagingReportForm = () => {
-    launchWorkspace2('imaging-report-form', { order });
+    launchWorkspace2(
+      'imaging-report-form',
+      {
+        patient: order.patient,
+        order,
+      },
+      {
+        patient: order.patient,
+        patientUuid: order.patient.uuid,
+        encounterUuid: order.encounter?.uuid ?? '',
+      },
+    );
   };
 
 
   const handleOpeningReviewWorkspace = () => {
-    launchWorkspace2('imaging-review-form', { order });
+    launchWorkspace2(
+      'imaging-review-form',
+      {
+        patient: order.patient,
+        order,
+      },
+      {
+        patient: order.patient,
+        patientUuid: order.patient.uuid,
+        encounterUuid: order.encounter?.uuid ?? '',
+      },
+    );
   };
 
   const renderActionButton = () => {

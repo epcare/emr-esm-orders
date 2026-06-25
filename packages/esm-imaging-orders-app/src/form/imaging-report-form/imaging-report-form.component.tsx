@@ -21,10 +21,17 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 type ImagingReportFormWorkspaceProps = {
+  patient: any;
   order: Result;
 };
 
-type ResultFormProps = Workspace2DefinitionProps<ImagingReportFormWorkspaceProps, null>;
+type ImagingReportFormWindowProps = {
+  patient: any;
+  patientUuid: string;
+  encounterUuid: string;
+};
+
+type ResultFormProps = Workspace2DefinitionProps<ImagingReportFormWorkspaceProps, ImagingReportFormWindowProps>;
 
 const imagingReportSchema = z.object({
   procedureReport: z.string({ required_error: 'Imaging report is required' }).min(1, {
@@ -39,16 +46,17 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
   const isTablet = useLayoutType() === 'tablet';
 
   // Use the workspace context to get the workspace props and functions
-  const { workspaceProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
+  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
     ImagingReportFormWorkspaceProps,
-    null
+    ImagingReportFormWindowProps
   >;
 
-  // Extract props - both patientUuid and order come from workspaceProps (via order.patient.uuid)
+  // Extract props - patient and order from workspace props, patientUuid from window props
+  const patient = workspaceProps?.patient;
   const order = workspaceProps?.order;
-  const patientUuid = order?.patient?.uuid;
+  const patientUuid = windowProps?.patientUuid;
 
-  const { patient, isLoading } = usePatient(patientUuid);
+  const { patient: patientData, isLoading } = usePatient(patientUuid);
   const { concept, isLoading: isLoadingConcepts } = useGetOrderConceptByUuid(order?.concept?.uuid);
   const {
     formState: { isSubmitting, errors, isDirty },
@@ -63,14 +71,14 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
   });
 
   const bannerState = useMemo(() => {
-    if (patient) {
+    if (patientData) {
       return {
-        patient,
+        patient: patientData,
         patientUuid,
         hideActionsOverflow: true,
       };
     }
-  }, [patient, patientUuid]);
+  }, [patientData, patientUuid]);
 
   // Note: promptBeforeClosing is not available in Workspace v2
   // The unsaved changes prompt is handled automatically by the workspace system
@@ -112,13 +120,13 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
     }
   };
   // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !patientUuid || !order) {
+  if (!workspaceProps || !windowProps || !patientUuid || !order) {
     return <InlineLoading status="active" iconDescription="Loading workspace..." />;
   }
 
   return (
     <>
-      {patient ? (
+      {patientData ? (
         <ExtensionSlot name="patient-header-slot" state={bannerState} />
       ) : (
         <InlineLoading status="active" iconDescription="Loading" />

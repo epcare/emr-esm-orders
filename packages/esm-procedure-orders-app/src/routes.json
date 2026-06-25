@@ -88,8 +88,8 @@
     "slot": "procedures-panels-slot",
     "component": "notDoneProceduresTabComponent",
     "meta": {
-        "name": "proceduresPanelSlot",
-        "title": "Not Done"
+      "name": "proceduresPanelSlot",
+      "title": "Not Done"
     }
 },
   {
@@ -97,8 +97,8 @@
     "slot": "procedures-panels-slot",
     "component": "completedProceduresTabComponent",
     "meta": {
-        "name": "proceduresPanelSlot",
-        "title": "Completed"
+      "name": "proceduresPanelSlot",
+      "title": "Completed"
     }
 },
     {
@@ -130,14 +130,26 @@
       "type": "order",
       "title": "Add procedure order",
       "component": "addProceduresOrderWorkspace",
-      "window": "patient-chart-order-basket"
+      "window": "procedure-app-order-window"
     },
      {
       "name": "procedure-report-form",
       "component": "postProcedureResults",
       "title": "Procedure Report Form",
       "type": "form",
-      "window": "patient-chart-order-basket"
+      "window": "procedure-app-order-window"
+    }
+  ],
+  "workspaceWindows2": [
+    {
+      "name": "procedure-app-order-window",
+      "group": "procedure-app-group"
+    }
+  ],
+  "workspaceGroups2": [
+    {
+      "name": "procedure-app-group",
+      "scopePattern": "/home/laboratory"
     }
   ],
    "modals": [
