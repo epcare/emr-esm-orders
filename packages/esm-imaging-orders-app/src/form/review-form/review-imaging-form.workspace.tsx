@@ -58,23 +58,19 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   const order = workspaceProps?.order;
   const patientUuid = windowProps?.patientUuid || order?.patient?.uuid;
 
-  // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !windowProps || !order) {
-    return <InlineLoading status="active" iconDescription="Loading workspace..." />;
-  }
-
   const tableData = useMemo(
-    () => [
-      { key: t('orderUrgency', 'Order Urgency'), value: order.urgency },
-      {
-        key: t('scheduleDate', 'Schedule date'),
-        value: order.scheduledDate || new Date().toLocaleDateString(),
-      },
-      { key: t('bodySite', 'Body Site'), value: order.display },
-      { key: t('laterality', 'Laterality'), value: order.laterality },
-      { key: t('numberOfRepeats', 'Number of repeats'), value: order.numberOfRepeats },
-      { key: t('frequency', 'Frequency'), value: order.frequency?.display },
-    ],
+    () =>
+      [
+        { key: t('orderUrgency', 'Order Urgency'), value: order?.urgency },
+        {
+          key: t('scheduleDate', 'Schedule date'),
+          value: order?.scheduledDate || new Date().toLocaleDateString(),
+        },
+        { key: t('bodySite', 'Body Site'), value: order?.display },
+        { key: t('laterality', 'Laterality'), value: order?.laterality },
+        { key: t('numberOfRepeats', 'Number of repeats'), value: order?.numberOfRepeats },
+        { key: t('frequency', 'Frequency'), value: order?.frequency?.display },
+      ].filter(Boolean),
     [order, t],
   );
 
@@ -125,6 +121,11 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading state if workspace props are not available yet
+  if (!workspaceProps || !windowProps || !order) {
+    return <InlineLoading status="active" iconDescription="Loading workspace..." />;
+  }
 
   return (
     <form aria-label="imaging form" className={styles.form} onSubmit={updateProcedures}>
