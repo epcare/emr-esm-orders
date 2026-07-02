@@ -7,7 +7,11 @@ import { Workspace2, type Workspace2DefinitionProps } from '@openmrs/esm-framewo
 import ImagingResultForm from './imaging-result-form.component';
 import type { Procedure, ProcedureType, ConceptReference } from '../../types';
 import type { Result } from '../../types';
-import { type OrderWorkspaceDefinitionProps, type BaseOrderWorkspaceProps, type BaseOrderWindowProps } from '../../types';
+import {
+  type OrderWorkspaceDefinitionProps,
+  type BaseOrderWorkspaceProps,
+  type BaseOrderWindowProps,
+} from '../../types';
 
 /**
  * Workspace props for imaging result form
