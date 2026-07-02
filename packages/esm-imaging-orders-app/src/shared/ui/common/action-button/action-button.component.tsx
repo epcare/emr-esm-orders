@@ -14,14 +14,23 @@ type ActionButtonProps = {
   };
   order: Result;
   patientUuid: string;
+  // Allow consuming apps to pass custom workspace names when they register workspaces into their own windows
+  imagingReportFormWorkspaceName?: string;
+  imagingReviewFormWorkspaceName?: string;
 };
 
-const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid }) => {
+const ActionButton: React.FC<ActionButtonProps> = ({
+  action,
+  order,
+  patientUuid,
+  imagingReportFormWorkspaceName = 'imaging-report-form',
+  imagingReviewFormWorkspaceName = 'imaging-review-form',
+}) => {
   const { t } = useTranslation();
 
   const handleOpenImagingReportForm = () => {
     launchWorkspace2(
-      'imaging-report-form',
+      imagingReportFormWorkspaceName,
       { order, formContext: 'editing' }, // workspaceProps - removed redundant patient prop
       {
         // windowProps - patient context
@@ -34,7 +43,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
 
   const handleOpeningReviewWorkspace = () => {
     launchWorkspace2(
-      'imaging-review-form',
+      imagingReviewFormWorkspaceName,
       { order, formContext: 'reviewing' }, // workspaceProps
       {
         // windowProps - patient context

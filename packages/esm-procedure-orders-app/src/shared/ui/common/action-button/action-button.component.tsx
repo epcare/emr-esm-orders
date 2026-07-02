@@ -15,14 +15,21 @@ type ActionButtonProps = {
   };
   order: Result;
   patientUuid: string;
+  // Allow consuming apps to pass custom workspace names when they register workspaces into their own windows
+  procedureResultFormWorkspaceName?: string;
 };
 
-const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid }) => {
+const ActionButton: React.FC<ActionButtonProps> = ({
+  action,
+  order,
+  patientUuid,
+  procedureResultFormWorkspaceName = 'procedureResultFormWorkspace',
+}) => {
   const { t } = useTranslation();
 
   const handleOpenProcedureResultForm = () => {
     launchWorkspace2(
-      'procedureResultFormWorkspace',
+      procedureResultFormWorkspaceName,
       { order, formContext: 'creating' }, // workspaceProps - removed redundant patient prop
       {
         // windowProps - patient context
