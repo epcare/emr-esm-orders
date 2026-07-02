@@ -79,5 +79,11 @@
       "name": "print-preview-Report-modal",
       "component": "printReportModal"
     }
+  ],
+  "pages": [
+    {
+      "component": "root",
+      "route": "imaging"
+    }
   ]
 }
