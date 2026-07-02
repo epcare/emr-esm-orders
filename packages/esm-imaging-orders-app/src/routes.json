@@ -33,21 +33,33 @@
       "type": "order",
       "component": "addImagingOrderWorkspace",
       "title": "Add Imaging order",
-      "window": "patient-chart-order-basket"
+      "window": "imaging-orders-window"
     },
     {
       "name": "imaging-report-form",
       "component": "imagingReportForm",
       "title": "Imaging Report Form",
       "type": "form",
-      "window": "patient-chart-order-basket"
+      "window": "imaging-orders-window"
     },
     {
       "name": "imaging-review-form",
       "type": "order",
       "component": "imagingReviewForm",
       "title": "Review form",
-      "window": "patient-chart-order-basket"
+      "window": "imaging-orders-window"
+    }
+  ],
+  "workspaceWindows2": [
+    {
+      "name": "imaging-orders-window",
+      "group": "imaging-orders-group"
+    }
+  ],
+  "workspaceGroups2": [
+    {
+      "name": "imaging-orders-group",
+      "overlay": true
     }
   ],
   "modals": [
