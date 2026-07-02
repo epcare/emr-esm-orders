@@ -5,12 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Workspace2, type Workspace2DefinitionProps } from '@openmrs/esm-framework';
 import ImagingResultForm from './imaging-result-form.component';
-import type { Procedure, ProcedureType, ConceptReference } from '../../types';
-import type { Result } from '../../types';
-import {
-  type OrderWorkspaceDefinitionProps,
-  type BaseOrderWorkspaceProps,
-  type BaseOrderWindowProps,
+import type {
+  ConceptReference,
+  OrderWorkspaceDefinitionProps,
+  BaseOrderWorkspaceProps,
+  BaseOrderWindowProps,
+  Procedure,
+  ProcedureType,
+  Result,
 } from '../../types';
 
 /**
@@ -24,7 +26,7 @@ export interface ImagingResultFormWorkspaceProps extends BaseOrderWorkspaceProps
 /**
  * Window props for patient context
  */
-export interface ImagingResultFormWindowProps extends BaseOrderWindowProps {}
+export type ImagingResultFormWindowProps = BaseOrderWindowProps;
 
 /**
  * Helper function to combine notes from multiple sources
