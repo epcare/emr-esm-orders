@@ -26,7 +26,7 @@ import {
 /**
  * Workspace props for adding/editing imaging orders
  */
-interface AddImagingOrderWorkspaceProps extends BaseOrderWorkspaceProps {
+interface AddImagingOrderWorkspaceProps extends Omit<BaseOrderWorkspaceProps, 'order'> {
   order?: ImagingOrderBasketItem;
 }
 
@@ -81,7 +81,7 @@ export default function AddImagingOrderWorkspace({
   const initialOrder = workspaceProps?.order;
   const formContext = workspaceProps?.formContext ?? 'creating';
 
-  const [currentLabOrder, setCurrentLabOrder] = useState(initialOrder);
+  const [currentLabOrder, setCurrentLabOrder] = useState<ImagingOrderBasketItem | undefined>(initialOrder);
 
   const handleCancel = useCallback(() => {
     closeWorkspace();

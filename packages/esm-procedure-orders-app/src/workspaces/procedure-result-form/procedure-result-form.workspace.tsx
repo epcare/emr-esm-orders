@@ -5,10 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Workspace2, type Workspace2DefinitionProps } from '@openmrs/esm-framework';
 import ProcedureResultForm from './procedure-result-form.component';
-import type { Procedure, ProcedureType, ConceptReference , Result ,
-  type OrderWorkspaceDefinitionProps,
-  type BaseOrderWorkspaceProps,
-  type BaseOrderWindowProps,
+import type {
+  Procedure,
+  ProcedureType,
+  ConceptReference,
+  Result,
+  OrderWorkspaceDefinitionProps,
+  BaseOrderWorkspaceProps,
+  BaseOrderWindowProps,
 } from '../../types';
 
 /**

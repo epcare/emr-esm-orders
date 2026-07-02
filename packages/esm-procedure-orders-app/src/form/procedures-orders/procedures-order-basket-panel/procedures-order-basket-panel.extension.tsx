@@ -64,9 +64,10 @@ export default function ProceduresOrderBasketPanelExtension() {
         // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
         launchWorkspace2(
           'add-procedures-order',
-          { formContext: 'creating' },  // workspaceProps
-          {                             // windowProps
-            patientUuid: patient.uuid,
+          { formContext: 'creating' }, // workspaceProps
+          {
+            // windowProps
+            patientUuid: (patient as any)?.uuid,
             patient: patient,
           },
         );
@@ -74,26 +75,30 @@ export default function ProceduresOrderBasketPanelExtension() {
     });
   }, [patient]);
 
-  const openEditProceduresForm = useCallback((order: OrderBasketItem) => {
-    if (!closeWorkspace || !launchWorkspace2 || !patient) {
-      alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
-      return;
-    }
-    closeWorkspace('order-basket', {
-      ignoreChanges: true,
-      onWorkspaceClose: () => {
-        // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
-        launchWorkspace2(
-          'add-procedures-order',
-          { order, formContext: 'editing' },  // workspaceProps
-          {                                 // windowProps
-            patientUuid: patient.uuid,
-            patient: patient,
-          },
-        );
-      },
-    });
-  }, [patient]);
+  const openEditProceduresForm = useCallback(
+    (order: OrderBasketItem) => {
+      if (!closeWorkspace || !launchWorkspace2 || !patient) {
+        alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
+        return;
+      }
+      closeWorkspace('order-basket', {
+        ignoreChanges: true,
+        onWorkspaceClose: () => {
+          // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
+          launchWorkspace2(
+            'add-procedures-order',
+            { order, formContext: 'editing' }, // workspaceProps
+            {
+              // windowProps
+              patientUuid: (patient as any)?.uuid,
+              patient: patient,
+            },
+          );
+        },
+      });
+    },
+    [patient],
+  );
 
   const removeLabOrder = useCallback(
     (order: ProcedureOrderBasketItem) => {

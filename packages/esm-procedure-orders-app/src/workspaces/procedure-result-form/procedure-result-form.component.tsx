@@ -33,7 +33,7 @@ import {
   useProvidersSearch,
   useConditionsSearch,
 } from '../../resources/procedure-result-form.resource';
-import type { ConceptReference, Procedure, ProcedureType, CodedProvider, CodedCondition , Result } from '../../types';
+import type { ConceptReference, Procedure, ProcedureType, CodedProvider, CodedCondition, Result } from '../../types';
 import type { ProcedureResultFormSchema } from './procedure-result-form.workspace';
 import styles from './procedure-result-form.scss';
 
@@ -81,7 +81,7 @@ type ProcedureResultFormComponentProps = {
   procedure?: Procedure;
   order?: Result;
   patientUuid: string;
-  formContext: 'creating' | 'editing';
+  formContext: 'creating' | 'editing' | 'reviewing';
 };
 
 const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> = ({

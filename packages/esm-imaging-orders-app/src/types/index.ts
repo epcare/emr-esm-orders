@@ -1,5 +1,6 @@
 import { type OrderUrgency, type OrderBasketItem } from '@openmrs/esm-patient-common-lib';
 import type { Workspace2DefinitionProps } from '@openmrs/esm-framework';
+import type { Result } from '../imaging-tabs/work-list/work-list.resource';
 
 export interface Concept {
   uuid: string;
@@ -106,7 +107,6 @@ interface Orderer {
   uuid: string;
   display: string;
 }
-
 
 export interface Procedure {
   uuid: string;
@@ -279,7 +279,4 @@ export interface BaseOrderWindowProps {
 export type OrderWorkspaceDefinitionProps<
   TWorkspaceProps extends object = BaseOrderWorkspaceProps,
   TWindowProps extends object = BaseOrderWindowProps,
-> = Workspace2DefinitionProps<
-  { workspaceProps: TWorkspaceProps & BaseOrderWorkspaceProps },
-  { windowProps: TWindowProps & BaseOrderWindowProps }
->;
+> = Workspace2DefinitionProps<TWorkspaceProps & BaseOrderWorkspaceProps, TWindowProps & BaseOrderWindowProps>;

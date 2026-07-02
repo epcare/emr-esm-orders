@@ -8,7 +8,7 @@ import { type ProcedureOrderRefObservation, type ProcedurePayload } from '../typ
 export function buildOrphanedDataNotes(
   order: any,
   locationUuid?: string,
-  additionalData?: Record<string, any>
+  additionalData?: Record<string, any>,
 ): string {
   const orphanedData = {
     procedureOrder: order?.uuid,
@@ -40,7 +40,7 @@ export function buildOrderRefObservation(
   orderRefConceptUuid: string,
   procedureOrderUuid: string,
   encounterUuid: string,
-  patientUuid: string
+  patientUuid: string,
 ): ProcedureOrderRefObservation {
   return {
     concept: orderRefConceptUuid,
@@ -73,10 +73,7 @@ export async function createObservation(observation: ProcedureOrderRefObservatio
  * Transform old ProcedurePayload to EMRAPI format
  * Handles the migration from old API structure to new EMRAPI structure
  */
-export function transformProcedurePayload(
-  oldPayload: Partial<ProcedurePayload>,
-  config: any
-): ProcedurePayload {
+export function transformProcedurePayload(oldPayload: Partial<ProcedurePayload>, config: any): ProcedurePayload {
   // Extract orphaned data from oldPayload if it exists
   const existingOrphanedData = oldPayload._orphanedData || {};
 

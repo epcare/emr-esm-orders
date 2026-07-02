@@ -13,10 +13,10 @@ export function useProcedures(patientUuid: string | undefined, includeAll = fals
     ? `/ws/rest/v1/emrapi/procedure?patient=${patientUuid}&includeAll=${includeAll}&v=full`
     : null;
 
-  const { data, error, isLoading, mutate } = useSWR<
-    { data: { results: Array<Procedure> } },
-    Error
-  >(apiUrl, openmrsFetch);
+  const { data, error, isLoading, mutate } = useSWR<{ data: { results: Array<Procedure> } }, Error>(
+    apiUrl,
+    openmrsFetch,
+  );
 
   return {
     procedures: data?.data?.results || [],
@@ -30,10 +30,7 @@ export function useProcedures(patientUuid: string | undefined, includeAll = fals
  * Fetch procedures for a specific order
  * This filters procedures by checking the notes JSON for the procedure order reference
  */
-export function useProceduresByOrder(
-  patientUuid: string | undefined,
-  orderUuid: string | undefined
-) {
+export function useProceduresByOrder(patientUuid: string | undefined, orderUuid: string | undefined) {
   const { procedures, isLoading, error, mutate } = useProcedures(patientUuid);
 
   const filteredProcedures = procedures.filter((procedure) => {
@@ -57,14 +54,8 @@ export function useProceduresByOrder(
 /**
  * Get the first procedure for an order (if exists)
  */
-export function useProcedureByOrder(
-  patientUuid: string | undefined,
-  orderUuid: string | undefined
-) {
-  const { procedures, isLoading, error, mutate } = useProceduresByOrder(
-    patientUuid,
-    orderUuid
-  );
+export function useProcedureByOrder(patientUuid: string | undefined, orderUuid: string | undefined) {
+  const { procedures, isLoading, error, mutate } = useProceduresByOrder(patientUuid, orderUuid);
 
   return {
     procedure: procedures[0] || null,

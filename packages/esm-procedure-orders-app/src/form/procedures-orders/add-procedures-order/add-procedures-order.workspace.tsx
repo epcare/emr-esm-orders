@@ -26,7 +26,7 @@ import {
 /**
  * Workspace props for adding/editing procedure orders
  */
-interface AddProceduresOrderWorkspaceProps extends BaseOrderWorkspaceProps {
+interface AddProceduresOrderWorkspaceProps extends Omit<BaseOrderWorkspaceProps, 'order'> {
   order?: ProcedureOrderBasketItem;
 }
 
@@ -72,7 +72,7 @@ export default function AddProceduresOrderWorkspace({
   const initialOrder = workspaceProps?.order;
   const formContext = workspaceProps?.formContext ?? 'creating';
 
-  const [currentLabOrder, setCurrentLabOrder] = useState(initialOrder);
+  const [currentLabOrder, setCurrentLabOrder] = useState<ProcedureOrderBasketItem | undefined>(initialOrder);
 
   const patientName = patientData ? getPatientName(patientData) : '';
 

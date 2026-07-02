@@ -781,7 +781,4 @@ export interface BaseOrderWindowProps {
 export type OrderWorkspaceDefinitionProps<
   TWorkspaceProps extends object = BaseOrderWorkspaceProps,
   TWindowProps extends object = BaseOrderWindowProps,
-> = Workspace2DefinitionProps<
-  { workspaceProps: TWorkspaceProps & BaseOrderWorkspaceProps },
-  { windowProps: TWindowProps & BaseOrderWindowProps }
->;
+> = Workspace2DefinitionProps<TWorkspaceProps & BaseOrderWorkspaceProps, TWindowProps & BaseOrderWindowProps>;

@@ -347,7 +347,7 @@ export async function UpdateEncounter(uuid: string, payload: any) {
 export async function saveProcedureReport(
   reportPayload: Partial<ProcedurePayload>,
   config: ImagingConfig,
-  encounterUuid?: string
+  encounterUuid?: string,
 ) {
   const abortController = new AbortController();
 
@@ -374,7 +374,7 @@ export async function saveProcedureReport(
         config.procedureOrderRefConceptUuid,
         procedureOrderUuid,
         encounterUuid,
-        patientUuid
+        patientUuid,
       );
       await createObservation(orderRefObs);
     }

@@ -22,8 +22,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
   const handleOpenImagingReportForm = () => {
     launchWorkspace2(
       'imaging-report-form',
-      { order, formContext: 'editing' },  // workspaceProps - removed redundant patient prop
-      {                                  // windowProps - patient context
+      { order, formContext: 'editing' }, // workspaceProps - removed redundant patient prop
+      {
+        // windowProps - patient context
         patientUuid: order.patient.uuid,
         patient: order.patient,
         encounterUuid: order.encounter?.uuid ?? '',
@@ -34,8 +35,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
   const handleOpeningReviewWorkspace = () => {
     launchWorkspace2(
       'imaging-review-form',
-      { order, formContext: 'reviewing' },  // workspaceProps
-      {                                     // windowProps - patient context
+      { order, formContext: 'reviewing' }, // workspaceProps
+      {
+        // windowProps - patient context
         patientUuid: order.patient.uuid,
         patient: order.patient,
         encounterUuid: order.encounter?.uuid ?? '',

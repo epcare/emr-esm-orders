@@ -8,7 +8,7 @@ export const ApprovedOrders: React.FC = () => {
   const { t } = useTranslation();
   const { workListEntries, isLoading } = useOrdersWorkList('', 'COMPLETED');
   const approved = workListEntries.filter((item) =>
-    item.procedures?.some((procedure) => procedure?.outcomeCoded?.display === "SUCCESSFUL"),
+    item.procedures?.some((procedure) => procedure?.outcomeCoded?.display === 'SUCCESSFUL'),
   );
 
   const approvedWithStatus = approved.map((order) => ({

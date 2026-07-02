@@ -2,11 +2,7 @@ import useSWR from 'swr';
 import { type OpenmrsResource, openmrsFetch, restBaseUrl, useConfig } from '@openmrs/esm-framework';
 import { type CodedProvider, type CodedCondition, type ProcedurePayload } from '../../types';
 import { updateOrder } from '../../procedures-ordered/pick-procedure-order/add-to-worklist-dialog.resource';
-import {
-  buildOrderRefObservation,
-  createObservation,
-  buildOrphanedDataNotes,
-} from '../../utils/procedure-api.utils';
+import { buildOrderRefObservation, createObservation, buildOrphanedDataNotes } from '../../utils/procedure-api.utils';
 import { type ConfigObject } from '../../config-schema';
 
 type Provider = {
@@ -31,7 +27,7 @@ export const useProviders = () => {
 export async function savePostProcedure(
   reportPayload: Partial<ProcedurePayload>,
   config: ConfigObject,
-  encounterUuid?: string
+  encounterUuid?: string,
 ) {
   const abortController = new AbortController();
 
@@ -58,7 +54,7 @@ export async function savePostProcedure(
         config.procedureOrderRefConceptUuid,
         procedureOrderUuid,
         encounterUuid,
-        patientUuid
+        patientUuid,
       );
       await createObservation(orderRefObs);
     }
