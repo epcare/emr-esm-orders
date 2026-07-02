@@ -11,6 +11,7 @@ import {
   parseDate,
   useLayoutType,
   usePatient,
+  Workspace2,
   type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
 import { TestTypeSearch } from './imaging-type-search';
@@ -82,8 +83,13 @@ export default function AddImagingOrderWorkspace({
   const formContext = workspaceProps?.formContext ?? 'creating';
 
   const [currentLabOrder, setCurrentLabOrder] = useState<ImagingOrderBasketItem | undefined>(initialOrder);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const handleCancel = useCallback(() => {
+    closeWorkspace({ discardUnsavedChanges: true });
+  }, [closeWorkspace]);
+
+  const handleCloseWorkspaceWithSavedChanges = useCallback(() => {
     closeWorkspace();
   }, [closeWorkspace]);
 
@@ -92,44 +98,49 @@ export default function AddImagingOrderWorkspace({
     return null;
   }
 
+  const title =
+    formContext === 'editing' ? t('editImagingOrder', 'Edit Imaging Order') : t('addImagingOrder', 'Add Imaging Order');
+
   return (
-    <div className={styles.container}>
-      {isTablet && !isLoadingPatient && patientData && (
-        <div className={styles.patientHeader}>
-          <span className={styles.bodyShort02}>{getPatientName(patientData)}</span>
-          <span className={classNames(styles.text02, styles.bodyShort01)}>
-            {capitalize(patientData.gender)} &middot; {age(patientData.birthDate)} &middot;{' '}
-            <span>
-              {formatDate(parseDate(patientData.birthDate), {
-                mode: 'wide',
-                time: false,
-              })}
+    <Workspace2 title={title} hasUnsavedChanges={hasUnsavedChanges}>
+      <div className={styles.container}>
+        {isTablet && !isLoadingPatient && patientData && (
+          <div className={styles.patientHeader}>
+            <span className={styles.bodyShort02}>{getPatientName(patientData)}</span>
+            <span className={classNames(styles.text02, styles.bodyShort01)}>
+              {capitalize(patientData.gender)} &middot; {age(patientData.birthDate)} &middot;{' '}
+              <span>
+                {formatDate(parseDate(patientData.birthDate), {
+                  mode: 'wide',
+                  time: false,
+                })}
+              </span>
             </span>
-          </span>
-        </div>
-      )}
-      {!isTablet && (
-        <div className={styles.backButton}>
-          <Button
-            kind="ghost"
-            renderIcon={(props) => <ArrowLeft size={24} {...props} />}
-            iconDescription="Return to order basket"
-            size="sm"
-            onClick={handleCancel}>
-            <span>{t('backToOrderBasket', 'Back to order basket')}</span>
-          </Button>
-        </div>
-      )}
-      {!currentLabOrder ? (
-        <TestTypeSearch openLabForm={setCurrentLabOrder} />
-      ) : (
-        <ImagingOrderForm
-          initialOrder={currentLabOrder}
-          closeWorkspace={handleCancel}
-          closeWorkspaceWithSavedChanges={handleCancel}
-          promptBeforeClosing={() => true}
-        />
-      )}
-    </div>
+          </div>
+        )}
+        {!isTablet && (
+          <div className={styles.backButton}>
+            <Button
+              kind="ghost"
+              renderIcon={(props) => <ArrowLeft size={24} {...props} />}
+              iconDescription="Return to order basket"
+              size="sm"
+              onClick={handleCancel}>
+              <span>{t('backToOrderBasket', 'Back to order basket')}</span>
+            </Button>
+          </div>
+        )}
+        {!currentLabOrder ? (
+          <TestTypeSearch openLabForm={setCurrentLabOrder} />
+        ) : (
+          <ImagingOrderForm
+            initialOrder={currentLabOrder}
+            closeWorkspace={handleCancel}
+            closeWorkspaceWithSavedChanges={handleCloseWorkspaceWithSavedChanges}
+            onDirtyChange={setHasUnsavedChanges}
+          />
+        )}
+      </div>
+    </Workspace2>
   );
 }

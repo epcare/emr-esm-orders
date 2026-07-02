@@ -30,30 +30,22 @@
   "workspaces2": [
     {
       "name": "add-imaging-order",
-      "type": "order",
       "component": "addImagingOrderWorkspace",
-      "title": "Add Imaging order",
       "window": "imaging-orders-window"
     },
     {
       "name": "imaging-report-form",
       "component": "imagingReportForm",
-      "title": "Imaging Report Form",
-      "type": "form",
       "window": "imaging-orders-window"
     },
     {
       "name": "imaging-review-form",
-      "type": "order",
       "component": "imagingReviewForm",
-      "title": "Review form",
       "window": "imaging-orders-window"
     },
     {
       "name": "imagingResultFormWorkspace",
       "component": "imagingResultFormWorkspace",
-      "title": "Imaging Result Form",
-      "type": "form",
       "window": "imaging-orders-window"
     }
   ],

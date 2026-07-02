@@ -8,6 +8,7 @@ import {
   showNotification,
   showSnackbar,
   useLayoutType,
+  Workspace2,
   type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
 import {
@@ -71,6 +72,7 @@ const ImagingReviewForm: React.FC<ImagingReviewFormWorkspaceDefinition> = ({
   const { allowedFileExtensions } = useAllowedFileExtensions();
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Extract props
   const order = workspaceProps?.order;
@@ -147,76 +149,81 @@ const ImagingReviewForm: React.FC<ImagingReviewFormWorkspaceDefinition> = ({
   }
 
   return (
-    <form aria-label="imaging form" className={styles.form} onSubmit={updateProcedures}>
-      <div className={styles.formContainer}>
-        <Stack gap={7}>
-          <div>
-            <Column className={styles.widgetContainer}>
-              <div className={styles.widgetCard}>
-                <CardHeader title={t('imagingReport', 'Imaging Report')}>
-                  <Button
-                    kind="tertiary"
-                    className={styles.actionButton}
-                    onClick={showAddAttachmentModal}
-                    size="sm"
-                    renderIcon={() => <DocumentAttachment size={18} />}>
-                    {t('attachReport', 'Attach report')}
-                  </Button>
-                </CardHeader>
-              </div>
-            </Column>
-            <div className={styles.widgetContainer}>
-              <div className={styles.orderDetails}>
-                <Table size="lg" useZebraStyles={false} aria-label="sample table">
-                  <TableBody>
-                    {tableData.map(
-                      (row, index) =>
-                        row.key &&
-                        row.value && (
-                          <TableRow key={index}>
-                            <TableCell>{row.key}</TableCell>
-                            <TableCell>{row.value}</TableCell>
-                          </TableRow>
-                        ),
-                    )}
-                  </TableBody>
-                </Table>
-                <TextArea
-                  className={styles.textAreaInput}
-                  labelText={t('imagingReports', 'Imaging report')}
-                  id="report"
-                  name="report"
-                  value={order?.procedures[0]?.notes || ''}
-                  readOnly
-                />
-                <TextArea
-                  className={styles.textAreaInput}
-                  labelText={t('impression', 'Impression note')}
-                  id="nextNotes"
-                  name="nextNotes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
+    <Workspace2 title={t('reviewImagingReport', 'Review Imaging Report')} hasUnsavedChanges={hasUnsavedChanges}>
+      <form aria-label="imaging form" className={styles.form} onSubmit={updateProcedures}>
+        <div className={styles.formContainer}>
+          <Stack gap={7}>
+            <div>
+              <Column className={styles.widgetContainer}>
+                <div className={styles.widgetCard}>
+                  <CardHeader title={t('imagingReport', 'Imaging Report')}>
+                    <Button
+                      kind="tertiary"
+                      className={styles.actionButton}
+                      onClick={showAddAttachmentModal}
+                      size="sm"
+                      renderIcon={() => <DocumentAttachment size={18} />}>
+                      {t('attachReport', 'Attach report')}
+                    </Button>
+                  </CardHeader>
+                </div>
+              </Column>
+              <div className={styles.widgetContainer}>
+                <div className={styles.orderDetails}>
+                  <Table size="lg" useZebraStyles={false} aria-label="sample table">
+                    <TableBody>
+                      {tableData.map(
+                        (row, index) =>
+                          row.key &&
+                          row.value && (
+                            <TableRow key={index}>
+                              <TableCell>{row.key}</TableCell>
+                              <TableCell>{row.value}</TableCell>
+                            </TableRow>
+                          ),
+                      )}
+                    </TableBody>
+                  </Table>
+                  <TextArea
+                    className={styles.textAreaInput}
+                    labelText={t('imagingReports', 'Imaging report')}
+                    id="report"
+                    name="report"
+                    value={order?.procedures[0]?.notes || ''}
+                    readOnly
+                  />
+                  <TextArea
+                    className={styles.textAreaInput}
+                    labelText={t('impression', 'Impression note')}
+                    id="nextNotes"
+                    name="nextNotes"
+                    value={notes}
+                    onChange={(e) => {
+                      setNotes(e.target.value);
+                      setHasUnsavedChanges(e.target.value !== '');
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <ButtonSet className={styles.buttonSet}>
-            <Button size="lg" kind="secondary" onClick={() => closeWorkspace()}>
-              {t('cancel', 'Cancel')}
-            </Button>
-            <Button disabled={isSubmitting} kind="primary" type="submit">
-              {isSubmitting ? (
-                <span style={{ display: 'flex', justifyItems: 'center' }}>
-                  {t('submitting', 'Submitting...')} <InlineLoading status="active" iconDescription="Loading" />
-                </span>
-              ) : (
-                t('approveClose', 'Approve & close')
-              )}
-            </Button>
-          </ButtonSet>
-        </Stack>
-      </div>
-    </form>
+            <ButtonSet className={styles.buttonSet}>
+              <Button size="lg" kind="secondary" onClick={() => closeWorkspace({ discardUnsavedChanges: true })}>
+                {t('cancel', 'Cancel')}
+              </Button>
+              <Button disabled={isSubmitting} kind="primary" type="submit">
+                {isSubmitting ? (
+                  <span style={{ display: 'flex', justifyItems: 'center' }}>
+                    {t('submitting', 'Submitting...')} <InlineLoading status="active" iconDescription="Loading" />
+                  </span>
+                ) : (
+                  t('approveClose', 'Approve & close')
+                )}
+              </Button>
+            </ButtonSet>
+          </Stack>
+        </div>
+      </form>
+    </Workspace2>
   );
 };
 

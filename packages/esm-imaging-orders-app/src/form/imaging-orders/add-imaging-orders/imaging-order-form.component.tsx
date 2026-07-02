@@ -35,9 +35,9 @@ import type { ImagingOrderBasketItem } from '../../../types';
 
 export interface ImagingOrderFormProps {
   initialOrder: ImagingOrderBasketItem;
-  closeWorkspace: DefaultWorkspaceProps['closeWorkspace'];
-  closeWorkspaceWithSavedChanges: DefaultWorkspaceProps['closeWorkspaceWithSavedChanges'];
-  promptBeforeClosing: DefaultWorkspaceProps['promptBeforeClosing'];
+  closeWorkspace: () => void;
+  closeWorkspaceWithSavedChanges: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
 // Designs:
@@ -47,7 +47,7 @@ export function ImagingOrderForm({
   initialOrder,
   closeWorkspace,
   closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
+  onDirtyChange,
 }: ImagingOrderFormProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
@@ -108,18 +108,14 @@ export function ImagingOrderForm({
       const orderIndex = existingOrder ? orders.indexOf(existingOrder) : orders.length;
       newOrders[orderIndex] = data;
       setOrders(newOrders);
-      closeWorkspaceWithSavedChanges({
-        onWorkspaceClose: () => launchWorkspace('order-basket'),
-      });
+      closeWorkspaceWithSavedChanges();
     },
     [orders, setOrders, defaultValues, closeWorkspaceWithSavedChanges, session],
   );
 
   const cancelOrder = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== defaultValues.testType.conceptUuid));
-    closeWorkspace({
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
+    closeWorkspace();
   }, [closeWorkspace, orders, setOrders, defaultValues]);
 
   const onError = (errors: FieldErrors<ImagingOrderBasketItem>) => {
@@ -129,8 +125,8 @@ export function ImagingOrderForm({
   };
 
   useEffect(() => {
-    promptBeforeClosing(() => isDirty);
-  }, [isDirty, promptBeforeClosing]);
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const [showScheduleDate, setShowScheduleDate] = useState(false);
 

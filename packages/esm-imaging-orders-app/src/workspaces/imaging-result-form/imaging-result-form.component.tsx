@@ -754,6 +754,175 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
               )}
             />
           </FormGroup>
+
+          {/* Imaging Observation Fields */}
+          <FormGroup legendText={t('imagingModality', 'Imaging Modality')}>
+            <Controller
+              name="imagingModality"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <ComboBox
+                    id="imagingModality"
+                    titleText=""
+                    placeholder={t('selectModality', 'Select modality (CT, MRI, US, X-ray, etc.)')}
+                    items={[]} // TODO: Load modality options from config
+                    itemToString={(item) => item?.display ?? ''}
+                    onChange={({ selectedItem }) => field.onChange(selectedItem?.uuid ?? '')}
+                    value={field.value}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('contrastAgent', 'Contrast Agent')}>
+            <Controller
+              name="contrastAgent"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <ComboBox
+                    id="contrastAgent"
+                    titleText=""
+                    placeholder={t('selectContrast', 'Select contrast agent')}
+                    items={[]} // TODO: Load contrast options from config
+                    itemToString={(item) => item?.display ?? ''}
+                    onChange={({ selectedItem }) => field.onChange(selectedItem?.uuid ?? '')}
+                    value={field.value}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('accessionNumber', 'Accession Number')}>
+            <Controller
+              name="accessionNumber"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <TextArea
+                    {...field}
+                    id="accessionNumber"
+                    labelText=""
+                    placeholder={t('enterAccessionNumber', 'Enter accession number')}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('dicomStudyUid', 'DICOM Study UID')}>
+            <Controller
+              name="dicomStudyUid"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <TextArea
+                    {...field}
+                    id="dicomStudyUid"
+                    labelText=""
+                    placeholder={t('enterDicomUid', 'Enter DICOM Study UID')}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('radiationDose', 'Radiation Dose')}>
+            <Controller
+              name="radiationDose"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <NumberInput
+                    {...field}
+                    id="radiationDose"
+                    label=""
+                    placeholder={t('enterDose', 'Enter radiation dose (mSv)')}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('clinicalIndication', 'Clinical Indication')}>
+            <Controller
+              name="clinicalIndication"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <TextArea
+                    {...field}
+                    id="clinicalIndication"
+                    labelText=""
+                    placeholder={t('enterIndication', 'Enter clinical indication/reason for imaging')}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('imagingFindings', 'Imaging Findings')}>
+            <Controller
+              name="imagingFindings"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <TextArea
+                    {...field}
+                    id="imagingFindings"
+                    labelText=""
+                    placeholder={t('enterFindings', 'Enter detailed radiology findings')}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                    rows={8}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={<RequiredFieldLabel label={t('imagingImpression', 'Imaging Impression')} />}>
+            <Controller
+              name="imagingImpression"
+              control={control}
+              render={({ field, fieldState }) => (
+                <ResponsiveWrapper>
+                  <TextArea
+                    {...field}
+                    id="imagingImpression"
+                    labelText=""
+                    placeholder={t('enterImpression', 'Enter radiologist impression/conclusion')}
+                    invalid={Boolean(fieldState.error)}
+                    invalidText={fieldState.error?.message}
+                    rows={4}
+                  />
+                </ResponsiveWrapper>
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup legendText={t('imagingImages', 'Image Attachments')}>
+            <Tile className={styles.tile}>
+              <p className={styles.tileText}>
+                {t('imageAttachmentsPlaceholder', 'Image attachment functionality will be added here.')}
+              </p>
+            </Tile>
+          </FormGroup>
         </Stack>
       </div>
       <div className={styles.submitButtons}>

@@ -60,7 +60,7 @@ export const configSchema = {
   procedureOrderRefConceptUuid: {
     _type: Type.ConceptUuid,
     _description: 'Concept UUID for storing procedure order reference as an observation',
-    _default: '94b88a9e-81d7-4c28-bda0-802d9313aa19',
+    _default: '4ef33ab9-ec5f-4b12-9ac8-226d302ca2e0', // Concept ID: 200137
   },
   // Additional fields for imaging result form
   conditionConceptClassUuid: {
@@ -108,7 +108,7 @@ export const configSchema = {
   bodySiteConceptUuid: {
     _type: Type.ConceptUuid,
     _description: 'The body site concept set UUID for filtering body sites',
-    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _default: '17fdb716-2c3a-4883-95a5-a4e39d104ca6', // Concept ID: 200131
   },
   bodySiteConceptSourceType: {
     _type: Type.String,
@@ -134,6 +134,63 @@ export const configSchema = {
     _type: Type.String,
     _description: 'The source type for duration unit concept filtering (Concept set, Concept class, Answer to, or any)',
     _default: 'Concept set',
+  },
+
+  // ============================================================================
+  // Imaging Observation Concepts
+  // These concepts are used to capture imaging-specific data as observations
+  // within the encounter, following the architecture where Procedure = event
+  // and Observations = details (see IMAGING_ARCHITECTURE.md)
+  // ============================================================================
+
+  // Imaging Details Observations
+  imagingModalityConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing imaging modality (CT, MRI, US, XRAY, etc.) as an observation',
+    _default: 'bbb8c439-712b-4fb2-9b09-6d56aa8dd25c', // Concept ID: 200129
+  },
+  contrastAgentConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description:
+      'Concept UUID for capturing contrast agent used (none, iodinated, gadolinium, etc.) as an observation',
+    _default: '0028c9c3-2bc2-4d75-9cbc-9d06f6951c2e', // Concept ID: 200130
+  },
+  accessionNumberConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing radiology accession number as an observation',
+    _default: '0e163f39-bebd-455d-a9c2-5cec790461b8', // Concept ID: 200132
+  },
+  dicomStudyUidConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing DICOM Study UID as an observation',
+    _default: 'd55e0ae3-abad-4dee-a5de-6fd1db010453', // Concept ID: 200133
+  },
+  radiationDoseConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing radiation dose (mSv or mGy) as a numeric observation',
+    _default: '458bd4f7-9292-40db-8a9e-334faff7827c', // Concept ID: 200134
+  },
+  clinicalIndicationConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing clinical indication/reason for imaging as a text observation',
+    _default: 'f36f1463-90cc-4aa3-bffa-91ef24b31f21', // Concept ID: 200135
+  },
+
+  // Imaging Results Observations
+  imagingFindingsConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing radiology findings as a text observation',
+    _default: '7f39af1b-8d9d-43c1-ad2e-8fd848a0093a', // Concept ID: 200136
+  },
+  imagingImpressionConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing radiology impression/conclusion as a text observation',
+    _default: '159395AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', // Concept ID: 159395 - "Clinical impression comment"
+  },
+  imagingImagesConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for capturing image attachments as complex observations',
+    _default: '7cac8397-53cd-4f00-a6fe-028e8d743f8e', // Concept ID: 186351 - "Image attachment"
   },
 };
 
@@ -183,6 +240,16 @@ export interface ConfigObject {
   statusConceptSourceType: string;
   durationUnitConceptUuid: string;
   durationUnitConceptSourceType: string;
+  // Imaging observation concepts
+  imagingModalityConceptUuid: string;
+  contrastAgentConceptUuid: string;
+  accessionNumberConceptUuid: string;
+  dicomStudyUidConceptUuid: string;
+  radiationDoseConceptUuid: string;
+  clinicalIndicationConceptUuid: string;
+  imagingFindingsConceptUuid: string;
+  imagingImpressionConceptUuid: string;
+  imagingImagesConceptUuid: string;
 }
 
 export type ImagingConfig = ConfigObject;

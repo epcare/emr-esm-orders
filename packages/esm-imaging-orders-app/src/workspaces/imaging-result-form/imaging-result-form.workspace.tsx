@@ -46,6 +46,7 @@ const combineNotes = (instructions?: string, commentsToFulfiller?: string, exist
 const createSchema = (t: (key: string, fallback: string) => string) =>
   z
     .object({
+      // === TAB 1: PROCEDURE FIELDS (EMRAPI) ===
       procedureCoded: z.string().min(1, t('procedureRequired', 'A procedure is required')),
       procedureType: z.string().min(1, t('procedureTypeRequired', 'Procedure type is required')),
       bodySite: z.string().min(1, t('bodySiteRequired', 'Body site is required')),
@@ -65,6 +66,20 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
       outcomeCoded: z.string().min(1, t('outcomeRequired', 'Outcome is required')),
       participants: z.array(z.string()).optional(),
       complications: z.array(z.string()).optional(),
+
+      // === TAB 2: OBSERVATION FIELDS ===
+      // Imaging Details
+      imagingModality: z.string().optional(), // Coded - stored as UUID
+      contrastAgent: z.string().optional(), // Coded - stored as UUID
+      accessionNumber: z.string().optional(),
+      dicomStudyUid: z.string().optional(),
+      radiationDose: z.number().nullable().optional(),
+      clinicalIndication: z.string().optional(),
+
+      // Imaging Results
+      imagingFindings: z.string().optional(),
+      imagingImpression: z.string().min(1, t('impressionRequired', 'Impression is required')),
+      imagingImages: z.array(z.string()).optional(), // Array of image attachment UUIDs
     })
     .refine((data) => Boolean(data.startDateTime) || Boolean(data.estimatedStartDate), {
       message: t('startDateRequired', 'Start date is required'),
@@ -147,6 +162,16 @@ export default function ImagingResultFormWorkspace({
       outcomeCoded: '',
       participants: [],
       complications: [],
+      // Observation fields defaults
+      imagingModality: '',
+      contrastAgent: '',
+      accessionNumber: '',
+      dicomStudyUid: '',
+      radiationDose: null,
+      clinicalIndication: '',
+      imagingFindings: '',
+      imagingImpression: '',
+      imagingImages: [],
     },
   });
 

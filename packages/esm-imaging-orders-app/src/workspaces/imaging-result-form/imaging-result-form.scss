@@ -1,16 +1,23 @@
 .form {
-  padding: 1rem;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; // Prevent horizontal scroll
 }
 
 .formContainer {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%; // Use full width of modal
+  margin: 0;
+  width: 100%;
+  padding: 1rem;
+  overflow-x: hidden;
 }
 
 .twoColumnGroup {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  width: 100%;
 }
 
 .required {
@@ -97,6 +104,8 @@
   border-radius: 0.25rem;
   margin-top: 0.5rem;
   background: var(--cds-ui-background);
+  position: relative;
+  z-index: 100;
 }
 
 .searchResultItem {
@@ -117,4 +126,37 @@
   .formContainer {
     padding: 0.5rem;
   }
+}
+
+/* Tab navigation styles */
+.cds--tabs {
+  margin-bottom: 1rem;
+}
+
+.cds--tab--list {
+  border-bottom: 1px solid var(--cds-ui-03);
+  display: flex;
+  overflow-x: auto;
+}
+
+.cds--tab {
+  flex-shrink: 0;
+}
+
+/* Tab content */
+.cds--tab-content {
+  padding: 1rem 0;
+  overflow-x: hidden;
+}
+
+/* Tile for image attachments placeholder */
+.tile {
+  background: var(--cds-ui-02);
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+
+.tileText {
+  color: var(--cds-text-02);
+  font-size: 0.875rem;
 }
