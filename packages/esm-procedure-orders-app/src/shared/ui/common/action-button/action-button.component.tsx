@@ -22,14 +22,11 @@ const ActionButton: React.FC<ActionButtonProps> = ({ action, order, patientUuid 
 
   const handleOpenProcedureResultForm = () => {
     launchWorkspace2(
-      'procedure-report-form',
-      {
-        patient: order.patient,
-        order,
-      },
-      {
-        patient: order.patient,
+      'procedureResultFormWorkspace',
+      { order, formContext: 'creating' },  // workspaceProps - removed redundant patient prop
+      {                                    // windowProps - patient context
         patientUuid: order.patient.uuid,
+        patient: order.patient,
         encounterUuid: order.encounter?.uuid ?? '',
       },
     );

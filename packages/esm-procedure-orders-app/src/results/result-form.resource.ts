@@ -1,6 +1,9 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import useSWR from 'swr';
 import { updateOrder } from '../procedures-ordered/pick-procedure-order/add-to-worklist-dialog.resource';
+import { buildOrderRefObservation, createObservation } from '../utils/procedure-api.utils';
+import { type ProcedurePayload } from '../types';
+import { type ConfigObject } from '../config-schema';
 
 export interface ConceptResponse {
   uuid: string;
@@ -342,20 +345,46 @@ export async function UpdateEncounter(uuid: string, payload: any) {
   });
 }
 
-export async function saveProcedureReport(reportPayload) {
+export async function saveProcedureReport(
+  reportPayload: Partial<ProcedurePayload>,
+  config: ConfigObject,
+  encounterUuid?: string
+) {
   const abortController = new AbortController();
-  const updateResults = await openmrsFetch(`/ws/rest/v1/procedure`, {
+
+  // Extract orphaned data before sending to API
+  const { _orphanedData, ...apiPayload } = reportPayload;
+
+  // Create the procedure using EMRAPI endpoint
+  const updateResults = await openmrsFetch(`/ws/rest/v1/emrapi/procedure`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     signal: abortController.signal,
-    body: reportPayload,
+    body: JSON.stringify(apiPayload),
   });
 
   if (updateResults.status === 201 || updateResults.status === 200) {
-    return await updateOrder(reportPayload.procedureOrder, {
+    // Create order reference observation
+    const procedureOrderUuid = _orphanedData?.procedureOrder || reportPayload.procedureOrder;
+    const patientUuid = reportPayload.patient;
+
+    if (procedureOrderUuid && patientUuid && encounterUuid && config.procedureOrderRefConceptUuid) {
+      const orderRefObs = buildOrderRefObservation(
+        config.procedureOrderRefConceptUuid,
+        procedureOrderUuid,
+        encounterUuid,
+        patientUuid
+      );
+      await createObservation(orderRefObs);
+    }
+
+    // Update order fulfiller status
+    return await updateOrder(procedureOrderUuid, {
       fulfillerStatus: 'COMPLETED',
     });
   }
+
+  throw new Error('Procedure creation failed');
 }

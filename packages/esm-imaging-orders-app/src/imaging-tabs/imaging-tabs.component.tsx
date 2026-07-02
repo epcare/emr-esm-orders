@@ -67,11 +67,11 @@ const useOrderCounts = () => {
 const useCompletedOrders = () => {
   const { workListEntries } = useOrdersWorkList('', 'COMPLETED');
   const pendingReview = workListEntries.filter((item) =>
-    item.procedures?.some((procedure) => procedure.outcome !== 'SUCCESSFUL'),
+    item.procedures?.some((procedure) => procedure?.outcomeCoded?.display !== "SUCCESSFUL"),
   );
   const pendingReviewCount = pendingReview?.length ?? 0;
   const approved = workListEntries.filter((item) =>
-    item.procedures?.some((procedure) => procedure.outcome === 'SUCCESSFUL'),
+    item.procedures?.some((procedure) => procedure?.outcomeCoded?.display === 'SUCCESSFUL'),
   );
   const approvedOrdersCount = approved?.length ?? 0;
 

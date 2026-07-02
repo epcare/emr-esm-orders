@@ -66,7 +66,7 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ approvedOrders }) => 
         <div className={styles.printResults}>
           <p className={styles.itemHeading}>{t('findings', 'Findings')}</p>
           <div className={styles.reportSection}>
-            <p className={styles.itemLabel}>{approvedOrders?.procedures[0]?.procedureReport}</p>
+            <p className={styles.itemLabel}>{approvedOrders?.procedures[0]?.notes}</p>
           </div>
         </div>
         <div className={styles.printResults}>

@@ -49,6 +49,83 @@ export const configSchema = {
     _description: 'The encounter provider role UUID',
     _default: 'a0b03050-c99b-11e0-9572-0800200c9a66',
   },
+  // Procedure Status Concepts (Concept UUIDs for emrapi Procedure status)
+  procedureStatusConcepts: {
+    _type: Type.Object,
+    _description: 'Concept UUIDs for procedure statuses (used by emrapi Procedure)',
+    _default: {
+      PREPARATION: '167153AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      IN_PROGRESS: '163723AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      NOT_DONE: 'dc9825cf-30ab-102d-86b0-7a5022ba4115',
+      ON_HOLD: '167154AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      STOPPED: 'dca26b47-30ab-102d-86b0-7a5022ba4115',
+      COMPLETED: 'dca06bae-30ab-102d-86b0-7a5022ba4115',
+      ENTERED_IN_ERROR: '162983AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    },
+  },
+  // Procedure Outcome Concepts (Concept UUIDs for emrapi Procedure outcome)
+  procedureOutcomeConcepts: {
+    _type: Type.Object,
+    _description: 'Concept UUIDs for procedure outcomes (used by emrapi Procedure)',
+    _default: {
+      SUCCESSFUL: '160718AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      NOT_SUCCESSFUL: '160720AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      PARTIALLY_SUCCESSFUL: '160717AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    },
+  },
+  // Procedure Order Reference Concept (for storing order reference as observation)
+  procedureOrderRefConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for storing procedure order reference as an observation',
+    _default: '94b88a9e-81d7-4c28-bda0-802d9313aa19',
+  },
+  // Procedure result form configuration
+  useOrderEncounter: {
+    _type: Type.Boolean,
+    _description: 'Use the order encounter for procedure results, or create a new one',
+    _default: true,
+  },
+  // Procedure result form concept source configurations
+  procedureConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The procedure concept set UUID for filtering procedures',
+    _default: '165418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  procedureConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for procedure concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
+  bodySiteConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The body site concept set UUID for filtering body sites',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  bodySiteConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for body site concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
+  statusConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The status concept set UUID for filtering status options',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  statusConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for status concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
+  durationUnitConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The duration unit concept set UUID for filtering duration units',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  durationUnitConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for duration unit concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
 };
 
 export interface OrderReason {
@@ -72,6 +149,32 @@ export interface ConfigObject {
   procedureComplicationConceptUuid: string;
   procedureResultEncounterType: string;
   procedureResultEncounterRole: string;
+  // Procedure status/outcome concepts (for emrapi Procedure)
+  procedureStatusConcepts: {
+    PREPARATION: string;
+    IN_PROGRESS: string;
+    NOT_DONE: string;
+    ON_HOLD: string;
+    STOPPED: string;
+    COMPLETED: string;
+    ENTERED_IN_ERROR: string;
+  };
+  procedureOutcomeConcepts: {
+    SUCCESSFUL: string;
+    NOT_SUCCESSFUL: string;
+    PARTIALLY_SUCCESSFUL: string;
+  };
+  procedureOrderRefConceptUuid: string;
+  useOrderEncounter: boolean;
+  // Procedure result form concept source configurations
+  procedureConceptUuid: string;
+  procedureConceptSourceType: string;
+  bodySiteConceptUuid: string;
+  bodySiteConceptSourceType: string;
+  statusConceptUuid: string;
+  statusConceptSourceType: string;
+  durationUnitConceptUuid: string;
+  durationUnitConceptSourceType: string;
 }
 
 export const StringPath =

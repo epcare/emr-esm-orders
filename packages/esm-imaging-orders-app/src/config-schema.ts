@@ -32,6 +32,36 @@ export const configSchema = {
       _default: [],
     },
   },
+  // Procedure Status Concepts (Concept UUIDs for emrapi Procedure status)
+  procedureStatusConcepts: {
+    _type: Type.Object,
+    _description: 'Concept UUIDs for procedure statuses (used by emrapi Procedure)',
+    _default: {
+      PREPARATION: '167153AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      IN_PROGRESS: '163723AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      NOT_DONE: 'dc9825cf-30ab-102d-86b0-7a5022ba4115',
+      ON_HOLD: '167154AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      STOPPED: 'dca26b47-30ab-102d-86b0-7a5022ba4115',
+      COMPLETED: 'dca06bae-30ab-102d-86b0-7a5022ba4115',
+      ENTERED_IN_ERROR: '162983AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    },
+  },
+  // Procedure Outcome Concepts (Concept UUIDs for emrapi Procedure outcome)
+  procedureOutcomeConcepts: {
+    _type: Type.Object,
+    _description: 'Concept UUIDs for procedure outcomes (used by emrapi Procedure)',
+    _default: {
+      SUCCESSFUL: '160718AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      NOT_SUCCESSFUL: '160720AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      PARTIALLY_SUCCESSFUL: '160717AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    },
+  },
+  // Procedure Order Reference Concept (for storing order reference as observation)
+  procedureOrderRefConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for storing procedure order reference as an observation',
+    _default: '94b88a9e-81d7-4c28-bda0-802d9313aa19',
+  },
 };
 
 interface OrderReason {
@@ -48,4 +78,20 @@ export type ImagingConfig = {
   };
   labTestsWithOrderReasons: Array<OrderReason>;
   radiologyConceptClassUuid: string;
+  // Procedure status/outcome concepts (for emrapi Procedure)
+  procedureStatusConcepts: {
+    PREPARATION: string;
+    IN_PROGRESS: string;
+    NOT_DONE: string;
+    ON_HOLD: string;
+    STOPPED: string;
+    COMPLETED: string;
+    ENTERED_IN_ERROR: string;
+  };
+  procedureOutcomeConcepts: {
+    SUCCESSFUL: string;
+    NOT_SUCCESSFUL: string;
+    PARTIALLY_SUCCESSFUL: string;
+  };
+  procedureOrderRefConceptUuid: string;
 };

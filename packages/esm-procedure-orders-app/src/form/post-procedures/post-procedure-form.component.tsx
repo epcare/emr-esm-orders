@@ -6,7 +6,6 @@ import {
   useConfig,
   useDebounce,
   useSession,
-  useWorkspace2Context,
 } from '@openmrs/esm-framework';
 import {
   Form,
@@ -30,12 +29,21 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { savePostProcedure, useConditionsSearch, useProvidersSearch } from './post-procedure.resource';
-import { type CodedProvider, type CodedCondition, ProcedurePayload, type Result } from '../../types';
+import {
+  type CodedProvider,
+  type CodedCondition,
+  ProcedurePayload,
+  type Result,
+  type OrderWorkspaceDefinitionProps,
+  type BaseOrderWorkspaceProps,
+  type BaseOrderWindowProps,
+} from '../../types';
 import dayjs from 'dayjs';
 import { closeOverlay } from '../../components/overlay/hook';
 import { type ConfigObject, StringPath } from '../../config-schema';
 import { updateOrder } from '../../procedures-ordered/pick-procedure-order/add-to-worklist-dialog.resource';
 import { mutate } from 'swr';
+import { buildOrphanedDataNotes } from '../../utils/procedure-api.utils';
 
 const validationSchema = z.object({
   startDatetime: z.date({
@@ -50,23 +58,29 @@ const validationSchema = z.object({
 
 type PostProcedureFormSchema = z.infer<typeof validationSchema>;
 
-type PostProcedureFormWorkspaceProps = {
-  patient: any;
+/**
+ * Workspace props for post procedure form
+ */
+interface PostProcedureFormWorkspaceProps extends BaseOrderWorkspaceProps {
   order: Result;
-};
+}
 
-type PostProcedureFormWindowProps = {
-  patient: any;
-  patientUuid: string;
-  encounterUuid: string;
-};
+/**
+ * Window props for patient context
+ */
+type PostProcedureFormWindowProps = BaseOrderWindowProps;
 
-type PostProcedureFormProps = Workspace2DefinitionProps<PostProcedureFormWorkspaceProps, PostProcedureFormWindowProps>;
+/**
+ * Combined workspace definition props
+ */
+type PostProcedureFormProps = OrderWorkspaceDefinitionProps<
+  PostProcedureFormWorkspaceProps,
+  PostProcedureFormWindowProps
+>;
 
-const PostProcedureForm: React.FC<PostProcedureFormProps> = () => {
-  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as PostProcedureFormProps;
-
+const PostProcedureForm: React.FC<PostProcedureFormProps> = ({ closeWorkspace, workspaceProps, windowProps }) => {
   const patientUuid = windowProps?.patientUuid;
+  const encounterUuid = windowProps?.encounterUuid;
   const order = workspaceProps?.order;
   const { sessionLocation } = useSession();
   const { t } = useTranslation();
@@ -119,12 +133,16 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = () => {
     setSelectedCondition(item);
   }, []);
 
+  const config = useConfig<ConfigObject>();
   const {
     procedureComplicationGroupingConceptUuid,
     procedureComplicationConceptUuid,
     procedureResultEncounterType,
     procedureResultEncounterRole,
-  } = useConfig<ConfigObject>();
+    procedureStatusConcepts,
+    procedureOutcomeConcepts,
+    procedureOrderRefConceptUuid,
+  } = config;
 
   const {
     control,
@@ -175,30 +193,30 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = () => {
       complications.push(complication);
     });
 
-    const reportPayload = {
-      patient: patientUuid,
+    // Build orphaned data for notes JSON
+    const orphanedData = {
       procedureOrder: order?.uuid,
-      concept: order?.concept?.uuid,
       procedureReason: order?.orderReason?.uuid,
       category: order?.orderType?.uuid,
-      status: 'COMPLETED',
-      outcome: data.outcome,
       location: sessionLocation?.uuid,
-      startDatetime: dayjs(data.startDatetime).format('YYYY-MM-DDTHH:mm:ss'),
-      endDatetime: dayjs(data.endDatetime).format('YYYY-MM-DDTHH:mm:ss'),
-      procedureReport: data.procedureReport,
-      encounters: [
-        {
-          encounterDatetime: new Date(),
-          patient: patientUuid,
-          encounterType: procedureResultEncounterType,
-          encounterProviders: participants,
-          obs: complications,
-        },
-      ],
     };
+
+    const reportPayload = {
+      patient: patientUuid,
+      procedureCoded: order?.concept?.uuid,
+      status: procedureStatusConcepts.COMPLETED, // Use concept UUID instead of enum
+      outcomeCoded: procedureOutcomeConcepts[data.outcome], // Map outcome to concept UUID
+      notes: data.procedureReport,
+      startDateTime: dayjs(data.startDatetime).format('YYYY-MM-DDTHH:mm:ss'), // camelCase
+      endDateTime: dayjs(data.endDatetime).format('YYYY-MM-DDTHH:mm:ss'), // camelCase
+      _orphanedData: orphanedData,
+      // Note: Encounter handling will be done by the API resource function
+    };
+
+    const encounterUuid = windowProps?.encounterUuid;
+
     try {
-      const response = await savePostProcedure(reportPayload);
+      const response = await savePostProcedure(reportPayload, config, encounterUuid);
       if (response.ok) {
         showSnackbar({
           title: t('procedureSaved', 'Procedure saved'),

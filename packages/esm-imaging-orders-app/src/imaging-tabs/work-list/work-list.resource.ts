@@ -1,6 +1,7 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import useSWR from 'swr';
 import { type Identifier } from '../../utils/functions';
+
 export interface Result {
   [x: string]: any;
   uuid: string;
@@ -36,14 +37,46 @@ export interface Result {
   links: Link[];
   type: string;
   resourceVersion: string;
-  procedures: Procedure[];
+  procedures?: Procedure[]; // Made optional - procedures now fetched separately via emrapi
 }
 
 export interface Procedure {
   uuid: string;
-  outcome: string;
-  procedureReport: string;
+  display: string;
+  patient: {
+    uuid: string;
+    display: string;
+  };
+  procedureType?: {
+    uuid: string;
+    display: string;
+  };
+  encounter?: {
+    uuid: string;
+    display: string;
+  };
+  procedureCoded?: {
+    uuid: string;
+    display: string;
+  };
+  bodySite?: {
+    uuid: string;
+    display: string;
+  };
+  startDateTime: string;
+  endDateTime?: string;
+  status?: {
+    uuid: string;
+    display: string;
+  };
+  outcomeCoded?: {
+    uuid: string;
+    display: string;
+  };
+  notes?: string; // Contains procedure report and orphaned data as JSON
+  voided: boolean;
 }
+
 export interface Patient {
   uuid: string;
   display: string;
@@ -51,12 +84,14 @@ export interface Patient {
   person: Person;
   links: Link[];
 }
+
 export interface Person {
   uuid: string;
   display: string;
   gender: string;
   age: number;
 }
+
 export interface Link {
   rel: string;
   uri: string;
@@ -137,8 +172,7 @@ export interface SpecimenSource {
 }
 
 export function useGetOrdersWorklist(activatedOnOrAfterDate: string, fulfillerStatus: string) {
-  const apiUrl = `/ws/rest/v1/order?orderTypes=52a447d3-a64a-11e3-9aeb-50e549534c5e&activatedOnOrAfterDate=${activatedOnOrAfterDate}&isStopped=false&fulfillerStatus=${fulfillerStatus}&v=full
-`;
+  const apiUrl = `/ws/rest/v1/order?orderTypes=52a447d3-a64a-11e3-9aeb-50e549534c5e&activatedOnOrAfterDate=${activatedOnOrAfterDate}&isStopped=false&fulfillerStatus=${fulfillerStatus}&v=full`;
 
   const { data, error, isLoading } = useSWR<{ data: { results: Array<Result> } }, Error>(apiUrl, openmrsFetch);
 

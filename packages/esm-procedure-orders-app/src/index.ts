@@ -12,6 +12,7 @@ import rejectProcedureOrderDialog from './procedures-ordered/reject-order-dialog
 import procedureRejectReasonModal from './procedures-ordered/reject-reason/procedure-reject-reason.component';
 import PostProcedureForm from './form/post-procedures/post-procedure-form.component';
 import PrintPreviewModal from './print/print-procedure-results.component';
+import ProcedureResultFormWorkspace from './workspaces/procedure-result-form/procedure-result-form.workspace';
 
 const moduleName = '@epcare/esm-procedure-orders-app';
 
@@ -57,3 +58,6 @@ export const addProceduresOrderWorkspace = getAsyncLifecycle(
   () => import('./form/procedures-orders/add-procedures-order/add-procedures-order.workspace'),
   options,
 );
+
+// Procedure result form workspace (extended from patient procedures app)
+export const procedureResultFormWorkspace = getSyncLifecycle(ProcedureResultFormWorkspace, options);

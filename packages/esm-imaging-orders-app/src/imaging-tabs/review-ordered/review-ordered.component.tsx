@@ -8,7 +8,7 @@ export const Review: React.FC = () => {
   const { t } = useTranslation();
   const { workListEntries, isLoading } = useOrdersWorkList('', 'COMPLETED');
   const pendingReview = workListEntries.filter((item) =>
-    item.procedures?.some((procedure) => procedure.outcome !== 'SUCCESSFUL'),
+    item.procedures?.some((procedure) => procedure?.outcomeCoded?.display !== 'SUCCESSFUL'),
   );
   return isLoading ? (
     <DataTableSkeleton />

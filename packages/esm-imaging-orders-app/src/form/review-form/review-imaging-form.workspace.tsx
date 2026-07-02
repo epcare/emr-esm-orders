@@ -8,8 +8,6 @@ import {
   showNotification,
   showSnackbar,
   useLayoutType,
-  useWorkspace2Context,
-  type UploadedFile,
   type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
 import {
@@ -32,35 +30,52 @@ import {
 } from '../../imaging-tabs/test-ordered/pick-imaging-order/add-to-worklist-dialog.resource';
 import { DocumentAttachment } from '@carbon/react/icons';
 import { type Result } from '../../imaging-tabs/work-list/work-list.resource';
+import { type OrderWorkspaceDefinitionProps, type BaseOrderWorkspaceProps } from '../../types';
 
-type ImagingReviewFormWorkspaceProps = {
-  patient: any;
+/**
+ * Workspace props for imaging review form
+ */
+interface ImagingReviewFormWorkspaceProps extends BaseOrderWorkspaceProps {
   order: Result;
-};
+}
 
-type ImagingReviewFormWindowProps = {
-  patient: any;
+/**
+ * Window props for patient context
+ */
+interface ImagingReviewFormWindowProps {
   patientUuid: string;
   encounterUuid: string;
-};
+}
 
-type ReviewOrderDialogProps = Workspace2DefinitionProps<ImagingReviewFormWorkspaceProps, ImagingReviewFormWindowProps>;
+/**
+ * Combined workspace definition props
+ */
+type ImagingReviewFormWorkspaceDefinition = OrderWorkspaceDefinitionProps<
+  ImagingReviewFormWorkspaceProps,
+  ImagingReviewFormWindowProps
+>;
 
-const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
+/**
+ * Imaging Review Form Workspace
+ *
+ * A standalone workspace for reviewing and approving imaging orders.
+ * Receives order context via workspaceProps and patient context via windowProps.
+ */
+const ImagingReviewForm: React.FC<ImagingReviewFormWorkspaceDefinition> = ({
+  closeWorkspace,
+  workspaceProps,
+  windowProps,
+}) => {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const { allowedFileExtensions } = useAllowedFileExtensions();
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Get workspace context
-  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
-    ImagingReviewFormWorkspaceProps,
-    ImagingReviewFormWindowProps
-  >;
-  const patient = workspaceProps?.patient;
+  // Extract props
   const order = workspaceProps?.order;
   const patientUuid = windowProps?.patientUuid;
+  const encounterUuid = windowProps?.encounterUuid;
 
   const tableData = useMemo(
     () =>
@@ -80,7 +95,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
 
   const showAddAttachmentModal = useCallback(() => {
     const close = showModal('capture-photo-modal', {
-      saveFile: (file: UploadedFile) => createAttachment(patientUuid, file),
+      saveFile: (file) => createAttachment(patientUuid, file),
       allowedExtensions: allowedFileExtensions,
       closeModal: () => close(),
       multipleFiles: true,
@@ -127,7 +142,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
   };
 
   // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !windowProps || !order || !patientUuid) {
+  if (!order || !patientUuid) {
     return <InlineLoading status="active" iconDescription="Loading workspace..." />;
   }
 
@@ -171,7 +186,7 @@ const ImagingReviewForm: React.FC<ReviewOrderDialogProps> = () => {
                   labelText={t('imagingReports', 'Imaging report')}
                   id="report"
                   name="report"
-                  value={order?.procedures[0]?.procedureReport || ''}
+                  value={order?.procedures[0]?.notes || ''}
                   readOnly
                 />
                 <TextArea

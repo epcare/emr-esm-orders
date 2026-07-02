@@ -1,4 +1,5 @@
 import { type OrderUrgency, type OrderBasketItem } from '@openmrs/esm-patient-common-lib';
+import type { Workspace2DefinitionProps } from '@openmrs/esm-framework';
 
 export interface Concept {
   uuid: string;
@@ -106,23 +107,84 @@ interface Orderer {
   display: string;
 }
 
+
 export interface Procedure {
   uuid: string;
-  procedureOrder: ProcedureOrder;
-  procedureReason: any;
-  category: any;
-  bodySite: any;
-  partOf: any;
-  startDatetime: any;
-  endDatetime: any;
-  status: string;
-  statusReason: any;
-  outcome: string;
-  procedureReport: string;
-  location: any;
-  encounters: any[];
-  resourceVersion: string;
+  display: string;
+  patient: {
+    uuid: string;
+    display: string;
+  };
+  procedureType?: {
+    uuid: string;
+    display: string;
+  };
+  encounter?: {
+    uuid: string;
+    display: string;
+  };
+  procedureCoded?: {
+    uuid: string;
+    display: string;
+  };
+  bodySite?: {
+    uuid: string;
+    display: string;
+  };
+  startDateTime: string;
+  endDateTime?: string;
+  status?: {
+    uuid: string;
+    display: string;
+  };
+  outcomeCoded?: {
+    uuid: string;
+    display: string;
+  };
+  notes?: string; // Contains procedure report and orphaned data as JSON
+  voided: boolean;
 }
+
+// Procedure payload for EMRAPI
+export type ProcedurePayload = {
+  patient: string;
+  encounter?: string; // Single encounter UUID (for EMRAPI)
+  procedureCoded: string; // Renamed from 'concept' for EMRAPI
+  bodySiteCoded?: string; // Renamed from 'bodySite' for EMRAPI
+  startDateTime: string; // camelCase for EMRAPI
+  endDateTime?: string; // camelCase for EMRAPI
+  status: string; // Concept UUID (not enum!)
+  outcomeCoded?: string; // Concept UUID (not enum!)
+  notes?: string; // Renamed from 'procedureReport'
+  // Internal field for orphaned data stored as JSON in notes
+  _orphanedData?: {
+    procedureOrder?: string;
+    procedureReason?: string;
+    category?: string;
+    location?: string;
+    modality?: string;
+    statusReason?: string;
+  };
+  // Legacy fields (for backward compatibility during migration)
+  // TODO: Remove after migration is complete
+  concept?: string;
+  bodySite?: string;
+  startDatetime?: string;
+  endDatetime?: string;
+  outcome?: string;
+  procedureReport?: string;
+  procedureOrder?: string;
+  encounters?: Array<any>;
+};
+
+// Type for procedure order reference observation
+export type ProcedureOrderRefObservation = {
+  concept: string;
+  value: string; // procedureOrderUuid
+  encounter: string;
+  obsDatetime: string;
+  person: string;
+};
 interface ProcedureOrder {
   uuid: string;
   orderNumber: string;
@@ -163,3 +225,61 @@ interface OrderType {
   display: string;
   name: string;
 }
+
+// ============================================================================
+// Workspace Types (Shared Pattern for Standalone Workspaces)
+// ============================================================================
+
+/**
+ * Base workspace props for all order workspaces.
+ * Defines the common form context that all workspaces should support.
+ */
+export interface BaseOrderWorkspaceProps {
+  /** Indicates whether the workspace is creating, editing, or reviewing an order */
+  formContext?: 'creating' | 'editing' | 'reviewing';
+  /** Optional order data for editing or reviewing */
+  order?: Result | Order;
+  /** Optional procedure data for editing procedure results */
+  procedure?: Procedure;
+}
+
+/**
+ * Window props for patient context.
+ * Standardized across all imaging orders workspaces to ensure consistent
+ * patient information passing.
+ */
+export interface BaseOrderWindowProps {
+  /** The patient UUID - required for all workspace operations */
+  patientUuid: string;
+  /** Optional full patient object - can be passed to avoid additional API calls */
+  patient?: any;
+  /** Optional encounter UUID - used for procedure results and orders */
+  encounterUuid?: string;
+}
+
+/**
+ * Combined workspace definition props type.
+ * This type combines workspace props and window props into a single
+ * Workspace2DefinitionProps type for workspace components.
+ *
+ * @example
+ * ```typescript
+ * type MyWorkspaceProps = OrderWorkspaceDefinitionProps<
+ *   { order: Result; formContext: 'editing' },
+ *   { patientUuid: string }
+ * >;
+ *
+ * const MyWorkspace: React.FC<MyWorkspaceProps> = ({
+ *   closeWorkspace,
+ *   workspaceProps: { order, formContext },
+ *   windowProps: { patientUuid }
+ * }) => { ... }
+ * ```
+ */
+export type OrderWorkspaceDefinitionProps<
+  TWorkspaceProps extends object = BaseOrderWorkspaceProps,
+  TWindowProps extends object = BaseOrderWindowProps,
+> = Workspace2DefinitionProps<
+  { workspaceProps: TWorkspaceProps & BaseOrderWorkspaceProps },
+  { windowProps: TWindowProps & BaseOrderWindowProps }
+>;

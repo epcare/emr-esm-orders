@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { mutate } from 'swr';
 import styles from './imaging-report-form.scss';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import {
   showSnackbar,
   useLayoutType,
   usePatient,
-  useWorkspace2Context,
+  useConfig,
 } from '@openmrs/esm-framework';
 import { type Result } from '../../imaging-tabs/work-list/work-list.resource';
 import { Controller, useForm } from 'react-hook-form';
@@ -19,19 +19,31 @@ import { Stack, Button, TextArea, ButtonSet, InlineLoading } from '@carbon/react
 import classNames from 'classnames';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type ImagingConfig } from '../../config-schema';
+import { type OrderWorkspaceDefinitionProps, type BaseOrderWorkspaceProps } from '../../types';
 
-type ImagingReportFormWorkspaceProps = {
-  patient: any;
+/**
+ * Workspace props for imaging report form
+ */
+interface ImagingReportFormWorkspaceProps extends BaseOrderWorkspaceProps {
   order: Result;
-};
+}
 
-type ImagingReportFormWindowProps = {
-  patient: any;
+/**
+ * Window props for patient context
+ */
+interface ImagingReportFormWindowProps {
   patientUuid: string;
   encounterUuid: string;
-};
+}
 
-type ResultFormProps = Workspace2DefinitionProps<ImagingReportFormWorkspaceProps, ImagingReportFormWindowProps>;
+/**
+ * Combined workspace definition props
+ */
+type ImagingReportFormWorkspaceDefinition = OrderWorkspaceDefinitionProps<
+  ImagingReportFormWorkspaceProps,
+  ImagingReportFormWindowProps
+>;
 
 const imagingReportSchema = z.object({
   procedureReport: z.string({ required_error: 'Imaging report is required' }).min(1, {
@@ -41,23 +53,22 @@ const imagingReportSchema = z.object({
 
 type ImagingReportFormData = z.infer<typeof imagingReportSchema>;
 
-const ImagingReportForm: React.FC<ResultFormProps> = () => {
+const ImagingReportForm: React.FC<ImagingReportFormWorkspaceDefinition> = ({
+  closeWorkspace,
+  workspaceProps,
+  windowProps,
+}) => {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
 
-  // Use the workspace context to get the workspace props and functions
-  const { workspaceProps, windowProps, closeWorkspace } = useWorkspace2Context() as Workspace2DefinitionProps<
-    ImagingReportFormWorkspaceProps,
-    ImagingReportFormWindowProps
-  >;
-
-  // Extract props - patient and order from workspace props, patientUuid from window props
-  const patient = workspaceProps?.patient;
+  // Extract props - order from workspace props, patientUuid and encounterUuid from window props
   const order = workspaceProps?.order;
   const patientUuid = windowProps?.patientUuid;
+  const encounterUuid = windowProps?.encounterUuid;
 
   const { patient: patientData, isLoading } = usePatient(patientUuid);
   const { concept, isLoading: isLoadingConcepts } = useGetOrderConceptByUuid(order?.concept?.uuid);
+  const config = useConfig<ImagingConfig>();
   const {
     formState: { isSubmitting, errors, isDirty },
     control,
@@ -84,17 +95,23 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
   // The unsaved changes prompt is handled automatically by the workspace system
 
   const onSubmit = async (formData: ImagingReportFormData) => {
+    // Build orphaned data for notes JSON
+    const orphanedData = {
+      procedureOrder: order.uuid,
+      procedureReason: order?.orderReason?.uuid,
+      category: order?.orderType?.uuid,
+    };
+
     const reportPayload = {
       patient: patientUuid,
-      procedureOrder: order.uuid,
-      concept: order.concept.uuid,
-      status: 'COMPLETED',
-      procedureReport: formData.procedureReport,
-      encounters: [],
+      procedureCoded: order.concept.uuid,
+      status: config.procedureStatusConcepts.COMPLETED,
+      notes: formData.procedureReport,
+      _orphanedData: orphanedData,
     };
 
     try {
-      const response = await saveProcedureReport(reportPayload);
+      const response = await saveProcedureReport(reportPayload, config, encounterUuid);
       if (response.ok) {
         showSnackbar({
           title: t('imagingOrderSaveSuccess', 'Imaging order saved successfully'),
@@ -120,7 +137,7 @@ const ImagingReportForm: React.FC<ResultFormProps> = () => {
     }
   };
   // Show loading state if workspace props are not available yet
-  if (!workspaceProps || !windowProps || !patientUuid || !order) {
+  if (!patientUuid || !order) {
     return <InlineLoading status="active" iconDescription="Loading workspace..." />;
   }
 

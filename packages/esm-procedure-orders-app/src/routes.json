@@ -132,10 +132,17 @@
       "component": "addProceduresOrderWorkspace",
       "window": "patient-chart-order-basket"
     },
-     {
+    {
       "name": "procedure-report-form",
       "component": "postProcedureResults",
       "title": "Procedure Report Form",
+      "type": "form",
+      "window": "patient-chart-order-basket"
+    },
+    {
+      "name": "procedureResultFormWorkspace",
+      "component": "procedureResultFormWorkspace",
+      "title": "Procedure Result Form",
       "type": "form",
       "window": "patient-chart-order-basket"
     }

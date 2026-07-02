@@ -78,7 +78,7 @@ const ListOrderDetails: React.FC<ListOrdersDetailsProps> = ({ groupedOrders, sho
               </StructuredListRow>
             </StructuredListBody>
           </StructuredListWrapper>
-          {row.isApproved && row.procedures?.[0]?.procedureReport && (
+          {row.isApproved && row.procedures?.[0]?.notes && (
             <Accordion>
               <AccordionItem title={<span className={styles.accordionTitle}>{t('viewReport', 'View Report')}</span>}>
                 <TextArea
@@ -86,7 +86,7 @@ const ListOrderDetails: React.FC<ListOrdersDetailsProps> = ({ groupedOrders, sho
                   labelText={t('imagingReports', 'Imaging report')}
                   id={`report-${row.uuid}`}
                   name={`report-${row.uuid}`}
-                  value={row.procedures[0].procedureReport}
+                  value={row.procedures?.[0]?.notes}
                   readOnly
                 />
                 <ExtensionSlot

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
 import capitalize from 'lodash-es/capitalize';
 import { useTranslation } from 'react-i18next';
@@ -11,39 +11,96 @@ import {
   parseDate,
   useLayoutType,
   usePatient,
-  type DefaultWorkspaceProps,
+  type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
 import { TestTypeSearch } from './imaging-type-search';
 import { ImagingOrderForm } from './imaging-order-form.component';
 import styles from './add-imaging-order.scss';
-import { type ImagingOrderBasketItem } from '../../../types';
+import {
+  type ImagingOrderBasketItem,
+  type OrderWorkspaceDefinitionProps,
+  type BaseOrderWorkspaceProps,
+  type BaseOrderWindowProps,
+} from '../../../types';
 
-interface AddImagingOrderWorkspaceProps extends DefaultWorkspaceProps {
+/**
+ * Workspace props for adding/editing imaging orders
+ */
+interface AddImagingOrderWorkspaceProps extends BaseOrderWorkspaceProps {
   order?: ImagingOrderBasketItem;
 }
 
+/**
+ * Window props for patient context
+ */
+type AddImagingOrderWindowProps = BaseOrderWindowProps;
+
+/**
+ * Combined workspace definition props
+ */
+type AddImagingOrderWorkspaceDefinition = OrderWorkspaceDefinitionProps<
+  AddImagingOrderWorkspaceProps,
+  AddImagingOrderWindowProps
+>;
+
+/**
+ * Add Imaging Order Workspace
+ *
+ * A standalone workspace for creating and editing imaging orders.
+ * Patient context is received via windowProps, ensuring the workspace
+ * can function outside the patient chart.
+ *
+ * @example
+ * ```typescript
+ * launchWorkspace2(
+ *   'add-imaging-order',
+ *   { order: existingOrder, formContext: 'editing' },  // workspaceProps
+ *   { patientUuid: 'uuid', patient: patientObj }       // windowProps
+ * );
+ * ```
+ */
 export default function AddImagingOrderWorkspace({
-  order: initialOrder,
   closeWorkspace,
-}: AddImagingOrderWorkspaceProps) {
+  workspaceProps,
+  windowProps,
+}: AddImagingOrderWorkspaceDefinition) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
-  const { patient, isLoading: isLoadingPatient } = usePatient();
+
+  // Extract patient context from windowProps
+  const patientUuid = windowProps?.patientUuid;
+  const patientFromProps = windowProps?.patient;
+
+  // Use usePatient hook only if patient not provided via props
+  const { patient, isLoading: isLoadingPatient } = usePatient(patientUuid);
+
+  // Use passed patient if available, otherwise use fetched patient
+  const patientData = patientFromProps || patient;
+
+  // Extract workspace props
+  const initialOrder = workspaceProps?.order;
+  const formContext = workspaceProps?.formContext ?? 'creating';
+
   const [currentLabOrder, setCurrentLabOrder] = useState(initialOrder);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     closeWorkspace();
-  };
+  }, [closeWorkspace]);
+
+  // Show loading state while patient data is being fetched
+  if (!patientUuid && !patientData) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>
-      {isTablet && !isLoadingPatient && patient && (
+      {isTablet && !isLoadingPatient && patientData && (
         <div className={styles.patientHeader}>
-          <span className={styles.bodyShort02}>{getPatientName(patient)}</span>
+          <span className={styles.bodyShort02}>{getPatientName(patientData)}</span>
           <span className={classNames(styles.text02, styles.bodyShort01)}>
-            {capitalize(patient.gender)} &middot; {age(patient.birthDate)} &middot;{' '}
+            {capitalize(patientData.gender)} &middot; {age(patientData.birthDate)} &middot;{' '}
             <span>
-              {formatDate(parseDate(patient.birthDate), {
+              {formatDate(parseDate(patientData.birthDate), {
                 mode: 'wide',
                 time: false,
               })}

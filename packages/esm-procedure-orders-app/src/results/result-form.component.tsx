@@ -3,10 +3,11 @@ import styles from './result-form.scss';
 import { Button, InlineLoading, ModalBody, ModalFooter, TextArea, FormLabel } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { closeOverlay } from '../components/overlay/hook';
-import { ExtensionSlot, showNotification, showToast, usePatient } from '@openmrs/esm-framework';
+import { ExtensionSlot, showNotification, showToast, usePatient, useConfig } from '@openmrs/esm-framework';
 import { useGetOrderConceptByUuid, saveProcedureReport } from './result-form.resource';
 import { useForm } from 'react-hook-form';
 import { type Result } from '../types';
+import { type ConfigObject } from '../config-schema';
 
 interface ResultFormProps {
   patientUuid: string;
@@ -16,6 +17,7 @@ interface ResultFormProps {
 const PostProcedureForm: React.FC<ResultFormProps> = ({ order, patientUuid }) => {
   const [report, setProcedureReport] = useState('');
   const { t } = useTranslation();
+  const config = useConfig<ConfigObject>();
   const {
     formState: { isSubmitting, errors },
     handleSubmit,
@@ -44,18 +46,22 @@ const PostProcedureForm: React.FC<ResultFormProps> = ({ order, patientUuid }) =>
     e.preventDefault();
     // assign result to test order
 
-    const reportPayload = {
-      patient: patientUuid,
+    // Build orphaned data for notes JSON
+    const orphanedData = {
       procedureOrder: order.uuid,
-      concept: order.concept.uuid,
-      status: 'IN_PROGRESS',
-      procedureReport: report,
-      participants: [],
-      procedureResults: [],
-      complications: [],
+      procedureReason: order?.orderReason?.uuid,
+      category: order?.orderType?.uuid,
     };
 
-    saveProcedureReport(reportPayload).then(
+    const reportPayload = {
+      patient: patientUuid,
+      procedureCoded: order.concept.uuid,
+      status: config.procedureStatusConcepts.IN_PROGRESS, // Use concept UUID instead of enum
+      notes: report,
+      _orphanedData: orphanedData,
+    };
+
+    saveProcedureReport(reportPayload, config).then(
       () => {
         showToast({
           critical: true,
