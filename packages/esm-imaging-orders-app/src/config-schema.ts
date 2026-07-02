@@ -62,6 +62,79 @@ export const configSchema = {
     _description: 'Concept UUID for storing procedure order reference as an observation',
     _default: '94b88a9e-81d7-4c28-bda0-802d9313aa19',
   },
+  // Additional fields for imaging result form
+  conditionConceptClassUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The concept class UUID for conditions',
+    _default: '8d4918b0-c2cc-11de-8d13-0010c6dffd0f',
+  },
+  procedureComplicationGroupingConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The concept UUID for grouping procedure complications obs',
+    _default: '120202AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  procedureComplicationConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The concept UUID for capturing procedure complications',
+    _default: '120198AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  procedureResultEncounterType: {
+    _type: Type.String,
+    _description: 'The procedure results encounter type UUID',
+    _default: '99a7a6ba-59f4-484e-880d-01cbeaead62f',
+  },
+  procedureResultEncounterRole: {
+    _type: Type.String,
+    _description: 'The encounter provider role UUID',
+    _default: 'a0b03050-c99b-11e0-9572-0800200c9a66',
+  },
+  // Procedure result form configuration
+  useOrderEncounter: {
+    _type: Type.Boolean,
+    _description: 'Use the order encounter for procedure results, or create a new one',
+    _default: true,
+  },
+  // Procedure result form concept source configurations
+  procedureConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The procedure concept set UUID for filtering procedures',
+    _default: '165418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  procedureConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for procedure concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
+  bodySiteConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The body site concept set UUID for filtering body sites',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  bodySiteConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for body site concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
+  statusConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The status concept set UUID for filtering status options',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  statusConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for status concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
+  durationUnitConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The duration unit concept set UUID for filtering duration units',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  durationUnitConceptSourceType: {
+    _type: Type.String,
+    _description: 'The source type for duration unit concept filtering (Concept set, Concept class, Answer to, or any)',
+    _default: 'Concept set',
+  },
 };
 
 interface OrderReason {
@@ -69,7 +142,8 @@ interface OrderReason {
   required: boolean;
   orderReasons: Array<string>;
 }
-export type ImagingConfig = {
+
+export interface ConfigObject {
   radiologyConceptSetUuid: string;
   orders: {
     labOrderTypeUuid: string;
@@ -94,4 +168,21 @@ export type ImagingConfig = {
     PARTIALLY_SUCCESSFUL: string;
   };
   procedureOrderRefConceptUuid: string;
-};
+  // Additional fields for imaging result form
+  conditionConceptClassUuid: string;
+  procedureComplicationGroupingConceptUuid: string;
+  procedureComplicationConceptUuid: string;
+  procedureResultEncounterType: string;
+  procedureResultEncounterRole: string;
+  useOrderEncounter: boolean;
+  procedureConceptUuid: string;
+  procedureConceptSourceType: string;
+  bodySiteConceptUuid: string;
+  bodySiteConceptSourceType: string;
+  statusConceptUuid: string;
+  statusConceptSourceType: string;
+  durationUnitConceptUuid: string;
+  durationUnitConceptSourceType: string;
+}
+
+export type ImagingConfig = ConfigObject;

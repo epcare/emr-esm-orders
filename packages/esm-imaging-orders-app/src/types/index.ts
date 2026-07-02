@@ -2,6 +2,9 @@ import { type OrderUrgency, type OrderBasketItem } from '@openmrs/esm-patient-co
 import type { Workspace2DefinitionProps } from '@openmrs/esm-framework';
 import type { Result } from '../imaging-tabs/work-list/work-list.resource';
 
+// Re-export Result for convenience
+export type { Result } from '../imaging-tabs/work-list/work-list.resource';
+
 export interface Concept {
   uuid: string;
   display: string;
@@ -143,6 +146,57 @@ export interface Procedure {
   };
   notes?: string; // Contains procedure report and orphaned data as JSON
   voided: boolean;
+  // Extended fields for imaging result form
+  estimatedStartDate?: string;
+  duration?: number;
+  durationUnit?: {
+    uuid: string;
+    display: string;
+  };
+}
+
+/**
+ * Reference to a concept (minimal version)
+ */
+export interface ConceptReference {
+  uuid: string;
+  display: string;
+}
+
+/**
+ * Procedure type from EMRAPI
+ */
+export interface ProcedureType {
+  uuid: string;
+  display: string;
+  description?: string;
+}
+
+/**
+ * Coded provider (person/provider with uuid)
+ */
+export interface CodedProvider {
+  uuid: string;
+  display: string;
+  person?: {
+    uuid: string;
+    display: string;
+  };
+}
+
+/**
+ * Coded condition (diagnosis)
+ */
+export interface CodedCondition {
+  display: string;
+  concept: {
+    uuid: string;
+    display: string;
+  };
+  conceptName?: {
+    uuid: string;
+    display: string;
+  };
 }
 
 // Procedure payload for EMRAPI

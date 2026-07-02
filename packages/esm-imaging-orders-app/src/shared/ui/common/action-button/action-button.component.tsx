@@ -23,7 +23,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   action,
   order,
   patientUuid,
-  imagingReportFormWorkspaceName = 'imaging-report-form',
+  imagingReportFormWorkspaceName = 'imagingResultFormWorkspace',
   imagingReviewFormWorkspaceName = 'imaging-review-form',
 }) => {
   const { t } = useTranslation();

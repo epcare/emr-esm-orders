@@ -48,6 +48,13 @@
       "component": "imagingReviewForm",
       "title": "Review form",
       "window": "imaging-orders-window"
+    },
+    {
+      "name": "imagingResultFormWorkspace",
+      "component": "imagingResultFormWorkspace",
+      "title": "Imaging Result Form",
+      "type": "form",
+      "window": "imaging-orders-window"
     }
   ],
   "workspaceWindows2": [

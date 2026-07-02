@@ -75,6 +75,13 @@ export interface Procedure {
   };
   notes?: string; // Contains procedure report and orphaned data as JSON
   voided: boolean;
+  // Extended fields for imaging result form
+  estimatedStartDate?: string;
+  duration?: number;
+  durationUnit?: {
+    uuid: string;
+    display: string;
+  };
 }
 
 export interface Patient {

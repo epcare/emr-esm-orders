@@ -10,6 +10,7 @@ import ImagingOrderBasketPanelExtension from './form/imaging-orders/imaging-orde
 import AddImagingToWorkListModal from './imaging-tabs/test-ordered/pick-imaging-order/add-to-worklist-dialog.component';
 import AmendModal from './imaging-tabs/test-ordered/amend-order-dialog/amend-imaging-dialog.component';
 import ImagingReviewForm from './form/review-form/review-imaging-form.workspace';
+import ImagingResultFormWorkspace from './workspaces/imaging-result-form/imaging-result-form.workspace';
 import PrintPreviewModal from './print/print-report-modal.component';
 
 const options = {
@@ -47,5 +48,6 @@ export const addImagingOrderWorkspace = getAsyncLifecycle(
 
 export const imagingReportForm = getSyncLifecycle(ImagingReportForm, options);
 export const imagingReviewForm = getSyncLifecycle(ImagingReviewForm, options);
+export const imagingResultFormWorkspace = getSyncLifecycle(ImagingResultFormWorkspace, options);
 export const addImagingToWorkListModal = getSyncLifecycle(AddImagingToWorkListModal, options);
 export const amendModal = getSyncLifecycle(AmendModal, options);
