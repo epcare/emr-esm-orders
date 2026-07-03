@@ -130,33 +130,21 @@
       "type": "order",
       "title": "Add procedure order",
       "component": "addProceduresOrderWorkspace",
-      "window": "procedure-orders-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "procedure-report-form",
       "component": "postProcedureResults",
       "title": "Procedure Report Form",
       "type": "form",
-      "window": "procedure-orders-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "procedureResultFormWorkspace",
       "component": "procedureResultFormWorkspace",
       "title": "Procedure Result Form",
       "type": "form",
-      "window": "procedure-orders-window"
-    }
-  ],
-  "workspaceWindows2": [
-    {
-      "name": "procedure-orders-window",
-      "group": "procedure-orders-group"
-    }
-  ],
-  "workspaceGroups2": [
-    {
-      "name": "procedure-orders-group",
-      "overlay": true
+      "window": "patient-chart-order-basket"
     }
   ],
    "modals": [

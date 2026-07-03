@@ -30,35 +30,29 @@
   "workspaces2": [
     {
       "name": "add-imaging-order",
+      "type": "order",
+      "title": "Add Imaging order",
       "component": "addImagingOrderWorkspace",
-      "window": "imaging-orders-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imaging-report-form",
+      "title": "Imaging Report Form",
+      "type": "form",
       "component": "imagingReportForm",
-      "window": "imaging-orders-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imaging-review-form",
+      "type": "order",
+      "title": "Review form",
       "component": "imagingReviewForm",
-      "window": "imaging-orders-window"
+      "window": "patient-chart-order-basket"
     },
     {
       "name": "imagingResultFormWorkspace",
       "component": "imagingResultFormWorkspace",
-      "window": "imaging-orders-window"
-    }
-  ],
-  "workspaceWindows2": [
-    {
-      "name": "imaging-orders-window",
-      "group": "imaging-orders-group"
-    }
-  ],
-  "workspaceGroups2": [
-    {
-      "name": "imaging-orders-group",
-      "overlay": true
+      "window": "patient-chart-order-basket"
     }
   ],
   "modals": [
