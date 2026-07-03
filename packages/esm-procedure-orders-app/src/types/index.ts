@@ -426,7 +426,8 @@ export interface ProcedureOrderBasketItem extends OrderBasketItem {
   orderReason?: string;
   orderReasonNonCoded?: string;
   scheduledDate?: Date;
-  commentsToFulfiller?: string;
+  commentToFulfiller?: string;
+  clinicalHistory?: string;
   laterality?: string;
   numberOfRepeats?: string;
   frequency?: string;

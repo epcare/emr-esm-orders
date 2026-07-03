@@ -77,7 +77,7 @@ export function MedicalSupplyOrderForm({
         ),
       },
     ),
-    commentsToFulfiller: z.string().optional(),
+    commentToFulfiller: z.string().optional(),
     quantityUnits: z.string().optional(),
     quantity: z
       .number({

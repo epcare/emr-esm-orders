@@ -299,6 +299,7 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
       category: order?.orderType?.uuid,
     };
 
+    const statusValue = getValues('status');
     const payload = {
       patient: patientUuid,
       procedureCoded: getValues('procedureCoded'),
@@ -306,7 +307,8 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
       bodySite: getValues('bodySite') || null,
       startDateTime: startDateTime ? dayjs(startDateTime).format() : null,
       endDateTime: endDateTime ? dayjs(endDateTime).format() : null,
-      status: getValues('status'),
+      // Convert status enum to concept UUID
+      status: statusValue ? procedureStatusConcepts[statusValue] || statusValue : null,
       notes: notes,
       estimatedStartDate: estimatedStartDate || null,
       duration: hasDuration ? duration : null,

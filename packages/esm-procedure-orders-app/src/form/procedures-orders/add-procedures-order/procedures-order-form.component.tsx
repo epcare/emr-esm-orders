@@ -100,11 +100,21 @@ export function ProceduresOrderForm({
           )
       : z.string().optional(),
     scheduleDate: z.union([z.string(), z.date(), z.string().optional()]),
-    commentsToFulfiller: z.string().optional(),
-    numberOfRepeats: z.string().optional(),
+    commentToFulfiller: z.string().optional(),
+    clinicalHistory: z.string().max(2000).optional(),
+    numberOfRepeats: z.string()
+      .optional()
+      .refine((val) => !val || /^\d+$/.test(val), {
+        message: translateFrom(moduleName, 'numberOfRepeatsMustBeWholeNumber', 'Number of repeats must be a whole number'),
+      })
+      .refine((val) => !val || parseInt(val, 10) > 0, {
+        message: translateFrom(moduleName, 'numberOfRepeatsMustBePositive', 'Number of repeats must be greater than 0'),
+      }),
     previousOrder: z.string().optional(),
     frequency: z.string().optional(),
     bodySite: z.string().optional(),
+    specimenType: z.string().optional(),
+    specimenSource: z.string().optional(),
     orderReasonNonCoded: z.string().min(1, {
       message: translateFrom(moduleName, 'addOrderReasonRequired', 'Order reason is required'),
     }),
@@ -420,20 +430,96 @@ export function ProceduresOrderForm({
             <Column lg={16} md={8} sm={4}>
               <InputWrapper>
                 <Controller
-                  name="commentsToFulfiller"
+                  name="commentToFulfiller"
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextArea
                       enableCounter
-                      id="commentsToFulfillerInput"
+                      id="commentToFulfillerInput"
                       size="lg"
-                      labelText={t('commentsToFulfiller', 'Comments To Fulfiller')}
+                      labelText={t('commentToFulfiller', 'Comments To Fulfiller')}
                       value={value}
                       onChange={onChange}
                       onBlur={onBlur}
                       maxCount={500}
-                      invalid={errors.commentsToFulfiller?.message}
-                      invalidText={errors.commentsToFulfiller?.message}
+                      invalid={errors.commentToFulfiller?.message}
+                      invalidText={errors.commentToFulfiller?.message}
+                    />
+                  )}
+                />
+              </InputWrapper>
+            </Column>
+          </Grid>
+          <Grid className={styles.gridRow}>
+            <Column lg={16} md={8} sm={4}>
+              <InputWrapper>
+                <Controller
+                  name="clinicalHistory"
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextArea
+                      enableCounter
+                      id="clinicalHistoryInput"
+                      size="lg"
+                      labelText={t('clinicalHistory', 'Clinical History')}
+                      placeholder={t('clinicalHistoryPlaceholder', 'Enter relevant clinical history')}
+                      value={value}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      maxCount={2000}
+                      rows={3}
+                      invalid={errors.clinicalHistory?.message}
+                      invalidText={errors.clinicalHistory?.message}
+                    />
+                  )}
+                />
+              </InputWrapper>
+            </Column>
+          </Grid>
+          <Grid className={styles.gridRow}>
+            <Column lg={8} md={8} sm={4}>
+              <InputWrapper>
+                <Controller
+                  name="specimenType"
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <ComboBox
+                      size="lg"
+                      id="specimenTypeInput"
+                      titleText={t('specimenType', 'Specimen Type')}
+                      placeholder={t('selectSpecimenType', 'Select specimen type')}
+                      items={[]}
+                      selectedItem={value ? { uuid: value, display: value } : null}
+                      onChange={({ selectedItem }) => {
+                        onChange(selectedItem?.uuid || '');
+                      }}
+                      onBlur={onBlur}
+                      invalid={errors.specimenType?.message}
+                      invalidText={errors.specimenType?.message}
+                    />
+                  )}
+                />
+              </InputWrapper>
+            </Column>
+            <Column lg={8} md={8} sm={4}>
+              <InputWrapper>
+                <Controller
+                  name="specimenSource"
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <ComboBox
+                      size="lg"
+                      id="specimenSourceInput"
+                      titleText={t('specimenSource', 'Specimen Source')}
+                      placeholder={t('selectSpecimenSource', 'Select specimen source')}
+                      items={[]}
+                      selectedItem={value ? { uuid: value, display: value } : null}
+                      onChange={({ selectedItem }) => {
+                        onChange(selectedItem?.uuid || '');
+                      }}
+                      onBlur={onBlur}
+                      invalid={errors.specimenSource?.message}
+                      invalidText={errors.specimenSource?.message}
                     />
                   )}
                 />

@@ -8,10 +8,12 @@ import { type ProcedureOrderBasketItem } from '../../types';
 
 export interface ProcedureOrderPost extends OrderPost {
   scheduledDate?: any;
-  commentToFulfilleON_SCHEDULED_DATEr?: string;
+  commentToFulfiller?: string;
+  instructions?: string;
+  clinicalHistory?: string;
   specimenSource?: string;
   specimenType?: string;
-  numberOfRepeats?: string;
+  numberOfRepeats?: number;
 }
 export const careSettingUuid = '6f0c9a92-6f24-11e3-af88-005056821db0';
 /**
@@ -94,13 +96,16 @@ export function prepProceduresOrderPostData(
       encounter: encounterUuid,
       concept: order.testType.conceptUuid,
       frequency: order.frequency,
-      numberOfRepeats: order.numberOfRepeats,
+      numberOfRepeats: order.numberOfRepeats ? parseInt(order.numberOfRepeats, 10) : undefined,
       urgency: order.urgency,
-      commentToFulfiller: order.commentsToFulfiller,
+      commentToFulfiller: order.commentToFulfiller,
       instructions: order.instructions,
+      clinicalHistory: order.clinicalHistory,
       orderReason: order.orderReason,
       orderReasonNonCoded: order.orderReasonNonCoded,
       bodySite: order.bodySite,
+      specimenType: order.specimenType,
+      specimenSource: order.specimenSource,
     };
     if (order.urgency === 'ON_SCHEDULED_DATE') {
       payload['scheduledDate'] = order.scheduleDate;
@@ -118,10 +123,11 @@ export function prepProceduresOrderPostData(
       specimenSource: order.specimenSource,
       specimenType: order.specimenType,
       frequency: order.frequency,
-      numberOfRepeats: order.numberOfRepeats,
+      numberOfRepeats: order.numberOfRepeats ? parseInt(order.numberOfRepeats, 10) : undefined,
       urgency: order.urgency,
-      commentToFulfiller: order.commentsToFulfiller,
+      commentToFulfiller: order.commentToFulfiller,
       instructions: order.instructions,
+      clinicalHistory: order.clinicalHistory,
       orderReason: order.orderReason,
       orderReasonNonCoded: order.orderReasonNonCoded,
       previousOrder: order.previousOrder,
@@ -143,8 +149,10 @@ export function prepProceduresOrderPostData(
       specimenType: order.specimenType,
       frequency: order.frequency,
       urgency: order.urgency,
-      numberOfRepeats: order.numberOfRepeats,
-      commentToFulfiller: order.commentsToFulfiller,
+      numberOfRepeats: order.numberOfRepeats ? parseInt(order.numberOfRepeats, 10) : undefined,
+      commentToFulfiller: order.commentToFulfiller,
+      instructions: order.instructions,
+      clinicalHistory: order.clinicalHistory,
       orderReason: order.orderReason,
       orderReasonNonCoded: order.orderReasonNonCoded,
       previousOrder: order.previousOrder,

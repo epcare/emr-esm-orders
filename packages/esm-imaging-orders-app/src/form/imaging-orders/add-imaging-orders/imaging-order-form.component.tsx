@@ -78,7 +78,7 @@ export function ImagingOrderForm({
       },
     ),
     scheduleDate: z.union([z.string(), z.date(), z.string().optional()]),
-    commentsToFulfiller: z.string().optional(),
+    commentToFulfiller: z.string().optional(),
     laterality: z.string().optional(),
     bodySite: z.string().optional(),
     orderReasonNonCoded: z.string().min(1, {
@@ -327,20 +327,20 @@ export function ImagingOrderForm({
             <Column lg={16} md={8} sm={4}>
               <InputWrapper>
                 <Controller
-                  name="commentsToFulfiller"
+                  name="commentToFulfiller"
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextArea
                       enableCounter
-                      id="commentsToFulfillerInput"
+                      id="commentToFulfillerInput"
                       size="lg"
-                      labelText={t('commentsToFulfiller', 'Comments To Fulfiller')}
+                      labelText={t('commentToFulfiller', 'Comments To Fulfiller')}
                       value={value}
                       onChange={onChange}
                       onBlur={onBlur}
                       maxCount={500}
-                      invalid={errors.commentsToFulfiller?.message}
-                      invalidText={errors.commentsToFulfiller?.message}
+                      invalid={errors.commentToFulfiller?.message}
+                      invalidText={errors.commentToFulfiller?.message}
                     />
                   )}
                 />

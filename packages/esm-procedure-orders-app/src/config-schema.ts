@@ -9,7 +9,7 @@ export const configSchema = {
   procedureConceptSetUuid: {
     _type: Type.String,
     _description: 'Procedure Concept SET UUID',
-    _default: '165418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _default: '83bdfa6a-0c51-428a-a08d-3922db216858', // Procedure sequence construct (58 members)
   },
   testOrderTypeUuid: {
     _type: Type.String,
@@ -42,7 +42,7 @@ export const configSchema = {
   procedureResultEncounterType: {
     _type: Type.String,
     _description: 'The procedure results encounter type UUID',
-    _default: '99a7a6ba-59f4-484e-880d-01cbeaead62f',
+    _default: 'a4870f6d-ea06-4bbe-b775-bcbfb0816dbf',
   },
   procedureResultEncounterRole: {
     _type: Type.String,
@@ -68,9 +68,9 @@ export const configSchema = {
     _type: Type.Object,
     _description: 'Concept UUIDs for procedure outcomes (used by emrapi Procedure)',
     _default: {
-      SUCCESSFUL: '160718AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      NOT_SUCCESSFUL: '160720AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      PARTIALLY_SUCCESSFUL: '160717AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      SUCCESSFUL: 'eed11f33-313c-4fbd-b95b-d78e950f96c9', // Successfully Treated
+      NOT_SUCCESSFUL: 'dcda6cd2-30ab-102d-86b0-7a5022ba4115', // CLINICAL TREATMENT FAILURE
+      PARTIALLY_SUCCESSFUL: '163723AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', // IN_PROGRESS (proxy for partial success)
     },
   },
   // Procedure Order Reference Concept (for storing order reference as observation)
@@ -89,7 +89,7 @@ export const configSchema = {
   procedureConceptUuid: {
     _type: Type.ConceptUuid,
     _description: 'The procedure concept set UUID for filtering procedures',
-    _default: '165418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _default: '83bdfa6a-0c51-428a-a08d-3922db216858', // Procedure sequence construct (58 members)
   },
   procedureConceptSourceType: {
     _type: Type.String,
@@ -99,7 +99,7 @@ export const configSchema = {
   bodySiteConceptUuid: {
     _type: Type.ConceptUuid,
     _description: 'The body site concept set UUID for filtering body sites',
-    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _default: 'dc9fab29-30ab-102d-86b0-7a5022ba4115', // ANATOMIC LOCATIONS (17 members)
   },
   bodySiteConceptSourceType: {
     _type: Type.String,
@@ -118,8 +118,8 @@ export const configSchema = {
   },
   durationUnitConceptUuid: {
     _type: Type.ConceptUuid,
-    _description: 'The duration unit concept set UUID for filtering duration units',
-    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _description: 'The duration unit concept UUID (coded with answers: Days, Hours, Minutes, etc.)',
+    _default: '1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', // Duration units (9 answers available)
   },
   durationUnitConceptSourceType: {
     _type: Type.String,

@@ -31,13 +31,13 @@ export type ProcedureResultFormWindowProps = BaseOrderWindowProps;
 /**
  * Helper function to combine notes from multiple sources
  */
-const combineNotes = (instructions?: string, commentsToFulfiller?: string, existingNotes?: string): string => {
+const combineNotes = (instructions?: string, commentToFulfiller?: string, existingNotes?: string): string => {
   const parts: string[] = [];
   if (instructions?.trim()) {
     parts.push(`Instructions: ${instructions.trim()}`);
   }
-  if (commentsToFulfiller?.trim()) {
-    parts.push(`Comments: ${commentsToFulfiller.trim()}`);
+  if (commentToFulfiller?.trim()) {
+    parts.push(`Comments: ${commentToFulfiller.trim()}`);
   }
   if (existingNotes?.trim()) {
     parts.push(existingNotes.trim());

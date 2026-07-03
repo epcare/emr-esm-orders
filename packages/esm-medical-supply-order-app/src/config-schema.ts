@@ -20,7 +20,7 @@ export const configSchema = {
     medicalSupplyOrderTypeUuid: {
       _type: Type.UUID,
       _description: "UUID for the 'Medical Supply' order type",
-      _default: 'dab3ab30-2feb-48ec-b4af-8332a0831b49',
+      _default: '4237a01f-29c5-4167-9d8e-96d6e590aa33',
     },
   },
 };

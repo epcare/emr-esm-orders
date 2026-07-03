@@ -59,7 +59,7 @@ export function prepImagingOrderPostData(
       instructions: order.instructions,
       orderReason: order.orderReason,
       orderReasonNonCoded: order.orderReasonNonCoded,
-      commentToFulfiller: order.commentsToFulfiller,
+      commentToFulfiller: order.commentToFulfiller,
       laterality: order.laterality,
       bodySite: order.bodySite,
       urgency: order.urgency,
@@ -80,7 +80,7 @@ export function prepImagingOrderPostData(
       instructions: order.instructions,
       orderReason: order.orderReason,
       orderReasonNonCoded: order.orderReasonNonCoded,
-      commentToFulfiller: order.commentsToFulfiller,
+      commentToFulfiller: order.commentToFulfiller,
       laterality: order.laterality,
       bodySite: order.bodySite,
     };
@@ -99,7 +99,7 @@ export function prepImagingOrderPostData(
       concept: order.testType.conceptUuid,
       orderReason: order.orderReason,
       orderReasonNonCoded: order.orderReasonNonCoded,
-      commentToFulfiller: order.commentsToFulfiller,
+      commentToFulfiller: order.commentToFulfiller,
       laterality: order.laterality,
       bodySite: order.bodySite,
     };
