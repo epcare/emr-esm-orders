@@ -29,7 +29,7 @@ const PostProcedureForm: React.FC<ResultFormProps> = ({ order, patientUuid }) =>
   const { concept, isLoading: isLoadingConcepts } = useGetOrderConceptByUuid(order.concept.uuid);
 
   const bannerState = useMemo(() => {
-    if (patient) {
+    if (patient && patientUuid) {
       return {
         patient,
         patientUuid,
@@ -93,7 +93,7 @@ const PostProcedureForm: React.FC<ResultFormProps> = ({ order, patientUuid }) =>
               status="active"
             />
           )}
-          {patient && <ExtensionSlot name="patient-header-slot" state={bannerState} />}
+          {patient && patientUuid && <ExtensionSlot name="patient-header-slot" state={bannerState} />}
           <section className={styles.section}>
             <form>
               <FormLabel className={styles.textArea}>{concept?.display}</FormLabel>

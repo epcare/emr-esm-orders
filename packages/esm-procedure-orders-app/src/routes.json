@@ -137,14 +137,26 @@
       "component": "postProcedureResults",
       "title": "Procedure Report Form",
       "type": "form",
-      "window": "patient-chart-order-basket"
+      "window": "procedure-orders-window"
     },
     {
       "name": "procedureResultFormWorkspace",
       "component": "procedureResultFormWorkspace",
       "title": "Procedure Result Form",
       "type": "form",
-      "window": "patient-chart-order-basket"
+      "window": "procedure-orders-window"
+    }
+  ],
+  "workspaceWindows2": [
+    {
+      "name": "procedure-orders-window",
+      "group": "procedure-orders-group"
+    }
+  ],
+  "workspaceGroups2": [
+    {
+      "name": "procedure-orders-group",
+      "overlay": true
     }
   ],
    "modals": [

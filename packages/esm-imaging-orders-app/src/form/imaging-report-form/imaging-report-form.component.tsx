@@ -82,7 +82,7 @@ const ImagingReportForm: React.FC<ImagingReportFormWorkspaceDefinition> = ({
   });
 
   const bannerState = useMemo(() => {
-    if (patientData) {
+    if (patientData && patientUuid) {
       return {
         patient: patientData,
         patientUuid,
@@ -143,7 +143,7 @@ const ImagingReportForm: React.FC<ImagingReportFormWorkspaceDefinition> = ({
 
   return (
     <>
-      {patientData ? (
+      {patientData && patientUuid ? (
         <ExtensionSlot name="patient-header-slot" state={bannerState} />
       ) : (
         <InlineLoading status="active" iconDescription="Loading" />

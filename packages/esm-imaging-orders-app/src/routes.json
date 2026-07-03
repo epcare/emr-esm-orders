@@ -40,19 +40,31 @@
       "title": "Imaging Report Form",
       "type": "form",
       "component": "imagingReportForm",
-      "window": "patient-chart-order-basket"
+      "window": "imaging-orders-window"
     },
     {
       "name": "imaging-review-form",
       "type": "order",
       "title": "Review form",
       "component": "imagingReviewForm",
-      "window": "patient-chart-order-basket"
+      "window": "imaging-orders-window"
     },
     {
       "name": "imagingResultFormWorkspace",
       "component": "imagingResultFormWorkspace",
-      "window": "patient-chart-order-basket"
+      "window": "imaging-orders-window"
+    }
+  ],
+  "workspaceWindows2": [
+    {
+      "name": "imaging-orders-window",
+      "group": "imaging-orders-group"
+    }
+  ],
+  "workspaceGroups2": [
+    {
+      "name": "imaging-orders-group",
+      "overlay": true
     }
   ],
   "modals": [

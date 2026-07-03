@@ -89,12 +89,14 @@ const ListOrderDetails: React.FC<ListOrdersDetailsProps> = ({ groupedOrders, sho
                   value={row.procedures?.[0]?.notes}
                   readOnly
                 />
-                <ExtensionSlot
-                  name="patient-chart-attachments-dashboard-slot"
-                  state={{
-                    patientUuid,
-                  }}
-                />
+                {patientUuid && (
+                  <ExtensionSlot
+                    name="patient-chart-attachments-dashboard-slot"
+                    state={{
+                      patientUuid,
+                    }}
+                  />
+                )}
                 <Button
                   kind="tertiary"
                   className={styles.printBtn}
