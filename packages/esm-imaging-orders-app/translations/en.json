@@ -18,7 +18,7 @@
   "bodySiteRequired": "Body site is required",
   "cancel": "Cancel",
   "clinicalIndication": "Clinical Indication",
-  "commentsToFulfiller": "Comments To Fulfiller",
+  "commentToFulfiller": "Comments To Fulfiller",
   "complications": "Complications",
   "confirmationMessages": "Do you want to amend this order {{orderName}} - {{orderNumber}}?",
   "confirmationPickupMessages": "Do you want to pick this order: {{orderName}} - {{orderNumber}}?",

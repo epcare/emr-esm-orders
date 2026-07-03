@@ -102,10 +102,15 @@ export function ProceduresOrderForm({
     scheduleDate: z.union([z.string(), z.date(), z.string().optional()]),
     commentToFulfiller: z.string().optional(),
     clinicalHistory: z.string().max(2000).optional(),
-    numberOfRepeats: z.string()
+    numberOfRepeats: z
+      .string()
       .optional()
       .refine((val) => !val || /^\d+$/.test(val), {
-        message: translateFrom(moduleName, 'numberOfRepeatsMustBeWholeNumber', 'Number of repeats must be a whole number'),
+        message: translateFrom(
+          moduleName,
+          'numberOfRepeatsMustBeWholeNumber',
+          'Number of repeats must be a whole number',
+        ),
       })
       .refine((val) => !val || parseInt(val, 10) > 0, {
         message: translateFrom(moduleName, 'numberOfRepeatsMustBePositive', 'Number of repeats must be greater than 0'),
