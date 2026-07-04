@@ -146,13 +146,19 @@ export default function ImagingResultFormWorkspace({
     [order, procedure],
   );
 
+  // Derive clinical indication from order reason
+  const clinicalIndication = useMemo(() => {
+    const reason = order?.orderReason?.display || order?.orderReasonNonCoded || '';
+    return reason;
+  }, [order]);
+
   const methods = useForm<ImagingResultFormSchema>({
     mode: 'all',
     resolver: zodResolver(schema),
     defaultValues: {
       procedureCoded: order?.concept?.uuid ?? procedure?.procedureCoded?.uuid ?? '',
       procedureType: procedure?.procedureType?.uuid ?? '',
-      bodySite: order?.bodySite ?? procedure?.bodySite?.uuid ?? '',
+      bodySite: order?.bodySite?.uuid ?? procedure?.bodySite?.uuid ?? '',
       startDateTime: procedure?.startDateTime ? new Date(procedure.startDateTime) : null,
       endDateTime: procedure?.endDateTime ? new Date(procedure.endDateTime) : null,
       status: procedure?.status?.uuid ?? '',
@@ -164,13 +170,13 @@ export default function ImagingResultFormWorkspace({
       outcomeCoded: '',
       participants: [],
       complications: [],
-      // Observation fields defaults
+      // Observation fields defaults - pre-filled from order where possible
       imagingModality: '',
       contrastAgent: '',
-      accessionNumber: '',
+      accessionNumber: order?.accessionNumber ?? '',
       dicomStudyUid: '',
       radiationDose: null,
-      clinicalIndication: '',
+      clinicalIndication: clinicalIndication,
       imagingFindings: '',
       imagingImpression: '',
       imagingImages: [],
