@@ -24,6 +24,7 @@ import {
 } from '@carbon/react';
 import { ResponsiveWrapper } from '@openmrs/esm-styleguide';
 import { showSnackbar, useConfig, useLayoutType, useDebounce } from '@openmrs/esm-framework';
+import { DurationField, EstimatedDateField } from '../../shared/ui/form-fields';
 import type { ConfigObject } from '../../config-schema';
 import {
   saveImagingResult,
@@ -386,7 +387,7 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
   return (
     <Form className={styles.form} onSubmit={handleSubmit(handleSave, onError)}>
       <div className={styles.formContainer}>
-        <Stack gap={7}>
+        <Stack gap={5}>
           <FormGroup legendText={t('imagingProcedureOrdered', 'Imaging Procedure Ordered')}>
             <div className={styles.readOnlyField}>
               <span className={styles.readOnlyLabel}>
@@ -492,38 +493,18 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
           )}
 
           {!isStartDateKnown && (
-            <FormGroup legendText={t('estimatedStartDate', 'Estimated start date')}>
-              <div className={styles.twoColumnGroup}>
-                <ResponsiveWrapper>
-                  <ComboBox
-                    id="estimatedYear"
-                    titleText={<RequiredFieldLabel label={t('year', 'Year')} />}
-                    placeholder={t('selectYear', 'Select year')}
-                    items={yearOptions}
-                    itemToString={(item: { id: string; label: string }) => item?.label ?? ''}
-                    selectedItem={yearOptions.find((y) => y.id === estimatedYear) ?? null}
-                    onChange={({ selectedItem }: { selectedItem: { id: string; label: string } | null }) =>
-                      setEstimatedYear(selectedItem?.id ?? '')
-                    }
-                    invalid={Boolean(errors.startDateTime)}
-                    invalidText={errors.startDateTime?.message}
-                  />
-                </ResponsiveWrapper>
-                <ResponsiveWrapper>
-                  <ComboBox
-                    id="estimatedMonth"
-                    titleText={t('monthOptional', 'Month (optional)')}
-                    placeholder={t('selectMonth', 'Select month (optional)')}
-                    items={monthOptions}
-                    itemToString={(item: { id: string; label: string }) => item?.label ?? ''}
-                    selectedItem={monthOptions.find((m) => m.id === estimatedMonth) ?? null}
-                    onChange={({ selectedItem }: { selectedItem: { id: string; label: string } | null }) =>
-                      setEstimatedMonth(selectedItem?.id ?? '')
-                    }
-                  />
-                </ResponsiveWrapper>
-              </div>
-            </FormGroup>
+            <EstimatedDateField
+              year={estimatedYear}
+              month={estimatedMonth}
+              onYearChange={setEstimatedYear}
+              onMonthChange={setEstimatedMonth}
+              yearOptions={yearOptions}
+              monthOptions={monthOptions}
+              label={t('estimatedStartDate', 'Estimated start date')}
+              yearRequired={true}
+              invalid={Boolean(errors.startDateTime)}
+              invalidText={errors.startDateTime?.message}
+            />
           )}
 
           <FormGroup legendText={t('endDateAndTime', 'End date and time')}>
@@ -552,65 +533,17 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
             />
           </FormGroup>
 
-          <FormGroup legendText={t('imagingDuration', 'Imaging duration')}>
-            <div className={styles.twoColumnGroup}>
-              <Controller
-                name="duration"
-                control={control}
-                render={({ field: { onChange, value, ref, name }, fieldState }) => (
-                  <ResponsiveWrapper>
-                    <NumberInput
-                      id="duration"
-                      name={name}
-                      ref={ref}
-                      label={t('durationValue', 'Duration')}
-                      placeholder={t('enterDuration', 'Enter duration')}
-                      min={1}
-                      hideSteppers
-                      allowEmpty
-                      invalid={Boolean(fieldState.error)}
-                      invalidText={fieldState.error?.message}
-                      value={value ?? ''}
-                      onChange={(_event, { value: nextValue }: { value: number | string }) => {
-                        if (nextValue == null || nextValue === '') {
-                          onChange(null);
-                          return;
-                        }
-                        const parsed = typeof nextValue === 'number' ? nextValue : Number(nextValue);
-                        onChange(Number.isNaN(parsed) ? null : parsed);
-                      }}
-                    />
-                  </ResponsiveWrapper>
-                )}
-              />
-              <Controller
-                name="durationUnit"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <ResponsiveWrapper>
-                    <ComboBox
-                      id="durationUnit"
-                      titleText={t('durationUnit', 'Duration unit')}
-                      placeholder={t('selectDurationUnit', 'Select unit')}
-                      items={durationUnitOptions}
-                      itemToString={(item: ConceptReference) => item?.display ?? ''}
-                      selectedItem={durationUnitOptions.find((option) => option.uuid === field.value) ?? null}
-                      onChange={({ selectedItem }: { selectedItem: ConceptReference | null }) =>
-                        field.onChange(selectedItem?.uuid ?? null)
-                      }
-                      invalid={Boolean(fieldState.error)}
-                      invalidText={fieldState.error?.message}
-                    />
-                  </ResponsiveWrapper>
-                )}
-              />
-              {durationUnitOptionsError && (
-                <p className={styles.errorMessage}>
-                  {t('durationUnitOptionsLoadFailed', 'Could not load duration unit options. Please try again.')}
-                </p>
-              )}
-            </div>
-          </FormGroup>
+          <DurationField
+            valueName="duration"
+            unitName="durationUnit"
+            unitOptions={durationUnitOptions}
+            label={t('imagingDuration', 'Imaging duration')}
+          />
+          {durationUnitOptionsError && (
+            <p className={styles.errorMessage}>
+              {t('durationUnitOptionsLoadFailed', 'Could not load duration unit options. Please try again.')}
+            </p>
+          )}
 
           <FormGroup legendText={<RequiredFieldLabel label={t('status', 'Status')} />}>
             <Controller

@@ -1,0 +1,42 @@
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.durationField {
+  width: 100%;
+}
+
+.label {
+  @include type.type-style('body-01');
+  font-weight: 600;
+  margin-bottom: layout.$spacing-03;
+  color: var(--cds-text-01);
+}
+
+.required {
+  color: #da1e28;
+  margin-left: 0.25rem;
+}
+
+.durationFieldContent {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: layout.$spacing-04;
+  align-items: start;
+
+  // Make unit field flexible but constrained
+  .unitFieldWrapper {
+    min-width: 120px;
+    width: auto;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .durationFieldContent {
+    grid-template-columns: 1fr;
+
+    .unitFieldWrapper {
+      max-width: none;
+    }
+  }
+}

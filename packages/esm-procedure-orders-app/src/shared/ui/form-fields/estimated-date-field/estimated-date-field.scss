@@ -1,0 +1,48 @@
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.estimatedDateField {
+  width: 100%;
+}
+
+.label {
+  @include type.type-style('body-01');
+  font-weight: 600;
+  margin-bottom: layout.$spacing-03;
+  color: var(--cds-text-01);
+}
+
+.required {
+  color: #da1e28;
+  margin-left: 0.25rem;
+}
+
+.estimatedDateContent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: layout.$spacing-04;
+  align-items: start;
+
+  // Year field is narrower (years are short: "2024")
+  .yearFieldWrapper {
+    min-width: 100px;
+    max-width: 140px;
+    width: auto;
+  }
+
+  // Month field is flexible (months are longer: "January")
+  .monthFieldWrapper {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .estimatedDateContent {
+    grid-template-columns: 1fr;
+
+    .yearFieldWrapper {
+      max-width: none;
+    }
+  }
+}

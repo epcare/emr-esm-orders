@@ -13,7 +13,57 @@
   overflow-x: hidden;
 }
 
+/* ContentSwitcher width constraint to prevent overlap */
+.formContainer :global(.cds--content-switcher) {
+  max-width: 300px;
+  width: 100%;
+}
+
+/* FormGroup width constraints */
+.formContainer :global(.cds--form-group) {
+  max-width: 100%;
+}
+
+/* ComboBox width constraints */
+.formContainer :global(.cds--combo-box) {
+  max-width: 100%;
+}
+
+/* TextArea width constraints - use full available width */
+.formContainer :global(.cds--text-area) {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* TextInput width constraints - use full available width */
+.formContainer :global(.cds--text-input) {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* NumberInput width constraints - use full available width */
+.formContainer :global(.cds--number-input) {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Search field constraints to prevent overflow */
+.formContainer :global(.cds--search) {
+  max-width: 100%;
+}
+
+.formContainer :global(.cds--search-input) {
+  max-width: 100%;
+}
+
 .twoColumnGroup {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.twoColumnEqual {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;

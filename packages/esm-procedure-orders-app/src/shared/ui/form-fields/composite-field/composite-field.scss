@@ -1,0 +1,53 @@
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.compositeField {
+  border: 1px solid var(--cds-field-01);
+  border-radius: 0.25rem;
+  padding: layout.$spacing-04;
+  background: var(--cds-field-02);
+  margin-bottom: layout.$spacing-05;
+
+  &.invalid {
+    background: #fdf2f2;
+    border-color: #da1e28;
+  }
+}
+
+.header {
+  margin-bottom: layout.$spacing-03;
+}
+
+.label {
+  @include type.type-style('body-01');
+  font-weight: 600;
+  color: var(--cds-text-01);
+}
+
+.required {
+  color: #da1e28;
+  margin-left: 0.25rem;
+}
+
+.helperText {
+  @include type.type-style('label-01');
+  color: var(--cds-text-02);
+  margin-top: layout.$spacing-02;
+}
+
+.invalidText {
+  @include type.type-style('label-01');
+  color: #da1e28;
+  margin-top: layout.$spacing-02;
+}
+
+.content {
+  display: grid;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .content {
+    grid-template-columns: 1fr !important;
+  }
+}

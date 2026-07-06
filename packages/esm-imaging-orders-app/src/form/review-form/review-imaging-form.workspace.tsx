@@ -152,7 +152,7 @@ const ImagingReviewForm: React.FC<ImagingReviewFormWorkspaceDefinition> = ({
     <Workspace2 title={t('reviewImagingReport', 'Review Imaging Report')} hasUnsavedChanges={hasUnsavedChanges}>
       <form aria-label="imaging form" className={styles.form} onSubmit={updateProcedures}>
         <div className={styles.formContainer}>
-          <Stack gap={7}>
+          <Stack gap={5}>
             <div>
               <Column className={styles.widgetContainer}>
                 <div className={styles.widgetCard}>

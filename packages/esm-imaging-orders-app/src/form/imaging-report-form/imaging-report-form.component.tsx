@@ -150,7 +150,7 @@ const ImagingReportForm: React.FC<ImagingReportFormWorkspaceDefinition> = ({
       )}
       <form aria-label="imaging form" className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.formContainer}>
-          <Stack gap={7}>
+          <Stack gap={4}>
             <ResponsiveWrapper>
               <Controller
                 control={control}
