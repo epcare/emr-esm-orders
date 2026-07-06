@@ -107,6 +107,7 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
     procedureComplicationGroupingConceptUuid,
     procedureResultEncounterRole,
     procedureOrderRefConceptUuid,
+    useOrderEncounter,
     imagingModalityConceptUuid,
     contrastAgentConceptUuid,
   } = config;
@@ -335,12 +336,22 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
       outcomeCoded: outcomeCoded ? procedureOutcomeConcepts[outcomeCoded] : null,
       participants: participants,
       complications: complications,
+      // Imaging observation fields
+      imagingModality: getValues('imagingModality'),
+      contrastAgent: getValues('contrastAgent'),
+      accessionNumber: getValues('accessionNumber'),
+      dicomStudyUid: getValues('dicomStudyUid'),
+      radiationDose: getValues('radiationDose'),
+      clinicalIndication: getValues('clinicalIndication'),
+      imagingFindings: getValues('imagingFindings'),
+      imagingImpression: getValues('imagingImpression'),
+      imagingImages: getValues('imagingImages'),
       _orphanedData: orphanedData,
     };
 
     try {
       const encounterUuid = order?.encounter?.uuid;
-      await saveImagingResult(payload, order?.uuid, encounterUuid, config);
+      await saveImagingResult(payload, order?.uuid, encounterUuid, config, useOrderEncounter);
       showSnackbar({
         kind: 'success',
         title: procedure?.uuid ? t('imagingUpdated', 'Imaging updated') : t('imagingSaved', 'Imaging saved'),
@@ -366,6 +377,7 @@ const ImagingResultFormComponent: React.FC<ImagingResultFormComponentProps> = ({
     procedureResultEncounterRole,
     procedureComplicationConceptUuid,
     procedureComplicationGroupingConceptUuid,
+    useOrderEncounter,
     config,
   ]);
 

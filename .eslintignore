@@ -2,3 +2,4 @@ src/**/*.test.tsx
 src/**/*.spec.tsx
 **/*.d.tsx
 **/node_modules/**/*
+test/**/*

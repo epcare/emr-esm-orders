@@ -85,6 +85,11 @@ export const configSchema = {
     _default: '94b88a9e-81d7-4c28-bda0-802d9313aa19',
   },
   // Procedure result form configuration
+  procedureNotesConceptUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'Concept UUID for storing procedure report/notes as a text observation',
+    _default: '159395AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', // Clinical impression comment
+  },
   useOrderEncounter: {
     _type: Type.Boolean,
     _description: 'Use the order encounter for procedure results, or create a new one',
@@ -173,6 +178,7 @@ export interface ConfigObject {
     PARTIALLY_SUCCESSFUL: string;
   };
   procedureOrderRefConceptUuid: string;
+  procedureNotesConceptUuid: string;
   useOrderEncounter: boolean;
   // Procedure result form concept source configurations
   procedureConceptUuid: string;

@@ -95,6 +95,11 @@ export const configSchema = {
     _description: 'The encounter location UUID (optional - will use session location if not specified)',
     _default: '',
   },
+  useOrderEncounter: {
+    _type: Type.Boolean,
+    _description: 'Use the order encounter for procedure results, or create a new one',
+    _default: true,
+  },
   // Procedure result form concept source configurations
   procedureConceptUuid: {
     _type: Type.ConceptUuid,
@@ -234,6 +239,7 @@ export interface ConfigObject {
   procedureResultEncounterType: string;
   procedureResultEncounterRole: string;
   procedureResultEncounterLocation?: string;
+  useOrderEncounter: boolean;
   procedureConceptUuid: string;
   procedureConceptSourceType: string;
   bodySiteConceptUuid: string;

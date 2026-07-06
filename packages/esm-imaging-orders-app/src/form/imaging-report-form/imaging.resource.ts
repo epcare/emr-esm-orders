@@ -354,6 +354,78 @@ export async function saveProcedureReport(
   // Extract orphaned data before sending to API
   const { _orphanedData, ...apiPayload } = reportPayload;
 
+  const encounterDatetime = new Date().toISOString();
+  const procedureOrderUuid = _orphanedData?.procedureOrder || reportPayload.procedureOrder;
+
+  // Build observation array to include in encounter payload
+  const obs = [];
+
+  // Add findings observation
+  if (apiPayload.notes && config.imagingFindingsConceptUuid) {
+    obs.push({
+      concept: config.imagingFindingsConceptUuid,
+      valueText: apiPayload.notes,
+      obsDatetime: encounterDatetime,
+      person: apiPayload.patient,
+    });
+  }
+
+  // Add order reference observation
+  if (procedureOrderUuid && config.procedureOrderRefConceptUuid) {
+    obs.push({
+      concept: config.procedureOrderRefConceptUuid,
+      value: procedureOrderUuid,
+      obsDatetime: encounterDatetime,
+      person: apiPayload.patient,
+    });
+  }
+
+  // Ensure we have an encounter - reuse existing or create new one
+  let finalEncounterUuid = encounterUuid;
+
+  // If no encounter provided, create a new one
+  if (!finalEncounterUuid) {
+    const encounterPayload = {
+      patient: apiPayload.patient,
+      encounterType: config.procedureResultEncounterType,
+      encounterDatetime: encounterDatetime,
+      location: config.procedureResultEncounterLocation || undefined,
+      obs: obs.length > 0 ? obs : undefined,
+    };
+
+    const encounterResponse = await openmrsFetch('/ws/rest/v1/encounter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: abortController.signal,
+      body: JSON.stringify(encounterPayload),
+    });
+
+    if (!encounterResponse.ok) {
+      throw new Error('Failed to create encounter for imaging report');
+    }
+
+    finalEncounterUuid = encounterResponse.data.uuid;
+  } else {
+    // Update existing encounter with new observations
+    const encounterUpdatePayload = {
+      obs: obs.length > 0 ? obs : undefined,
+    };
+
+    const encounterResponse = await openmrsFetch(`/ws/rest/v1/encounter/${finalEncounterUuid}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: abortController.signal,
+      body: JSON.stringify(encounterUpdatePayload),
+    });
+
+    if (!encounterResponse.ok) {
+      throw new Error('Failed to update encounter for imaging report');
+    }
+  }
+
+  // Link the procedure to the encounter
+  apiPayload.encounter = finalEncounterUuid;
+
   // Create the procedure using EMRAPI (accessed via standard procedure resource)
   const updateResults = await openmrsFetch(`/ws/rest/v1/procedure`, {
     method: 'POST',
@@ -364,26 +436,12 @@ export async function saveProcedureReport(
     body: JSON.stringify(apiPayload),
   });
 
-  if (updateResults.status === 201 || updateResults.status === 200) {
-    // Create order reference observation
-    const procedureOrderUuid = _orphanedData?.procedureOrder || reportPayload.procedureOrder;
-    const patientUuid = reportPayload.patient;
-
-    if (procedureOrderUuid && patientUuid && encounterUuid && config.procedureOrderRefConceptUuid) {
-      const orderRefObs = buildOrderRefObservation(
-        config.procedureOrderRefConceptUuid,
-        procedureOrderUuid,
-        encounterUuid,
-        patientUuid,
-      );
-      await createObservation(orderRefObs);
-    }
-
-    // Update order fulfiller status
-    return await updateOrder(procedureOrderUuid, {
-      fulfillerStatus: 'COMPLETED',
-    });
+  if (updateResults.status !== 201 && updateResults.status !== 200) {
+    throw new Error('Procedure creation failed');
   }
 
-  throw new Error('Procedure creation failed');
+  // Update order fulfiller status
+  return await updateOrder(procedureOrderUuid, {
+    fulfillerStatus: 'COMPLETED',
+  });
 }

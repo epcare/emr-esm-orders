@@ -36,6 +36,16 @@ export const useProcedureTypes = () => {
 };
 
 /**
+ * Fetch body site options (anatomic locations)
+ */
+export const useBodySites = (bodySiteConceptUuid?: string, sourceType?: string) => {
+  const source = bodySiteConceptUuid && sourceType ? { uuid: bodySiteConceptUuid, sourceType } : null;
+  const { searchResults, isSearching, error } = useConceptSearch('', source || { uuid: '', sourceType: 'any' });
+
+  return { bodySites: searchResults, isLoading: isSearching, error };
+};
+
+/**
  * Search for concepts by query and source filter
  */
 export const useConceptSearch = (query: string, source: ConceptSource) => {
@@ -141,43 +151,98 @@ export async function saveProcedureResult(
   // Exclude complications and participants from procedure payload since they're handled separately
   const { _orphanedData, complications: _, participants: __, ...procedurePayload } = payload;
 
-  // Create or update encounter with all fields
-  let finalEncounterUuid = encounterUuid;
-
   // Use encounter datetime from procedure startDateTime, or current time
   const encounterDatetime = procedurePayload.startDateTime
     ? new Date(procedurePayload.startDateTime).toISOString()
     : new Date().toISOString();
 
-  // Create new encounter with participants, location, and datetime
-  const encounterPayload: any = {
-    patient: payload.patient,
-    encounterType: config?.procedureResultEncounterType,
-    encounterDatetime: encounterDatetime,
-    location: config?.procedureResultEncounterLocation,
-  };
+  // Build observation array to include in encounter payload
+  const obs = [];
 
-  // Add encounter participants
-  if (participants.length > 0) {
-    encounterPayload.encounterProviders = participants.map((p: any) => ({
-      provider: p.provider || p,
-      encounterRole: p.encounterRole || config?.procedureResultEncounterRole,
-    }));
+  // Add procedure notes as observation (if configured)
+  if (procedurePayload.notes && config?.procedureNotesConceptUuid) {
+    obs.push({
+      concept: config.procedureNotesConceptUuid,
+      valueText: procedurePayload.notes,
+      obsDatetime: encounterDatetime,
+      person: payload.patient,
+    });
   }
 
-  // Create the encounter
-  const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    signal: abortController.signal,
-    body: JSON.stringify(encounterPayload),
-  });
-
-  if (!encounterResponse.ok) {
-    throw new Error('Procedure encounter creation failed');
+  // Add complications observations
+  if (complications.length > 0) {
+    for (const complication of complications) {
+      obs.push({
+        concept: complication.concept,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+        groupMembers: complication.groupMembers || [],
+      });
+    }
   }
 
-  finalEncounterUuid = encounterResponse.data.uuid;
+  // Add order reference observation
+  if (orderUuid && config?.procedureOrderRefConceptUuid) {
+    obs.push({
+      concept: config.procedureOrderRefConceptUuid,
+      value: orderUuid,
+      obsDatetime: encounterDatetime,
+      person: payload.patient,
+    });
+  }
+
+  // Determine encounter UUID - reuse order's encounter if it exists, otherwise create new
+  let finalEncounterUuid = encounterUuid;
+
+  // If no encounter provided (or not using order encounter), we need to create one
+  if (!finalEncounterUuid || !useOrderEncounter) {
+    // Create new encounter with participants, location, datetime, and observations
+    const encounterPayload: any = {
+      patient: payload.patient,
+      encounterType: config?.procedureResultEncounterType,
+      encounterDatetime: encounterDatetime,
+      location: config?.procedureResultEncounterLocation,
+      obs: obs.length > 0 ? obs : undefined,
+    };
+
+    // Add encounter participants
+    if (participants.length > 0) {
+      encounterPayload.encounterProviders = participants.map((p: any) => ({
+        provider: p.provider || p,
+        encounterRole: p.encounterRole || config?.procedureResultEncounterRole,
+      }));
+    }
+
+    // Create the encounter WITH observations included
+    const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: abortController.signal,
+      body: JSON.stringify(encounterPayload),
+    });
+
+    if (!encounterResponse.ok) {
+      throw new Error('Procedure encounter creation failed');
+    }
+
+    finalEncounterUuid = encounterResponse.data.uuid;
+  } else {
+    // Update existing encounter with new observations
+    const encounterUpdatePayload: any = {
+      obs: obs.length > 0 ? obs : undefined,
+    };
+
+    const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter/${finalEncounterUuid}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: abortController.signal,
+      body: JSON.stringify(encounterUpdatePayload),
+    });
+
+    if (!encounterResponse.ok) {
+      throw new Error('Procedure encounter update failed');
+    }
+  }
 
   // Add encounter to procedure payload
   procedurePayload.encounter = finalEncounterUuid;
@@ -195,24 +260,6 @@ export async function saveProcedureResult(
   }
 
   const procedure = procedureResponse.data;
-
-  // Create observations for complications
-  if (complications.length > 0 && finalEncounterUuid) {
-    for (const complication of complications) {
-      await createComplicationObservation(complication, finalEncounterUuid, payload.patient);
-    }
-  }
-
-  // Create order reference observation
-  if (orderUuid && finalEncounterUuid && config?.procedureOrderRefConceptUuid) {
-    const orderRefObs = buildOrderRefObservation(
-      config.procedureOrderRefConceptUuid,
-      orderUuid,
-      finalEncounterUuid,
-      payload.patient,
-    );
-    await createObservation(orderRefObs);
-  }
 
   // Update order fulfiller status
   if (orderUuid) {

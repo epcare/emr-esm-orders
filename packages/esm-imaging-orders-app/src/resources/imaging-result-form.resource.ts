@@ -177,31 +177,142 @@ export async function saveImagingResult(
   orderUuid?: string,
   encounterUuid?: string,
   config?: ConfigObject,
+  useOrderEncounter = true,
 ) {
   const abortController = new AbortController();
 
   // Extract extended fields
   const participants = payload.participants || [];
   const complications = payload.complications || [];
-  // Exclude complications and participants from procedure payload since they're handled separately
-  const { _orphanedData, complications: _, participants: __, ...procedurePayload } = payload;
 
-  // Determine encounter UUID - reuse order's encounter if it exists, otherwise create new
+  // Exclude fields that are only for observations from procedure payload
+  const {
+    _orphanedData,
+    complications: _c,
+    participants: _p,
+    imagingModality: _im,
+    contrastAgent: _ca,
+    accessionNumber: _an,
+    dicomStudyUid: _dsu,
+    radiationDose: _rd,
+    clinicalIndication: _ci,
+    imagingFindings: _if,
+    imagingImpression: _ii,
+    imagingImages: _iis,
+    ...procedurePayload
+  } = payload;
+
+  // Use encounter datetime from procedure startDateTime, or current time
+  const encounterDatetime = procedurePayload.startDateTime
+    ? new Date(procedurePayload.startDateTime).toISOString()
+    : new Date().toISOString();
+
+  // Build observation array to include in encounter payload
+  const obs = [];
+
+  // Add imaging observations
+  if (config) {
+    // Imaging Details
+    if (payload.imagingModality) {
+      obs.push({
+        concept: config.imagingModalityConceptUuid,
+        valueCoded: payload.imagingModality,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    if (payload.contrastAgent) {
+      obs.push({
+        concept: config.contrastAgentConceptUuid,
+        valueCoded: payload.contrastAgent,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    if (payload.accessionNumber) {
+      obs.push({
+        concept: config.accessionNumberConceptUuid,
+        valueText: payload.accessionNumber,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    if (payload.dicomStudyUid) {
+      obs.push({
+        concept: config.dicomStudyUidConceptUuid,
+        valueText: payload.dicomStudyUid,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    if (payload.radiationDose != null) {
+      obs.push({
+        concept: config.radiationDoseConceptUuid,
+        valueNumeric: payload.radiationDose,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    if (payload.clinicalIndication) {
+      obs.push({
+        concept: config.clinicalIndicationConceptUuid,
+        valueText: payload.clinicalIndication,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    // Imaging Results
+    if (payload.imagingFindings) {
+      obs.push({
+        concept: config.imagingFindingsConceptUuid,
+        valueText: payload.imagingFindings,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    if (payload.imagingImpression) {
+      obs.push({
+        concept: config.imagingImpressionConceptUuid,
+        valueText: payload.imagingImpression,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+    // Order reference
+    if (orderUuid && config.procedureOrderRefConceptUuid) {
+      obs.push({
+        concept: config.procedureOrderRefConceptUuid,
+        value: orderUuid,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+      });
+    }
+  }
+
+  // Add complications observations
+  if (complications.length > 0) {
+    for (const complication of complications) {
+      obs.push({
+        concept: complication.concept,
+        obsDatetime: encounterDatetime,
+        person: payload.patient,
+        groupMembers: complication.groupMembers || [],
+      });
+    }
+  }
+
+  // Determine encounter UUID - reuse order's encounter if it exists and useOrderEncounter is true
   let finalEncounterUuid = encounterUuid;
 
-  // If no encounter provided, we need to create one
-  if (!finalEncounterUuid) {
-    // Use encounter datetime from procedure startDateTime, or current time
-    const encounterDatetime = procedurePayload.startDateTime
-      ? new Date(procedurePayload.startDateTime).toISOString()
-      : new Date().toISOString();
-
-    // Create new encounter with participants, location, and datetime
+  // If no encounter provided or not using order encounter, we need to create one
+  if (!finalEncounterUuid || !useOrderEncounter) {
+    // Create new encounter with participants, location, datetime, and observations
     const encounterPayload: any = {
       patient: payload.patient,
       encounterType: config?.procedureResultEncounterType,
       encounterDatetime: encounterDatetime,
       location: config?.procedureResultEncounterLocation,
+      obs: obs.length > 0 ? obs : undefined,
     };
 
     // Add encounter participants
@@ -212,7 +323,7 @@ export async function saveImagingResult(
       }));
     }
 
-    // Create the encounter
+    // Create the encounter WITH observations included
     const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -225,6 +336,22 @@ export async function saveImagingResult(
     }
 
     finalEncounterUuid = encounterResponse.data.uuid;
+  } else {
+    // Update existing encounter with new observations
+    const encounterUpdatePayload: any = {
+      obs: obs.length > 0 ? obs : undefined,
+    };
+
+    const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter/${finalEncounterUuid}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: abortController.signal,
+      body: JSON.stringify(encounterUpdatePayload),
+    });
+
+    if (!encounterResponse.ok) {
+      throw new Error('Imaging encounter update failed');
+    }
   }
 
   // Add encounter to procedure payload
@@ -243,93 +370,6 @@ export async function saveImagingResult(
   }
 
   const procedure = procedureResponse.data;
-
-  // Create imaging observations in the existing encounter
-  if (finalEncounterUuid && config) {
-    // Imaging Details
-    await createImagingObservation(
-      config.imagingModalityConceptUuid,
-      payload.imagingModality,
-      finalEncounterUuid,
-      payload.patient,
-      'coded',
-    );
-
-    await createImagingObservation(
-      config.contrastAgentConceptUuid,
-      payload.contrastAgent,
-      finalEncounterUuid,
-      payload.patient,
-      'coded',
-    );
-
-    await createImagingObservation(
-      config.accessionNumberConceptUuid,
-      payload.accessionNumber,
-      finalEncounterUuid,
-      payload.patient,
-      'text',
-    );
-
-    await createImagingObservation(
-      config.dicomStudyUidConceptUuid,
-      payload.dicomStudyUid,
-      finalEncounterUuid,
-      payload.patient,
-      'text',
-    );
-
-    await createImagingObservation(
-      config.radiationDoseConceptUuid,
-      payload.radiationDose,
-      finalEncounterUuid,
-      payload.patient,
-      'numeric',
-    );
-
-    await createImagingObservation(
-      config.clinicalIndicationConceptUuid,
-      payload.clinicalIndication,
-      finalEncounterUuid,
-      payload.patient,
-      'text',
-    );
-
-    // Imaging Results
-    await createImagingObservation(
-      config.imagingFindingsConceptUuid,
-      payload.imagingFindings,
-      finalEncounterUuid,
-      payload.patient,
-      'text',
-    );
-
-    await createImagingObservation(
-      config.imagingImpressionConceptUuid,
-      payload.imagingImpression,
-      finalEncounterUuid,
-      payload.patient,
-      'text',
-    );
-  }
-
-  // Create observations for complications
-  if (complications.length > 0 && finalEncounterUuid) {
-    for (const complication of complications) {
-      await createComplicationObservation(complication, finalEncounterUuid, payload.patient);
-    }
-  }
-
-  // Create order reference observation
-  if (orderUuid && finalEncounterUuid && config?.procedureOrderRefConceptUuid) {
-    const orderRefObs = buildOrderRefObservation(
-      config.procedureOrderRefConceptUuid,
-      orderUuid,
-      finalEncounterUuid,
-      payload.patient,
-    );
-    await createObservation(orderRefObs);
-  }
 
   // Update order fulfiller status
   if (orderUuid) {

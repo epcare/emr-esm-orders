@@ -28,8 +28,8 @@ import type { ConfigObject } from '../../config-schema';
 import {
   saveProcedureResult,
   useConceptSearch,
-  useConceptSearchField,
   useProcedureTypes,
+  useBodySites,
   useProvidersSearch,
   useConditionsSearch,
 } from '../../resources/procedure-result-form.resource';
@@ -98,8 +98,6 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
     procedureConceptSourceType,
     bodySiteConceptUuid,
     bodySiteConceptSourceType,
-    statusConceptUuid,
-    statusConceptSourceType,
     durationUnitConceptUuid,
     durationUnitConceptSourceType,
     procedureStatusConcepts,
@@ -121,6 +119,7 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
   } = useFormContext<ProcedureResultFormSchema>();
 
   const { procedureTypes, isLoading: isLoadingProcedureTypes } = useProcedureTypes();
+  const { bodySites, isLoading: isLoadingBodySites } = useBodySites(bodySiteConceptUuid, bodySiteConceptSourceType);
   const today = useMemo(() => new Date(), []);
   const watchedStartDateTime = useWatch({ control, name: 'startDateTime' });
   const endDateMin = useMemo(() => {
@@ -194,19 +193,30 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
     [t],
   );
 
-  const procedureField = useConceptSearchField({ uuid: procedureConceptUuid, sourceType: procedureConceptSourceType });
-  const bodySiteField = useConceptSearchField({ uuid: bodySiteConceptUuid, sourceType: bodySiteConceptSourceType });
+  // Build status options from configured procedure status concepts
+  const statusOptions = useMemo(() => {
+    return Object.entries(procedureStatusConcepts).map(([key, uuid]) => ({
+      uuid,
+      display: t(`status.${key}`, key.replace(/_/g, ' ')), // e.g., "IN_PROGRESS" -> "in progress"
+    }));
+  }, [procedureStatusConcepts, t]);
 
-  const [procedureConcept, setProcedureConcept] = useState<ConceptReference | null>(
-    procedure?.procedureCoded?.uuid ? procedure.procedureCoded : null,
-  );
-  const [bodySiteConcept, setBodySiteConcept] = useState<ConceptReference | null>(
-    procedure?.bodySite?.uuid ? procedure.bodySite : null,
-  );
-  const { searchResults: statusOptions, error: statusOptionsError } = useConceptSearch('', {
-    uuid: statusConceptUuid,
-    sourceType: statusConceptSourceType,
-  });
+  // Pre-select body site from order or procedure
+  const initialBodySiteUuid = useMemo(() => {
+    // First try to get from order.bodySite (could be object or string)
+    if (order?.bodySite) {
+      if (typeof order.bodySite === 'string') {
+        return order.bodySite;
+      } else if (order.bodySite?.uuid) {
+        return order.bodySite.uuid;
+      }
+    }
+    // Then try to get from procedure.bodySite
+    if (procedure?.bodySite?.uuid) {
+      return procedure.bodySite.uuid;
+    }
+    return '';
+  }, [order, procedure]);
 
   const { searchResults: durationUnitOptions, error: durationUnitOptionsError } = useConceptSearch('', {
     uuid: durationUnitConceptUuid,
@@ -357,27 +367,15 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
     <Form className={styles.form} onSubmit={handleSubmit(handleSave, onError)}>
       <div className={styles.formContainer}>
         <Stack gap={7}>
-          <FormGroup legendText={<RequiredFieldLabel label={t('procedure', 'Procedure')} />}>
-            <Controller
-              name="procedureCoded"
-              control={control}
-              render={({ field, fieldState }) => (
-                <>
-                  <ConceptSearchField
-                    label={t('enterProcedure', 'Enter procedure')}
-                    placeholder={t('searchProcedures', 'Search procedures')}
-                    field={procedureField}
-                    selectedConcept={procedureConcept}
-                    onChange={(concept) => {
-                      setProcedureConcept(concept);
-                      field.onChange(concept?.uuid ?? '');
-                    }}
-                    invalid={Boolean(fieldState.error)}
-                    invalidText={fieldState.error?.message}
-                  />
-                </>
-              )}
-            />
+          <FormGroup legendText={t('procedureOrdered', 'Procedure Ordered')}>
+            <div className={styles.readOnlyField}>
+              <span className={styles.readOnlyLabel}>
+                {order?.concept?.display ||
+                  procedure?.procedureCoded?.display ||
+                  t('noProcedure', 'No procedure specified')}
+              </span>
+              <input type="hidden" {...control.register('procedureCoded')} />
+            </div>
           </FormGroup>
 
           <FormGroup legendText={<RequiredFieldLabel label={t('procedureType', 'Procedure type')} />}>
@@ -395,7 +393,7 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
                       aria-label={t('procedureType', 'Procedure type')}
                       placeholder={t('selectProcedureType', 'Select procedure type')}
                       items={procedureTypes}
-                      itemToString={(item: ProcedureType) => item?.name ?? ''}
+                      itemToString={(item: ProcedureType) => item?.display ?? item?.name ?? ''}
                       initialSelectedItem={procedureTypes.find((pt) => pt.uuid === field.value) ?? null}
                       onChange={({ selectedItem }: { selectedItem: ProcedureType | null }) =>
                         field.onChange(selectedItem?.uuid ?? '')
@@ -409,25 +407,20 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
             )}
           </FormGroup>
 
-          <FormGroup legendText={<RequiredFieldLabel label={t('bodySite', 'Body site')} />}>
-            <Controller
-              name="bodySite"
-              control={control}
-              render={({ field, fieldState }) => (
-                <ConceptSearchField
-                  label={t('enterBodySite', 'Enter body site')}
-                  placeholder={t('searchBodySites', 'Search body sites')}
-                  field={bodySiteField}
-                  selectedConcept={bodySiteConcept}
-                  onChange={(concept) => {
-                    setBodySiteConcept(concept);
-                    field.onChange(concept?.uuid ?? '');
-                  }}
-                  invalid={Boolean(fieldState.error)}
-                  invalidText={fieldState.error?.message}
-                />
-              )}
-            />
+          <FormGroup legendText={t('bodySite', 'Body site')}>
+            {isLoadingBodySites ? (
+              <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
+            ) : (
+              <div className={styles.readOnlyField}>
+                <span className={styles.readOnlyLabel}>
+                  {bodySites.find((bs) => bs.uuid === initialBodySiteUuid)?.display ||
+                    order?.bodySite?.display ||
+                    procedure?.bodySite?.display ||
+                    t('noBodySite', 'No body site specified')}
+                </span>
+                <input type="hidden" {...control.register('bodySite')} />
+              </div>
+            )}
           </FormGroup>
 
           <FormGroup legendText={t('isStartDateKnown', 'Is start date known?')}>
@@ -622,11 +615,6 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
                 </ResponsiveWrapper>
               )}
             />
-            {statusOptionsError && (
-              <p className={styles.errorMessage}>
-                {t('statusOptionsLoadFailed', 'Could not load status options. Please try again.')}
-              </p>
-            )}
           </FormGroup>
 
           {/* Extended fields for procedure results */}

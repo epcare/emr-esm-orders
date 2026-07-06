@@ -24,6 +24,6 @@
     "target": "esnext",
     "types": ["vitest/globals", "webpack-env"]
   },
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts", "**/*.test.tsx"],
   "include": ["src/**/*", "tools/**/*", "global.d.ts"]
 }

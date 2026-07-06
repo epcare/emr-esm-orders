@@ -142,6 +142,7 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = ({ closeWorkspace, w
     procedureStatusConcepts,
     procedureOutcomeConcepts,
     procedureOrderRefConceptUuid,
+    useOrderEncounter,
   } = config;
 
   const {
@@ -209,6 +210,8 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = ({ closeWorkspace, w
       notes: data.procedureReport,
       startDateTime: dayjs(data.startDatetime).format('YYYY-MM-DDTHH:mm:ss'), // camelCase
       endDateTime: dayjs(data.endDatetime).format('YYYY-MM-DDTHH:mm:ss'), // camelCase
+      participants: participants,
+      complications: complications,
       _orphanedData: orphanedData,
       // Note: Encounter handling will be done by the API resource function
     };
@@ -216,7 +219,7 @@ const PostProcedureForm: React.FC<PostProcedureFormProps> = ({ closeWorkspace, w
     const encounterUuid = windowProps?.encounterUuid;
 
     try {
-      const response = await savePostProcedure(reportPayload, config, encounterUuid);
+      const response = await savePostProcedure(reportPayload, config, encounterUuid, useOrderEncounter);
       if (response.ok) {
         showSnackbar({
           title: t('procedureSaved', 'Procedure saved'),

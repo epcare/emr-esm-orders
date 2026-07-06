@@ -34,7 +34,7 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
     .object({
       procedureCoded: z.string().min(1, t('procedureRequired', 'A procedure is required')),
       procedureType: z.string().min(1, t('procedureTypeRequired', 'Procedure type is required')),
-      bodySite: z.string().min(1, t('bodySiteRequired', 'Body site is required')),
+      bodySite: z.string().optional(), // Read-only from order
       startDateTime: z.date().optional().nullable(),
       endDateTime: z.date().optional().nullable(),
       status: z.string().min(1, t('statusRequired', 'Status is required')),
