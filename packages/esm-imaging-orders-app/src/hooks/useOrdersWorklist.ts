@@ -14,7 +14,7 @@ const createApiUrl = (
   fulfillerStatus: string,
 ) => {
   const responseFormat =
-    'custom:(uuid,orderNumber,patient:(uuid,display,identifiers,person:(uuid,display,age,gender)),concept:(uuid,display,conceptClass),action,careSetting,orderer:ref,urgency,instructions,orderReasonNonCoded,orderReason,bodySite,laterality,commentToFulfiller,display,fulfillerStatus,dateStopped,scheduledDate,dateActivated,fulfillerComment)';
+    'custom:(uuid,orderNumber,patient:(uuid,display,identifiers,person:(uuid,display,age,gender)),concept:(uuid,display,conceptClass),action,careSetting,encounter:(uuid,display),orderer:(uuid,display),urgency,instructions,orderReasonNonCoded,orderReason:(uuid,display),bodySite:(uuid,display),laterality,commentToFulfiller,display,fulfillerStatus,dateStopped,scheduledDate,dateActivated,fulfillerComment)';
   const orderTypeParam = `orderTypes=${OrderTypeUuid}&activatedOnOrAfterDate=${activatedOnOrAfterDate}&activatedOnOrBeforeDate=${activatedOnOrBeforeDate}&isStopped=false&fulfillerStatus=${fulfillerStatus}&v=${responseFormat}`;
 
   return `${restBaseUrl}/order?${orderTypeParam}`;
@@ -38,7 +38,7 @@ export function useOrdersWorkList(activatedOnOrAfterDate: string, fulfillerStatu
         dateRange.at(1).toISOString(),
         fulfillerStatus,
       ),
-    [radiologyOrderTypeUuid, dateRange.at(0).toISOString(), dateRange.at(1).toISOString(), fulfillerStatus],
+    [radiologyOrderTypeUuid, dateRange, fulfillerStatus],
   );
 
   const { data, error, isLoading, mutate } = useSWR<{ data: { results: Array<Result> } }>(apiUrl, openmrsFetch);

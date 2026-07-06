@@ -179,7 +179,7 @@ export interface SpecimenSource {
 }
 
 export function useGetOrdersWorklist(activatedOnOrAfterDate: string, fulfillerStatus: string) {
-  const apiUrl = `/ws/rest/v1/order?orderTypes=52a447d3-a64a-11e3-9aeb-50e549534c5e&activatedOnOrAfterDate=${activatedOnOrAfterDate}&isStopped=false&fulfillerStatus=${fulfillerStatus}&v=full`;
+  const apiUrl = `/ws/rest/v1/order?orderTypes=52a447d3-a64a-11e3-9aeb-50e549534c5e&activatedOnOrAfterDate=${activatedOnOrAfterDate}&isStopped=false&fulfillerStatus=${fulfillerStatus}&v=custom:(uuid,orderNumber,accessionNumber,patient:(uuid,display),concept:(uuid,display),action,careSetting:(uuid,name),dateActivated,scheduledDate,dateStopped,autoExpireDate,encounter:(uuid,display),orderer:(uuid,display),orderReason:(uuid,display),orderReasonNonCoded,orderType:(uuid,display),urgency,instructions,commentToFulfiller,display,fulfillerStatus,fulfillerComment,specimenSource:(uuid,display),laterality,bodySite:(uuid,display),clinicalHistory,frequency,numberOfRepeats)`;
 
   const { data, error, isLoading } = useSWR<{ data: { results: Array<Result> } }, Error>(apiUrl, openmrsFetch);
 

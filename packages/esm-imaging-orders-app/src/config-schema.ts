@@ -78,21 +78,22 @@ export const configSchema = {
     _description: 'The concept UUID for capturing procedure complications',
     _default: '120198AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
   },
+  // Procedure result encounter configuration (used when order doesn't have an encounter)
   procedureResultEncounterType: {
     _type: Type.String,
-    _description: 'The procedure results encounter type UUID',
+    _description:
+      'The procedure results encounter type UUID (used when creating a new encounter if order has no encounter)',
     _default: 'a4870f6d-ea06-4bbe-b775-bcbfb0816dbf',
   },
   procedureResultEncounterRole: {
     _type: Type.String,
-    _description: 'The encounter provider role UUID',
+    _description: 'The encounter provider role UUID (used when creating a new encounter)',
     _default: 'a0b03050-c99b-11e0-9572-0800200c9a66',
   },
-  // Procedure result form configuration
-  useOrderEncounter: {
-    _type: Type.Boolean,
-    _description: 'Use the order encounter for procedure results, or create a new one',
-    _default: true,
+  procedureResultEncounterLocation: {
+    _type: Type.String,
+    _description: 'The encounter location UUID (optional - will use session location if not specified)',
+    _default: '',
   },
   // Procedure result form concept source configurations
   procedureConceptUuid: {
@@ -118,7 +119,7 @@ export const configSchema = {
   statusConceptUuid: {
     _type: Type.ConceptUuid,
     _description: 'The status concept set UUID for filtering status options',
-    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _default: '1668e2ab-0112-431a-9d21-ee7ef9ec9fe3',
   },
   statusConceptSourceType: {
     _type: Type.String,
@@ -147,7 +148,7 @@ export const configSchema = {
   imagingModalityConceptUuid: {
     _type: Type.ConceptUuid,
     _description: 'Concept UUID for capturing imaging modality (CT, MRI, US, XRAY, etc.) as an observation',
-    _default: '4557f916-4f42-410a-96ad-39c59ad82553', // Concept ID: 199354 - Imaging modalities concept set (62 members)
+    _default: 'bbb8c439-712b-4fb2-9b09-6d56aa8dd25c', // Concept ID: 200129 - Imaging Modality (7 answers: CAT SCAN, MRI, Ultrasound, X-ray, Fluoroscopy, Doppler, Angiography)
   },
   contrastAgentConceptUuid: {
     _type: Type.ConceptUuid,
@@ -229,9 +230,10 @@ export interface ConfigObject {
   conditionConceptClassUuid: string;
   procedureComplicationGroupingConceptUuid: string;
   procedureComplicationConceptUuid: string;
+  // Procedure result encounter configuration (used when order doesn't have an encounter)
   procedureResultEncounterType: string;
   procedureResultEncounterRole: string;
-  useOrderEncounter: boolean;
+  procedureResultEncounterLocation?: string;
   procedureConceptUuid: string;
   procedureConceptSourceType: string;
   bodySiteConceptUuid: string;

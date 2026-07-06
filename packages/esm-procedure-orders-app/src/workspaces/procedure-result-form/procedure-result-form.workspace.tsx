@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Workspace2, type Workspace2DefinitionProps } from '@openmrs/esm-framework';
 import ProcedureResultForm from './procedure-result-form.component';
+import { orderToProcedureFormDefaults } from '../../resources/order-to-form-mapper';
 import type {
   Procedure,
   ProcedureType,
@@ -28,23 +29,6 @@ export interface ProcedureResultFormWorkspaceProps extends BaseOrderWorkspacePro
  */
 export type ProcedureResultFormWindowProps = BaseOrderWindowProps;
 
-/**
- * Helper function to combine notes from multiple sources
- */
-const combineNotes = (instructions?: string, commentToFulfiller?: string, existingNotes?: string): string => {
-  const parts: string[] = [];
-  if (instructions?.trim()) {
-    parts.push(`Instructions: ${instructions.trim()}`);
-  }
-  if (commentToFulfiller?.trim()) {
-    parts.push(`Comments: ${commentToFulfiller.trim()}`);
-  }
-  if (existingNotes?.trim()) {
-    parts.push(existingNotes.trim());
-  }
-  return parts.join('\n\n');
-};
-
 const createSchema = (t: (key: string, fallback: string) => string) =>
   z
     .object({
@@ -67,6 +51,19 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
       outcomeCoded: z.string().min(1, t('outcomeRequired', 'Outcome is required')),
       participants: z.array(z.string()).optional(),
       complications: z.array(z.string()).optional(),
+      // Additional fields from order (prefilled, read-only)
+      laterality: z.string().optional(),
+      urgency: z.string().optional(),
+      orderReason: z.string().optional(),
+      // Orphaned data for order reference
+      _orphanedData: z
+        .object({
+          procedureOrder: z.string().optional(),
+          procedureReason: z.string().optional(),
+          category: z.string().optional(),
+          accessionNumber: z.string().optional(),
+        })
+        .optional(),
     })
     .refine((data) => Boolean(data.startDateTime) || Boolean(data.estimatedStartDate), {
       message: t('startDateRequired', 'Start date is required'),
@@ -98,7 +95,15 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
       },
     );
 
-export type ProcedureResultFormSchema = z.infer<ReturnType<typeof createSchema>>;
+export type ProcedureResultFormSchema = z.infer<ReturnType<typeof createSchema>> & {
+  // Additional non-schema fields
+  _orphanedData?: {
+    procedureOrder?: string;
+    procedureReason?: string;
+    category?: string;
+    accessionNumber?: string;
+  };
+};
 
 /**
  * Procedure Result Form Workspace
@@ -125,30 +130,32 @@ export default function ProcedureResultFormWorkspace({
   const formContext = workspaceProps?.formContext ?? 'creating';
   const patientUuid = windowProps?.patientUuid || '';
 
-  // Map order data to procedure form defaults
-  const combinedNotes = useMemo(
-    () => combineNotes(order?.instructions, order?.commentToFulfiller, procedure?.notes),
-    [order, procedure],
-  );
+  // Map order data to procedure form defaults using centralized mapper
+  const formDefaults = useMemo(() => orderToProcedureFormDefaults(order, procedure), [order, procedure]);
 
   const methods = useForm<ProcedureResultFormSchema>({
     mode: 'all',
     resolver: zodResolver(schema),
     defaultValues: {
-      procedureCoded: order?.concept?.uuid ?? procedure?.procedureCoded?.uuid ?? '',
+      procedureCoded: formDefaults.procedureCoded,
       procedureType: procedure?.procedureType?.uuid ?? '',
-      bodySite: order?.bodySite ?? procedure?.bodySite?.uuid ?? '',
-      startDateTime: procedure?.startDateTime ? new Date(procedure.startDateTime) : null,
-      endDateTime: procedure?.endDateTime ? new Date(procedure.endDateTime) : null,
-      status: procedure?.status?.uuid ?? '',
-      notes: combinedNotes,
-      estimatedStartDate: procedure?.estimatedStartDate ?? '',
-      duration: typeof procedure?.duration === 'number' ? procedure.duration : null,
-      durationUnit: procedure?.durationUnit?.uuid ?? '',
+      bodySite: formDefaults.bodySite,
+      startDateTime: formDefaults.startDateTime,
+      endDateTime: formDefaults.endDateTime,
+      status: formDefaults.status,
+      notes: formDefaults.notes,
+      estimatedStartDate: formDefaults.estimatedStartDate,
+      duration: formDefaults.duration,
+      durationUnit: formDefaults.durationUnit,
       // Extended fields defaults
-      outcomeCoded: '',
+      outcomeCoded: formDefaults.outcomeCoded,
       participants: [],
       complications: [],
+      // Include orphaned data from order
+      laterality: formDefaults.laterality,
+      urgency: formDefaults.urgency,
+      orderReason: formDefaults.orderReason,
+      _orphanedData: formDefaults._orphanedData,
     },
   });
 

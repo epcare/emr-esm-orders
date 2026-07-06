@@ -9,9 +9,7 @@ import { parseOrphanedDataNotes } from '../utils/procedure-api.utils';
  * Uses the emrapi Procedure resource
  */
 export function useProcedures(patientUuid: string | undefined, includeAll = false) {
-  const apiUrl = patientUuid
-    ? `/ws/rest/v1/emrapi/procedure?patient=${patientUuid}&includeAll=${includeAll}&v=full`
-    : null;
+  const apiUrl = patientUuid ? `/ws/rest/v1/procedure?patient=${patientUuid}&includeAll=${includeAll}&v=full` : null;
 
   const { data, error, isLoading, mutate } = useSWR<{ data: { results: Array<Procedure> } }, Error>(
     apiUrl,

@@ -168,7 +168,8 @@ export interface ConceptReference {
  */
 export interface ProcedureType {
   uuid: string;
-  display: string;
+  display?: string;
+  name?: string;
   description?: string;
 }
 

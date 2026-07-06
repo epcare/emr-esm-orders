@@ -124,7 +124,7 @@ export async function createProcedureResultEncounter(
 
 /**
  * Save procedure result via EMRAPI
- * Handles procedure creation, observations, and order status update
+ * Handles encounter creation, procedure creation, observations, and order status update
  */
 export async function saveProcedureResult(
   payload: any,
@@ -136,21 +136,54 @@ export async function saveProcedureResult(
   const abortController = new AbortController();
 
   // Extract extended fields
-  const { participants, complications, _orphanedData, ...procedurePayload } = payload;
+  const participants = payload.participants || [];
+  const complications = payload.complications || [];
+  // Exclude complications and participants from procedure payload since they're handled separately
+  const { _orphanedData, complications: _, participants: __, ...procedurePayload } = payload;
 
-  // Determine encounter UUID
-  const finalEncounterUuid = encounterUuid;
-  if (!useOrderEncounter && !encounterUuid) {
-    // If not using order encounter and no encounter provided, we'll need to create one
-    // This requires patientUuid and config, which should be passed separately
-    throw new Error('Encounter UUID required when useOrderEncounter is false');
+  // Create or update encounter with all fields
+  let finalEncounterUuid = encounterUuid;
+
+  // Use encounter datetime from procedure startDateTime, or current time
+  const encounterDatetime = procedurePayload.startDateTime
+    ? new Date(procedurePayload.startDateTime).toISOString()
+    : new Date().toISOString();
+
+  // Create new encounter with participants, location, and datetime
+  const encounterPayload: any = {
+    patient: payload.patient,
+    encounterType: config?.procedureResultEncounterType,
+    encounterDatetime: encounterDatetime,
+    location: config?.procedureResultEncounterLocation,
+  };
+
+  // Add encounter participants
+  if (participants.length > 0) {
+    encounterPayload.encounterProviders = participants.map((p: any) => ({
+      provider: p.provider || p,
+      encounterRole: p.encounterRole || config?.procedureResultEncounterRole,
+    }));
   }
+
+  // Create the encounter
+  const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: abortController.signal,
+    body: JSON.stringify(encounterPayload),
+  });
+
+  if (!encounterResponse.ok) {
+    throw new Error('Procedure encounter creation failed');
+  }
+
+  finalEncounterUuid = encounterResponse.data.uuid;
 
   // Add encounter to procedure payload
   procedurePayload.encounter = finalEncounterUuid;
 
-  // Create the procedure using EMRAPI endpoint
-  const procedureResponse = await openmrsFetch(`${restBaseUrl}/emrapi/procedure`, {
+  // Create the procedure using EMRAPI (accessed via standard procedure resource)
+  const procedureResponse = await openmrsFetch(`${restBaseUrl}/procedure`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     signal: abortController.signal,
@@ -164,7 +197,7 @@ export async function saveProcedureResult(
   const procedure = procedureResponse.data;
 
   // Create observations for complications
-  if (complications && complications.length > 0 && finalEncounterUuid) {
+  if (complications.length > 0 && finalEncounterUuid) {
     for (const complication of complications) {
       await createComplicationObservation(complication, finalEncounterUuid, payload.patient);
     }

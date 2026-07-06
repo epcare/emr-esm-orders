@@ -34,8 +34,8 @@ export async function savePostProcedure(
   // Extract orphaned data before sending to API
   const { _orphanedData, ...apiPayload } = reportPayload;
 
-  // Create the procedure using EMRAPI endpoint
-  const updateResults = await openmrsFetch(`/ws/rest/v1/emrapi/procedure`, {
+  // Create the procedure using EMRAPI (accessed via standard procedure resource)
+  const updateResults = await openmrsFetch(`/ws/rest/v1/procedure`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

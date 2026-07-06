@@ -49,6 +49,11 @@ export const configSchema = {
     _description: 'The encounter provider role UUID',
     _default: 'a0b03050-c99b-11e0-9572-0800200c9a66',
   },
+  procedureResultEncounterLocation: {
+    _type: Type.String,
+    _description: 'The encounter location UUID (optional - will use session location if not specified)',
+    _default: '',
+  },
   // Procedure Status Concepts (Concept UUIDs for emrapi Procedure status)
   procedureStatusConcepts: {
     _type: Type.Object,
@@ -108,12 +113,14 @@ export const configSchema = {
   },
   statusConceptUuid: {
     _type: Type.ConceptUuid,
-    _description: 'The status concept set UUID for filtering status options',
-    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    _description:
+      'The status concept set UUID for filtering status options. NOTE: Configured UUID (163021...) does not exist in database. Individual status concepts are configured in procedureStatusConcepts. Either: 1) Create this concept set in DB, 2) Use statusConceptSourceType="any" to bypass, or 3) Remove this config',
+    _default: '1668e2ab-0112-431a-9d21-ee7ef9ec9fe3',
   },
   statusConceptSourceType: {
     _type: Type.String,
-    _description: 'The source type for status concept filtering (Concept set, Concept class, Answer to, or any)',
+    _description:
+      'The source type for status concept filtering (Concept set, Concept class, Answer to, or any). RECOMMENDATION: Use "any" since statusConceptUuid concept set does not exist in database',
     _default: 'Concept set',
   },
   durationUnitConceptUuid: {
@@ -149,6 +156,7 @@ export interface ConfigObject {
   procedureComplicationConceptUuid: string;
   procedureResultEncounterType: string;
   procedureResultEncounterRole: string;
+  procedureResultEncounterLocation?: string;
   // Procedure status/outcome concepts (for emrapi Procedure)
   procedureStatusConcepts: {
     PREPARATION: string;

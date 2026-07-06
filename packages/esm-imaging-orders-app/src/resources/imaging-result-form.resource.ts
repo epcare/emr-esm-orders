@@ -36,6 +36,16 @@ export const useProcedureTypes = () => {
 };
 
 /**
+ * Fetch body site options (anatomic locations)
+ */
+export const useBodySites = (bodySiteConceptUuid?: string, sourceType?: string) => {
+  const source = bodySiteConceptUuid && sourceType ? { uuid: bodySiteConceptUuid, sourceType } : null;
+  const { searchResults, isSearching, error } = useConceptSearch('', source || { uuid: '', sourceType: 'any' });
+
+  return { bodySites: searchResults, isLoading: isSearching, error };
+};
+
+/**
  * Search for concepts by query and source filter
  */
 export const useConceptSearch = (query: string, source: ConceptSource) => {
@@ -49,6 +59,25 @@ export const useConceptSearch = (query: string, source: ConceptSource) => {
   const uniqueSearchResults = Array.from(new Map(results.map((concept) => [concept.uuid, concept])).values());
 
   return { searchResults: uniqueSearchResults, isSearching: isLoading, error };
+};
+
+/**
+ * Fetch answers for a coded question concept
+ * Used for concepts with Coded datatype (e.g., Imaging Modality, Contrast Agent)
+ */
+export const useConceptAnswers = (conceptUuid: string) => {
+  const url = conceptUuid ? `${restBaseUrl}/concept/${conceptUuid}?v=custom:(answers:(uuid,display))` : null;
+
+  const fetcher = async (url: string) => {
+    const response = await openmrsFetch(url);
+    return response.data;
+  };
+
+  const { data, error, isLoading } = useSWR<{ answers: Array<{ uuid: string; display: string }> }, Error>(url, fetcher);
+
+  const answers = data?.answers ?? [];
+
+  return { answerOptions: answers, isLoading, error };
 };
 
 /**
@@ -96,59 +125,113 @@ export const useConceptSearchField = (source: ConceptSource) => {
 };
 
 /**
- * Create a new encounter for imaging results
+ * Create imaging observation
+ * Helper function to create observations for imaging-specific fields
  */
-export async function createImagingResultEncounter(
+async function createImagingObservation(
+  conceptUuid: string,
+  value: any,
+  encounterUuid: string,
   patientUuid: string,
-  encounterTypeUuid: string,
-  locationUuid?: string,
+  valueType: 'coded' | 'text' | 'numeric' = 'text',
 ) {
-  const encounterPayload = {
-    patient: patientUuid,
-    encounterType: encounterTypeUuid,
-    encounterDatetime: new Date().toISOString(),
-    location: locationUuid,
+  if (!value && value !== 0) return; // Skip empty values (but allow 0 for numeric)
+
+  const obsPayload: any = {
+    concept: conceptUuid,
+    obsDatetime: new Date().toISOString(),
+    person: patientUuid,
+    encounter: encounterUuid,
   };
 
-  const response = await openmrsFetch(`${restBaseUrl}/encounter`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(encounterPayload),
-  });
-
-  if (response.ok) {
-    return response.data.uuid;
+  // Set value based on type
+  if (valueType === 'coded') {
+    obsPayload.valueCoded = value;
+  } else if (valueType === 'numeric') {
+    obsPayload.valueNumeric = value;
+  } else {
+    obsPayload.valueText = value;
   }
-  throw new Error('Failed to create encounter');
+
+  try {
+    await openmrsFetch(`${restBaseUrl}/obs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(obsPayload),
+    });
+  } catch (error) {
+    console.error('Failed to create imaging observation:', error);
+    // Don't throw - observation creation failure shouldn't break procedure creation
+  }
 }
 
 /**
  * Save imaging result via EMRAPI
- * Handles procedure creation, observations, and order status update
+ * Creates or reuses encounter, creates procedure, creates observations, and updates order status
+ *
+ * IMPORTANT: This function first tries to reuse the order's encounter if it exists.
+ * If the order doesn't have an encounter, it creates a new one.
  */
 export async function saveImagingResult(
   payload: any,
   orderUuid?: string,
   encounterUuid?: string,
-  useOrderEncounter = true,
   config?: ConfigObject,
 ) {
   const abortController = new AbortController();
 
   // Extract extended fields
-  const { participants, complications, _orphanedData, ...procedurePayload } = payload;
+  const participants = payload.participants || [];
+  const complications = payload.complications || [];
+  // Exclude complications and participants from procedure payload since they're handled separately
+  const { _orphanedData, complications: _, participants: __, ...procedurePayload } = payload;
 
-  // Determine encounter UUID
-  const finalEncounterUuid = encounterUuid;
-  if (!useOrderEncounter && !encounterUuid) {
-    throw new Error('Encounter UUID required when useOrderEncounter is false');
+  // Determine encounter UUID - reuse order's encounter if it exists, otherwise create new
+  let finalEncounterUuid = encounterUuid;
+
+  // If no encounter provided, we need to create one
+  if (!finalEncounterUuid) {
+    // Use encounter datetime from procedure startDateTime, or current time
+    const encounterDatetime = procedurePayload.startDateTime
+      ? new Date(procedurePayload.startDateTime).toISOString()
+      : new Date().toISOString();
+
+    // Create new encounter with participants, location, and datetime
+    const encounterPayload: any = {
+      patient: payload.patient,
+      encounterType: config?.procedureResultEncounterType,
+      encounterDatetime: encounterDatetime,
+      location: config?.procedureResultEncounterLocation,
+    };
+
+    // Add encounter participants
+    if (participants.length > 0) {
+      encounterPayload.encounterProviders = participants.map((p: any) => ({
+        provider: p.provider || p,
+        encounterRole: p.encounterRole || config?.procedureResultEncounterRole,
+      }));
+    }
+
+    // Create the encounter
+    const encounterResponse = await openmrsFetch(`${restBaseUrl}/encounter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: abortController.signal,
+      body: JSON.stringify(encounterPayload),
+    });
+
+    if (!encounterResponse.ok) {
+      throw new Error('Imaging encounter creation failed');
+    }
+
+    finalEncounterUuid = encounterResponse.data.uuid;
   }
 
   // Add encounter to procedure payload
   procedurePayload.encounter = finalEncounterUuid;
 
-  // Create the procedure using EMRAPI endpoint
-  const procedureResponse = await openmrsFetch(`${restBaseUrl}/emrapi/procedure`, {
+  // Create the procedure using EMRAPI (accessed via standard procedure resource)
+  const procedureResponse = await openmrsFetch(`${restBaseUrl}/procedure`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     signal: abortController.signal,
@@ -161,8 +244,77 @@ export async function saveImagingResult(
 
   const procedure = procedureResponse.data;
 
+  // Create imaging observations in the existing encounter
+  if (finalEncounterUuid && config) {
+    // Imaging Details
+    await createImagingObservation(
+      config.imagingModalityConceptUuid,
+      payload.imagingModality,
+      finalEncounterUuid,
+      payload.patient,
+      'coded',
+    );
+
+    await createImagingObservation(
+      config.contrastAgentConceptUuid,
+      payload.contrastAgent,
+      finalEncounterUuid,
+      payload.patient,
+      'coded',
+    );
+
+    await createImagingObservation(
+      config.accessionNumberConceptUuid,
+      payload.accessionNumber,
+      finalEncounterUuid,
+      payload.patient,
+      'text',
+    );
+
+    await createImagingObservation(
+      config.dicomStudyUidConceptUuid,
+      payload.dicomStudyUid,
+      finalEncounterUuid,
+      payload.patient,
+      'text',
+    );
+
+    await createImagingObservation(
+      config.radiationDoseConceptUuid,
+      payload.radiationDose,
+      finalEncounterUuid,
+      payload.patient,
+      'numeric',
+    );
+
+    await createImagingObservation(
+      config.clinicalIndicationConceptUuid,
+      payload.clinicalIndication,
+      finalEncounterUuid,
+      payload.patient,
+      'text',
+    );
+
+    // Imaging Results
+    await createImagingObservation(
+      config.imagingFindingsConceptUuid,
+      payload.imagingFindings,
+      finalEncounterUuid,
+      payload.patient,
+      'text',
+    );
+
+    await createImagingObservation(
+      config.imagingImpressionConceptUuid,
+      payload.imagingImpression,
+      finalEncounterUuid,
+      payload.patient,
+      'text',
+    );
+  }
+
   // Create observations for complications
-  if (complications && complications.length > 0 && finalEncounterUuid) {
+  if (complications.length > 0 && finalEncounterUuid) {
     for (const complication of complications) {
       await createComplicationObservation(complication, finalEncounterUuid, payload.patient);
     }
@@ -199,9 +351,14 @@ async function createComplicationObservation(complication: any, encounterUuid: s
     groupMembers: complication.groupMembers || [],
   };
 
-  await openmrsFetch(`${restBaseUrl}/obs`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(obsPayload),
-  });
+  try {
+    await openmrsFetch(`${restBaseUrl}/obs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(obsPayload),
+    });
+  } catch (error) {
+    console.error('Failed to create complication observation:', error);
+    // Don't throw - observation creation failure shouldn't break procedure creation
+  }
 }

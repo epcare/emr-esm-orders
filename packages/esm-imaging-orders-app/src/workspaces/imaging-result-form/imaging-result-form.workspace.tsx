@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Workspace2, type Workspace2DefinitionProps } from '@openmrs/esm-framework';
 import ImagingResultForm from './imaging-result-form.component';
+import { orderToImagingFormDefaults } from '../../resources/order-to-form-mapper';
 import type {
   ConceptReference,
   OrderWorkspaceDefinitionProps,
@@ -28,30 +29,13 @@ export interface ImagingResultFormWorkspaceProps extends BaseOrderWorkspaceProps
  */
 export type ImagingResultFormWindowProps = BaseOrderWindowProps;
 
-/**
- * Helper function to combine notes from multiple sources
- */
-const combineNotes = (instructions?: string, commentToFulfiller?: string, existingNotes?: string): string => {
-  const parts: string[] = [];
-  if (instructions?.trim()) {
-    parts.push(`Instructions: ${instructions.trim()}`);
-  }
-  if (commentToFulfiller?.trim()) {
-    parts.push(`Comments: ${commentToFulfiller.trim()}`);
-  }
-  if (existingNotes?.trim()) {
-    parts.push(existingNotes.trim());
-  }
-  return parts.join('\n\n');
-};
-
 const createSchema = (t: (key: string, fallback: string) => string) =>
   z
     .object({
       // === TAB 1: PROCEDURE FIELDS (EMRAPI) ===
       procedureCoded: z.string().min(1, t('procedureRequired', 'A procedure is required')),
       procedureType: z.string().min(1, t('procedureTypeRequired', 'Procedure type is required')),
-      bodySite: z.string().min(1, t('bodySiteRequired', 'Body site is required')),
+      bodySite: z.string().optional(), // Read-only from order
       startDateTime: z.date().optional().nullable(),
       endDateTime: z.date().optional().nullable(),
       status: z.string().min(1, t('statusRequired', 'Status is required')),
@@ -69,6 +53,11 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
       participants: z.array(z.string()).optional(),
       complications: z.array(z.string()).optional(),
 
+      // Additional fields from order (prefilled, read-only)
+      laterality: z.string().optional(),
+      urgency: z.string().optional(),
+      orderReason: z.string().optional(),
+
       // === TAB 2: OBSERVATION FIELDS ===
       // Imaging Details
       imagingModality: z.string().optional(), // Coded - stored as UUID
@@ -82,6 +71,16 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
       imagingFindings: z.string().optional(),
       imagingImpression: z.string().min(1, t('impressionRequired', 'Impression is required')),
       imagingImages: z.array(z.string()).optional(), // Array of image attachment UUIDs
+
+      // Orphaned data for order reference
+      _orphanedData: z
+        .object({
+          procedureOrder: z.string().optional(),
+          procedureReason: z.string().optional(),
+          category: z.string().optional(),
+          accessionNumber: z.string().optional(),
+        })
+        .optional(),
     })
     .refine((data) => Boolean(data.startDateTime) || Boolean(data.estimatedStartDate), {
       message: t('startDateRequired', 'Start date is required'),
@@ -113,7 +112,15 @@ const createSchema = (t: (key: string, fallback: string) => string) =>
       },
     );
 
-export type ImagingResultFormSchema = z.infer<ReturnType<typeof createSchema>>;
+export type ImagingResultFormSchema = z.infer<ReturnType<typeof createSchema>> & {
+  // Additional non-schema fields
+  _orphanedData?: {
+    procedureOrder?: string;
+    procedureReason?: string;
+    category?: string;
+    accessionNumber?: string;
+  };
+};
 
 /**
  * Imaging Result Form Workspace
@@ -140,46 +147,42 @@ export default function ImagingResultFormWorkspace({
   const formContext = workspaceProps?.formContext ?? 'creating';
   const patientUuid = windowProps?.patientUuid || '';
 
-  // Map order data to imaging form defaults
-  const combinedNotes = useMemo(
-    () => combineNotes(order?.instructions, order?.commentToFulfiller, procedure?.notes),
-    [order, procedure],
-  );
-
-  // Derive clinical indication from order reason
-  const clinicalIndication = useMemo(() => {
-    const reason = order?.orderReason?.display || order?.orderReasonNonCoded || '';
-    return reason;
-  }, [order]);
+  // Map order data to imaging form defaults using centralized mapper
+  const formDefaults = useMemo(() => orderToImagingFormDefaults(order, procedure), [order, procedure]);
 
   const methods = useForm<ImagingResultFormSchema>({
     mode: 'all',
     resolver: zodResolver(schema),
     defaultValues: {
-      procedureCoded: order?.concept?.uuid ?? procedure?.procedureCoded?.uuid ?? '',
+      // Procedure fields (from mapper)
+      procedureCoded: formDefaults.procedureCoded,
       procedureType: procedure?.procedureType?.uuid ?? '',
-      bodySite: order?.bodySite?.uuid ?? procedure?.bodySite?.uuid ?? '',
-      startDateTime: procedure?.startDateTime ? new Date(procedure.startDateTime) : null,
-      endDateTime: procedure?.endDateTime ? new Date(procedure.endDateTime) : null,
-      status: procedure?.status?.uuid ?? '',
-      notes: combinedNotes,
-      estimatedStartDate: procedure?.estimatedStartDate ?? '',
-      duration: typeof procedure?.duration === 'number' ? procedure.duration : null,
-      durationUnit: procedure?.durationUnit?.uuid ?? '',
-      // Extended fields defaults
-      outcomeCoded: '',
+      bodySite: formDefaults.bodySite,
+      startDateTime: formDefaults.startDateTime,
+      endDateTime: formDefaults.endDateTime,
+      status: formDefaults.status,
+      notes: formDefaults.notes,
+      estimatedStartDate: formDefaults.estimatedStartDate,
+      duration: formDefaults.duration,
+      durationUnit: formDefaults.durationUnit,
+      outcomeCoded: formDefaults.outcomeCoded,
       participants: [],
       complications: [],
-      // Observation fields defaults - pre-filled from order where possible
-      imagingModality: '',
-      contrastAgent: '',
-      accessionNumber: order?.accessionNumber ?? '',
-      dicomStudyUid: '',
-      radiationDose: null,
-      clinicalIndication: clinicalIndication,
-      imagingFindings: '',
-      imagingImpression: '',
-      imagingImages: [],
+      // Include orphaned data from order
+      laterality: formDefaults.laterality,
+      urgency: formDefaults.urgency,
+      orderReason: formDefaults.orderReason,
+      _orphanedData: formDefaults._orphanedData,
+      // Imaging observation fields (from mapper)
+      imagingModality: formDefaults.imagingModality,
+      contrastAgent: formDefaults.contrastAgent,
+      accessionNumber: formDefaults.accessionNumber,
+      dicomStudyUid: formDefaults.dicomStudyUid,
+      radiationDose: formDefaults.radiationDose,
+      clinicalIndication: formDefaults.clinicalIndication,
+      imagingFindings: formDefaults.imagingFindings,
+      imagingImpression: formDefaults.imagingImpression,
+      imagingImages: formDefaults.imagingImages ?? [],
     },
   });
 
