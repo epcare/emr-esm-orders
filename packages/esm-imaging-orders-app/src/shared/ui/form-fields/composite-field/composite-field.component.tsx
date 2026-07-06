@@ -57,13 +57,7 @@ export const CompositeField: React.FC<CompositeFieldProps> = ({
   }, [layout, ratios, gap]);
 
   return (
-    <div
-      className={classNames(
-        styles.compositeField,
-        { [styles.invalid]: invalid },
-        className,
-      )}
-    >
+    <div className={classNames(styles.compositeField, { [styles.invalid]: invalid }, className)}>
       {(label || helperText || invalidText) && (
         <div className={styles.header}>
           {label && (
@@ -72,12 +66,8 @@ export const CompositeField: React.FC<CompositeFieldProps> = ({
               {required && <span className={styles.required}>*</span>}
             </div>
           )}
-          {helperText && !invalid && (
-            <div className={styles.helperText}>{helperText}</div>
-          )}
-          {invalid && invalidText && (
-            <div className={styles.invalidText}>{invalidText}</div>
-          )}
+          {helperText && !invalid && <div className={styles.helperText}>{helperText}</div>}
+          {invalid && invalidText && <div className={styles.invalidText}>{invalidText}</div>}
         </div>
       )}
       <div className={styles.content} style={layout !== 'auto' ? gridStyle : undefined}>

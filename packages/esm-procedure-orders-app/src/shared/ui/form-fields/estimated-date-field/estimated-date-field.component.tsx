@@ -82,9 +82,7 @@ export const EstimatedDateField: React.FC<EstimatedDateFieldProps> = ({
               items={yearOptions}
               itemToString={(item: YearOption) => item?.label ?? ''}
               selectedItem={yearOptions.find((y) => y.id === year) ?? null}
-              onChange={({ selectedItem }: { selectedItem: YearOption | null }) =>
-                onYearChange(selectedItem?.id ?? '')
-              }
+              onChange={({ selectedItem }: { selectedItem: YearOption | null }) => onYearChange(selectedItem?.id ?? '')}
               invalid={invalid}
               invalidText={invalidText}
             />

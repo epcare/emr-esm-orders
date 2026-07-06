@@ -55,12 +55,8 @@ export const FieldWrapper: React.FC<FieldWrapperProps> = ({
       ) : (
         <div className={styles.fieldContent}>{children}</div>
       )}
-      {invalid && invalidText && (
-        <div className={styles.invalidText}>{invalidText}</div>
-      )}
-      {helperText && !invalid && (
-        <div className={styles.helperText}>{helperText}</div>
-      )}
+      {invalid && invalidText && <div className={styles.invalidText}>{invalidText}</div>}
+      {helperText && !invalid && <div className={styles.helperText}>{helperText}</div>}
     </div>
   );
 };
