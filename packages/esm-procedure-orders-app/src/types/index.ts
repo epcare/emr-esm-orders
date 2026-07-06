@@ -491,6 +491,15 @@ export type ProcedurePayload = {
     modality?: string;
     statusReason?: string;
   };
+  // Extended fields for procedure results
+  participants?: Array<{
+    provider: string;
+    encounterRole: string;
+  }>;
+  complications?: Array<{
+    concept: string;
+    groupMembers?: Array<any>;
+  }>;
   // Legacy fields (for backward compatibility during migration)
   // TODO: Remove after migration is complete
   concept?: string;
@@ -516,6 +525,7 @@ export type ProcedureOrderRefObservation = {
 export interface ProcedureType {
   uuid: string;
   name: string;
+  display?: string;
 }
 
 export interface ConceptReference {
@@ -646,7 +656,7 @@ export interface Result {
   fulfillerComment: any;
   specimenSource: SpecimenSource;
   laterality: any;
-  bodySite?: string;
+  bodySite?: string | { uuid?: string; display?: string };
   clinicalHistory: any;
   frequency: any;
   numberOfRepeats: any;

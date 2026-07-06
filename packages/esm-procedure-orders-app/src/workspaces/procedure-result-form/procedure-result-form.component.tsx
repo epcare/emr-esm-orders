@@ -414,7 +414,7 @@ const ProcedureResultFormComponent: React.FC<ProcedureResultFormComponentProps> 
               <div className={styles.readOnlyField}>
                 <span className={styles.readOnlyLabel}>
                   {bodySites.find((bs) => bs.uuid === initialBodySiteUuid)?.display ||
-                    order?.bodySite?.display ||
+                    (typeof order?.bodySite === 'object' && order?.bodySite?.display) ||
                     procedure?.bodySite?.display ||
                     t('noBodySite', 'No body site specified')}
                 </span>
