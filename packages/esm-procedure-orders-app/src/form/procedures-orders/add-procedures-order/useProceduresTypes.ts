@@ -26,14 +26,14 @@ function openmrsFetchMultiple(urls: Array<string>) {
   return Promise.all(urls.map((url) => openmrsFetch<{ results: Array<Concept> }>(url)));
 }
 
-function useProceduresConceptsSWR(labOrderableConcepts?: Array<string>) {
+function useProceduresConceptsSWR(procedureOrderableConcepts?: Array<string>) {
   const config = useConfig<ConfigObject>();
   const { data, isLoading, error } = useSWRImmutable(
     () =>
-      labOrderableConcepts
-        ? labOrderableConcepts.map((c) => `${restBaseUrl}/concept/${c}`)
+      procedureOrderableConcepts
+        ? procedureOrderableConcepts.map((c) => `${restBaseUrl}/concept/${c}`)
         : `${restBaseUrl}/concept/${config.procedureConceptSetUuid}?v=custom:setMembers`,
-    (labOrderableConcepts ? openmrsFetchMultiple : openmrsFetch) as any,
+    (procedureOrderableConcepts ? openmrsFetchMultiple : openmrsFetch) as any,
     {
       shouldRetryOnError(err) {
         return err instanceof Response;
@@ -45,7 +45,7 @@ function useProceduresConceptsSWR(labOrderableConcepts?: Array<string>) {
     if (isLoading || error) {
       return null;
     }
-    return labOrderableConcepts
+    return procedureOrderableConcepts
       ? (data as Array<ConceptResult>)?.flatMap((d) => d.data.setMembers)
       : ((data as ConceptResults)?.data.setMembers ?? ([] as Concept[]));
   }, [data, isLoading, error]);
@@ -59,11 +59,11 @@ function useProceduresConceptsSWR(labOrderableConcepts?: Array<string>) {
 
 export function useProceduresTypes(searchTerm = ''): UseProceduresType {
   const {
-    orders: { labOrderableConcepts },
+    orders: { procedureOrderableConcepts },
   } = useConfig<ConfigObject>();
 
   const { data, isLoading, error } = useProceduresConceptsSWR(
-    labOrderableConcepts.length ? labOrderableConcepts : null,
+    procedureOrderableConcepts.length ? procedureOrderableConcepts : null,
   );
 
   useEffect(() => {

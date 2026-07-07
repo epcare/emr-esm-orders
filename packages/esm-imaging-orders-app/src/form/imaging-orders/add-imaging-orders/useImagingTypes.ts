@@ -26,14 +26,14 @@ function openmrsFetchMultiple(urls: Array<string>) {
   return Promise.all(urls.map((url) => openmrsFetch<{ results: Array<Concept> }>(url)));
 }
 
-function useImagingConceptsSWR(labOrderableConcepts?: Array<string>) {
+function useImagingConceptsSWR(imagingOrderableConcepts?: Array<string>) {
   const config = useConfig<ImagingConfig>();
   const { data, isLoading, error } = useSWRImmutable(
     () =>
-      labOrderableConcepts
-        ? labOrderableConcepts.map((c) => `${restBaseUrl}/concept/${c}`)
+      imagingOrderableConcepts
+        ? imagingOrderableConcepts.map((c) => `${restBaseUrl}/concept/${c}`)
         : `${restBaseUrl}/concept/${config.radiologyConceptSetUuid}?v=custom:setMembers`,
-    (labOrderableConcepts ? openmrsFetchMultiple : openmrsFetch) as any,
+    (imagingOrderableConcepts ? openmrsFetchMultiple : openmrsFetch) as any,
     {
       shouldRetryOnError(err) {
         return err instanceof Response;
@@ -45,10 +45,10 @@ function useImagingConceptsSWR(labOrderableConcepts?: Array<string>) {
     if (isLoading || error) {
       return null;
     }
-    return labOrderableConcepts
+    return imagingOrderableConcepts
       ? (data as Array<ConceptResult>)?.flatMap((d) => d.data.setMembers)
       : ((data as ConceptResults)?.data.setMembers ?? ([] as Concept[]));
-  }, [data, isLoading, error, labOrderableConcepts]);
+  }, [data, isLoading, error, imagingOrderableConcepts]);
 
   return {
     data: results,
@@ -58,9 +58,11 @@ function useImagingConceptsSWR(labOrderableConcepts?: Array<string>) {
 }
 
 export function useImagingTypes(searchTerm = ''): UseImagingType {
-  const { labOrderableConcepts } = useConfig<ImagingConfig>().orders;
+  const { imagingOrderableConcepts } = useConfig<ImagingConfig>().orders;
 
-  const { data, isLoading, error } = useImagingConceptsSWR(labOrderableConcepts.length ? labOrderableConcepts : null);
+  const { data, isLoading, error } = useImagingConceptsSWR(
+    imagingOrderableConcepts.length ? imagingOrderableConcepts : null,
+  );
 
   useEffect(() => {
     if (error) {

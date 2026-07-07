@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePagination } from '@openmrs/esm-framework';
-import { type LaboratoryOrderFilter, usePatientLaboratoryOrders } from './patient-procedure-order-results.resource';
+import { type ProcedureOrderFilter, usePatientProcedureOrders } from './patient-procedure-order-results.resource';
 
-export function useLaboratoryOrderResultsPages(filter: LaboratoryOrderFilter) {
+export function useProcedureOrderResultsPages(filter: ProcedureOrderFilter) {
   const { t } = useTranslation();
 
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
 
-  const { items, isLoading, isError } = usePatientLaboratoryOrders(filter);
+  const { items, isLoading, isError } = usePatientProcedureOrders(filter);
   const { goTo, results: paginatedItems, currentPage } = usePagination(items, currentPageSize);
 
   const tableHeaders = useMemo(

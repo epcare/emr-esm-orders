@@ -9,7 +9,7 @@ export const priorityOptions = [
 ];
 
 // TODO add priority option `{ value: "ON_SCHEDULED_DATE", label: "On scheduled date" }` once the form supports a date.
-export function createEmptyLabOrder(testType: ImagingType, orderer: string): ImagingOrderBasketItem {
+export function createEmptyImagingOrder(testType: ImagingType, orderer: string): ImagingOrderBasketItem {
   return {
     action: 'NEW',
     display: testType.label,

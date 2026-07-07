@@ -1,6 +1,6 @@
 import React from 'react';
 import { type DefaultWorkspaceProps } from '@openmrs/esm-framework';
-export const LaboratoryWorkspace: React.FC<DefaultWorkspaceProps> = ({ closeWorkspace, promptBeforeClosing }) => {
+export const ProcedureWorkspace: React.FC<DefaultWorkspaceProps> = ({ closeWorkspace, promptBeforeClosing }) => {
   return (
     <>
       <span>Coming Soon...</span>
@@ -8,4 +8,4 @@ export const LaboratoryWorkspace: React.FC<DefaultWorkspaceProps> = ({ closeWork
   );
 };
 
-export default LaboratoryWorkspace;
+export default ProcedureWorkspace;

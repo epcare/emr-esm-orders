@@ -17,15 +17,10 @@ export const configSchema = {
       _description: "UUID for the 'Radiology' order type",
       _default: 'b4a7c280-369e-4d12-9ce8-18e36783fed6',
     },
-    labOrderTypeUuid: {
-      _type: Type.UUID,
-      _description: "UUID for the 'Lab' order type",
-      _default: '52a447d3-a64a-11e3-9aeb-50e549534c5e',
-    },
-    labOrderableConcepts: {
+    imagingOrderableConcepts: {
       _type: Type.Array,
       _description:
-        'UUIDs of concepts that represent orderable lab tests or lab sets. If an empty array `[]` is provided, every concept with class `Test` will be considered orderable.',
+        'UUIDs of concepts that represent orderable imaging tests or imaging sets. If an empty array `[]` is provided, every concept with class `Test` will be considered orderable.',
       _elements: {
         _type: Type.UUID,
       },
@@ -201,7 +196,7 @@ export const configSchema = {
 };
 
 interface OrderReason {
-  labTestUuid: string;
+  imagingTestUuid: string;
   required: boolean;
   orderReasons: Array<string>;
 }
@@ -209,11 +204,10 @@ interface OrderReason {
 export interface ConfigObject {
   radiologyConceptSetUuid: string;
   orders: {
-    labOrderTypeUuid: string;
-    labOrderableConcepts: Array<string>;
     radiologyOrderTypeUuid: string;
+    imagingOrderableConcepts: Array<string>;
   };
-  labTestsWithOrderReasons: Array<OrderReason>;
+  imagingTestsWithOrderReasons: Array<OrderReason>;
   radiologyConceptClassUuid: string;
   // Procedure status/outcome concepts (for emrapi Procedure)
   procedureStatusConcepts: {

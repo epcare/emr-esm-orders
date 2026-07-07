@@ -4,12 +4,12 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Order } from '../types/patient-queue';
 
-interface PickLabRequestActionMenuProps {
+interface PickProcedureRequestActionMenuProps {
   order: Order;
   closeModal: () => void;
 }
 
-const PickProcedureRequestActionMenu: React.FC<PickLabRequestActionMenuProps> = ({ order }) => {
+const PickProcedureRequestActionMenu: React.FC<PickProcedureRequestActionMenuProps> = ({ order }) => {
   const { t } = useTranslation();
 
   const launchSelectProcedureRequestModal = useCallback(() => {

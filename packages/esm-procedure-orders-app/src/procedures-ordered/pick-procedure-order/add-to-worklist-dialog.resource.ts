@@ -82,8 +82,8 @@ export interface ParentLocation {
 // get referral locations
 export function useReferralLocations() {
   const config = useConfig();
-  const { laboratoryReferalDestinationUuid } = config;
-  const apiUrl = `${restBaseUrl}/concept/${laboratoryReferalDestinationUuid}`;
+  const { procedureReferralDestinationUuid } = config;
+  const apiUrl = `${restBaseUrl}/concept/${procedureReferralDestinationUuid}`;
   const { data, isLoading } = useSWRImmutable<FetchResponse>(apiUrl, openmrsFetch);
 
   return {

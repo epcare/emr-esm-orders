@@ -1,14 +1,14 @@
 import { EmptyState } from '@openmrs/esm-patient-common-lib';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import LaboratoryActiveTestOrderResults from './procedure-active-order/procedure-active-order-results.component';
-import LaboratoryPastTestOrderResults from './procedure-past-test/laboratory-past-test-order-results.component';
+import ProcedureActiveOrderResults from './procedure-active-order/procedure-active-order-results.component';
+import ProcedurePastOrderResults from './procedure-past-test/procedure-past-test-order-results.component';
 
-interface PatientLaboratoryResultsProps {
+interface PatientProcedureResultsProps {
   patientUuid: string;
 }
 
-const PatientLaboratoryResults: React.FC<PatientLaboratoryResultsProps> = ({ patientUuid }) => {
+const PatientProcedureResults: React.FC<PatientProcedureResultsProps> = ({ patientUuid }) => {
   const { t } = useTranslation();
 
   const [hasActiveOrderResults, setHasActiveOrderResults] = useState<boolean | null>(null);
@@ -17,14 +17,14 @@ const PatientLaboratoryResults: React.FC<PatientLaboratoryResultsProps> = ({ pat
     <>
       <div style={{ margin: '10px' }}>
         <div style={{ marginBottom: '1.5rem' }}>
-          <LaboratoryActiveTestOrderResults patientUuid={patientUuid} />
+          <ProcedureActiveOrderResults patientUuid={patientUuid} />
         </div>
         <div style={{ marginTop: '1.5rem' }}>
-          <LaboratoryPastTestOrderResults patientUuid={patientUuid} />
+          <ProcedurePastOrderResults patientUuid={patientUuid} />
         </div>
       </div>
     </>
   );
 };
 
-export default PatientLaboratoryResults;
+export default PatientProcedureResults;

@@ -121,7 +121,7 @@ export function getConceptReferenceUrls(conceptUuids: Array<string>) {
   return accumulator.map((partition) => `conceptreferences?references=${partition.join(',')}&v=custom:(uuid,display)`);
 }
 
-export type PostDataPrepLabOrderFunction = (
+export type PostDataPrepImagingOrderFunction = (
   order: ImagingOrderBasketItem,
   patientUuid: string,
   encounterUuid: string,

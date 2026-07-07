@@ -18,10 +18,9 @@ export const configSchema = {
   },
   orders: {
     _type: Type.Object,
-    _description: 'List of lab orderable concepts',
+    _description: 'List of procedure orderable concepts',
     _default: {
-      labOrderableConcepts: [],
-      labOrderTypeUuid: '',
+      procedureOrderableConcepts: [],
     },
   },
   conditionConceptClassUuid: {
@@ -95,6 +94,21 @@ export const configSchema = {
     _description: 'Use the order encounter for procedure results, or create a new one',
     _default: true,
   },
+  enableSendingTestResultsByEmail: {
+    _type: Type.Boolean,
+    _description: 'Enable sending test/procedure results by email',
+    _default: false,
+  },
+  procedureReferralDestinationUuid: {
+    _type: Type.ConceptUuid,
+    _description: 'The concept UUID for procedure referral destinations',
+    _default: '',
+  },
+  procedureSpecimenTypeConcept: {
+    _type: Type.ConceptUuid,
+    _description: 'The concept UUID for procedure specimen types',
+    _default: '',
+  },
   // Procedure result form concept source configurations
   procedureConceptUuid: {
     _type: Type.ConceptUuid,
@@ -141,7 +155,7 @@ export const configSchema = {
 };
 
 export interface OrderReason {
-  labTestUuid: string;
+  procedureTestUuid: string;
   required: boolean;
   orderReasons: Array<string>;
 }
@@ -150,11 +164,10 @@ export interface ConfigObject {
   procedureOrderTypeUuid: string;
   procedureConceptSetUuid: string;
   testOrderTypeUuid: string;
-  labTestsWithOrderReasons: Array<OrderReason>;
+  procedureTestsWithOrderReasons: Array<OrderReason>;
   showPrintButton: boolean;
   orders: {
-    labOrderTypeUuid: string;
-    labOrderableConcepts: Array<string>;
+    procedureOrderableConcepts: Array<string>;
   };
   conditionConceptClassUuid: string;
   procedureComplicationGroupingConceptUuid: string;
@@ -180,6 +193,9 @@ export interface ConfigObject {
   procedureOrderRefConceptUuid: string;
   procedureNotesConceptUuid: string;
   useOrderEncounter: boolean;
+  enableSendingTestResultsByEmail: boolean;
+  procedureReferralDestinationUuid: string;
+  procedureSpecimenTypeConcept: string;
   // Procedure result form concept source configurations
   procedureConceptUuid: string;
   procedureConceptSourceType: string;

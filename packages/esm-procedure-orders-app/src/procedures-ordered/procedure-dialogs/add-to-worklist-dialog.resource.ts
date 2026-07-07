@@ -84,8 +84,8 @@ export interface ParentLocation {
 // get referral locations
 export function useReferralLocations() {
   const config = useConfig();
-  const { laboratoryReferalDestinationUuid } = config;
-  const apiUrl = `${restBaseUrl}/concept/${laboratoryReferalDestinationUuid}`;
+  const { procedureReferralDestinationUuid } = config;
+  const apiUrl = `${restBaseUrl}/concept/${procedureReferralDestinationUuid}`;
   const { data, error, isLoading } = useSWRImmutable<FetchResponse>(apiUrl, openmrsFetch);
 
   return {
@@ -97,9 +97,9 @@ export function useReferralLocations() {
 // get specimen types
 export function useSpecimenTypes() {
   const config = useConfig();
-  const { laboratorySpecimenTypeConcept } = config;
+  const { procedureSpecimenTypeConcept } = config;
 
-  const apiUrl = `${restBaseUrl}/concept/${laboratorySpecimenTypeConcept}`;
+  const apiUrl = `${restBaseUrl}/concept/${procedureSpecimenTypeConcept}`;
   const { data, error, isLoading } = useSWRImmutable<FetchResponse>(apiUrl, openmrsFetch);
 
   let specimenTypes = [];

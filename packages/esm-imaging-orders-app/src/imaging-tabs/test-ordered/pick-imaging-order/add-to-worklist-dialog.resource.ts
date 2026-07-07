@@ -100,8 +100,8 @@ export function useQueueRoomLocations(currentQueueLocation: string) {
 // get referral locations
 export function useReferralLocations() {
   const config = useConfig();
-  const { laboratoryReferalDestinationUuid } = config;
-  const apiUrl = `${restBaseUrl}/concept/${laboratoryReferalDestinationUuid}`;
+  const { imagingReferalDestinationUuid } = config;
+  const apiUrl = `${restBaseUrl}/concept/${imagingReferalDestinationUuid}`;
   const { data, isLoading } = useSWRImmutable<FetchResponse>(apiUrl, openmrsFetch);
 
   return {

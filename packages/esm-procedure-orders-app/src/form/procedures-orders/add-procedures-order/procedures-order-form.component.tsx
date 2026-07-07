@@ -69,7 +69,8 @@ export function ProceduresOrderForm({
   } = useConceptById('162476AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
   const config = useConfig<ConfigObject>();
   const orderReasonRequired = (
-    config.labTestsWithOrderReasons?.find((c) => c.labTestUuid === initialOrder?.testType?.conceptUuid) || {}
+    config.procedureTestsWithOrderReasons?.find((c) => c.procedureTestUuid === initialOrder?.testType?.conceptUuid) ||
+    {}
   ).required;
 
   const {
@@ -79,24 +80,28 @@ export function ProceduresOrderForm({
   const proceduresOrderFormSchema = z.object({
     instructions: z.string().optional(),
     urgency: z.string().refine((value) => value !== '', {
-      message: translateFrom(moduleName, 'addLabOrderPriorityRequired', 'Priority is required'),
+      message: translateFrom(moduleName, 'addProcedureOrderPriorityRequired', 'Priority is required'),
     }),
-    labReferenceNumber: z.string().optional(),
+    procedureReferenceNumber: z.string().optional(),
     testType: z.object(
       { label: z.string(), conceptUuid: z.string() },
       {
-        required_error: translateFrom(moduleName, 'addLabOrderLabTestTypeRequired', 'Test type is required'),
-        invalid_type_error: translateFrom(moduleName, 'addLabOrderLabReferenceRequired', 'Test type is required'),
+        required_error: translateFrom(moduleName, 'addProcedureOrderTestTypeRequired', 'Test type is required'),
+        invalid_type_error: translateFrom(moduleName, 'addProcedureOrderReferenceRequired', 'Test type is required'),
       },
     ),
     orderReason: orderReasonRequired
       ? z
           .string({
-            required_error: translateFrom(moduleName, 'addLabOrderLabOrderReasonRequired', 'Order reason is required'),
+            required_error: translateFrom(
+              moduleName,
+              'addProcedureOrderOrderReasonRequired',
+              'Order reason is required',
+            ),
           })
           .refine(
             (value) => !!value,
-            translateFrom(moduleName, 'addLabOrderLabOrderReasonRequired', 'Order reason is required'),
+            translateFrom(moduleName, 'addProcedureOrderOrderReasonRequired', 'Order reason is required'),
           )
       : z.string().optional(),
     scheduleDate: z.union([z.string(), z.date(), z.string().optional()]),
@@ -143,8 +148,11 @@ export function ProceduresOrderForm({
   });
 
   const orderReasonUuids =
-    (config.labTestsWithOrderReasons?.find((c) => c.labTestUuid === defaultValues?.testType?.conceptUuid) || {})
-      .orderReasons || [];
+    (
+      config.procedureTestsWithOrderReasons?.find(
+        (c) => c.procedureTestUuid === defaultValues?.testType?.conceptUuid,
+      ) || {}
+    ).orderReasons || [];
 
   const { orderReasons } = useOrderReasons(orderReasonUuids);
 

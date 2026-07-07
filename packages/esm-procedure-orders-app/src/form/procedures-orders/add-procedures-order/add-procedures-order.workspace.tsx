@@ -72,7 +72,9 @@ export default function AddProceduresOrderWorkspace({
   const initialOrder = workspaceProps?.order;
   const formContext = workspaceProps?.formContext ?? 'creating';
 
-  const [currentLabOrder, setCurrentLabOrder] = useState<ProcedureOrderBasketItem | undefined>(initialOrder);
+  const [currentProcedureOrder, setCurrentProcedureOrder] = useState<ProcedureOrderBasketItem | undefined>(
+    initialOrder,
+  );
 
   const patientName = patientData ? getPatientName(patientData) : '';
 
@@ -113,11 +115,11 @@ export default function AddProceduresOrderWorkspace({
           </Button>
         </div>
       )}
-      {!currentLabOrder ? (
-        <TestTypeSearch openLabForm={setCurrentLabOrder} />
+      {!currentProcedureOrder ? (
+        <TestTypeSearch openProcedureForm={setCurrentProcedureOrder} />
       ) : (
         <ProceduresOrderForm
-          initialOrder={currentLabOrder}
+          initialOrder={currentProcedureOrder}
           closeWorkspace={handleCancel}
           closeWorkspaceWithSavedChanges={handleCancel}
           promptBeforeClosing={() => true}

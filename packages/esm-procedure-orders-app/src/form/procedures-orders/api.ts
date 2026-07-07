@@ -1,8 +1,7 @@
 import useSWR, { mutate } from 'swr';
-import { type FetchResponse, openmrsFetch, useConfig, restBaseUrl, showSnackbar } from '@openmrs/esm-framework';
-import { type ConfigObject } from '../../config-schema';
-import { useCallback, useMemo } from 'react';
-import type { OrderPost, PatientOrderFetchResponse } from '@openmrs/esm-patient-common-lib';
+import { type FetchResponse, openmrsFetch, restBaseUrl, showSnackbar } from '@openmrs/esm-framework';
+import { useCallback } from 'react';
+import type { OrderPost } from '@openmrs/esm-patient-common-lib';
 import useSWRImmutable from 'swr/immutable';
 import { type ProcedureOrderBasketItem } from '../../types';
 
@@ -16,42 +15,6 @@ export interface ProcedureOrderPost extends OrderPost {
   numberOfRepeats?: number;
 }
 export const careSettingUuid = '6f0c9a92-6f24-11e3-af88-005056821db0';
-/**
- * SWR-based data fetcher for patient orders.
- *
- * @param patientUuid The UUID of the patient whose orders should be fetched.
- * @param status Allows fetching either all orders or only active orders.
- */
-export function usePatientLabOrders(patientUuid: string, status: 'ACTIVE' | 'any') {
-  const { labOrderTypeUuid: labOrderTypeUUID } = (useConfig() as ConfigObject).orders;
-  const ordersUrl = `${restBaseUrl}/order?patient=${patientUuid}&careSetting=${careSettingUuid}&status=${status}&orderType=${labOrderTypeUUID}`;
-
-  const { data, error, isLoading, isValidating } = useSWR<FetchResponse<PatientOrderFetchResponse>, Error>(
-    patientUuid ? ordersUrl : null,
-    openmrsFetch,
-  );
-
-  const mutateOrders = useCallback(
-    () => mutate((key) => typeof key === 'string' && key.startsWith(`${restBaseUrl}/order?patient=${patientUuid}`)),
-    [patientUuid],
-  );
-
-  const labOrders = useMemo(
-    () =>
-      data?.data?.results
-        ? data.data.results?.sort((order1, order2) => (order2.dateActivated > order1.dateActivated ? 1 : -1))
-        : null,
-    [data],
-  );
-
-  return {
-    data: data ? labOrders : null,
-    error,
-    isLoading,
-    isValidating,
-    mutate: mutateOrders,
-  };
-}
 
 export function useOrderReasons(conceptUuids: Array<string>) {
   const shouldFetch = conceptUuids && conceptUuids.length > 0;
@@ -174,12 +137,6 @@ export function getConceptReferenceUrls(conceptUuids: Array<string>) {
 
   return accumulator.map((partition) => `conceptreferences?references=${partition.join(',')}&v=custom:(uuid,display)`);
 }
-
-export type PostDataPrepLabOrderFunction = (
-  order: ProcedureOrderBasketItem,
-  patientUuid: string,
-  encounterUuid: string,
-) => OrderPost;
 
 export interface ConceptAnswers {
   display: string;

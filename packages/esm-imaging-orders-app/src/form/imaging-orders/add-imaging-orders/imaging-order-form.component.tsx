@@ -68,13 +68,13 @@ export function ImagingOrderForm({
   const imagingOrderFormSchema = z.object({
     instructions: z.string().optional(),
     urgency: z.string().refine((value) => value !== '', {
-      message: translateFrom(moduleName, 'addLabOrderPriorityRequired', 'Priority is required'),
+      message: translateFrom(moduleName, 'addImagingOrderPriorityRequired', 'Priority is required'),
     }),
     testType: z.object(
       { label: z.string(), conceptUuid: z.string() },
       {
-        required_error: translateFrom(moduleName, 'addLabOrderLabTestTypeRequired', 'Test type is required'),
-        invalid_type_error: translateFrom(moduleName, 'addLabOrderLabReferenceRequired', 'Test type is required'),
+        required_error: translateFrom(moduleName, 'addImagingOrderTestTypeRequired', 'Test type is required'),
+        invalid_type_error: translateFrom(moduleName, 'addImagingOrderReferenceRequired', 'Test type is required'),
       },
     ),
     scheduleDate: z.union([z.string(), z.date(), z.string().optional()]),

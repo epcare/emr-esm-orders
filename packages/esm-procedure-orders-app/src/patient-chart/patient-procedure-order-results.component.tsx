@@ -1,12 +1,12 @@
 import React from 'react';
-import LaboratoryResultsTabs from './procedure-tabs/laboratory-order-tabs.component';
+import ProcedureResultsTabs from './procedure-tabs/procedure-order-tabs.component';
 
-interface PatientLaboratoryOrderResultsProps {
+interface PatientProcedureOrderResultsProps {
   patientUuid: string;
 }
 
-const PatientLaboratoryOrderResults: React.FC<PatientLaboratoryOrderResultsProps> = ({ patientUuid }) => {
-  return <LaboratoryResultsTabs patientUuid={patientUuid} />;
+const PatientProcedureOrderResults: React.FC<PatientProcedureOrderResultsProps> = ({ patientUuid }) => {
+  return <ProcedureResultsTabs patientUuid={patientUuid} />;
 };
 
-export default PatientLaboratoryOrderResults;
+export default PatientProcedureOrderResults;

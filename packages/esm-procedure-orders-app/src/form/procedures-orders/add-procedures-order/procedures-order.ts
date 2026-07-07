@@ -7,7 +7,7 @@ export const priorityOptions = [
   { value: 'ON_SCHEDULED_DATE', label: 'Scheduled' },
 ];
 
-export function createEmptyLabOrder(testType: ProceduresType, orderer: string): ProcedureOrderBasketItem {
+export function createEmptyProcedureOrder(testType: ProceduresType, orderer: string): ProcedureOrderBasketItem {
   return {
     action: 'NEW',
     display: testType.label,

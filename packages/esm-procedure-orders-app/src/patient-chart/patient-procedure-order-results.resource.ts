@@ -1,7 +1,7 @@
 import { formatDate, openmrsFetch, restBaseUrl, useConfig } from '@openmrs/esm-framework';
 import useSWR from 'swr';
 
-export interface LaboratoryResponse {
+export interface ProcedureOrderResponse {
   results: Result[];
 }
 
@@ -432,9 +432,9 @@ export interface ResourceFilterCriteria {
   limit?: number | null;
 }
 
-export interface LaboratoryOrderFilter extends ResourceFilterCriteria {
+export interface ProcedureOrderFilter extends ResourceFilterCriteria {
   patientUuid?: string | null | undefined;
-  laboratoryEncounterTypeUuid?: string | null;
+  procedureEncounterTypeUuid?: string | null;
 }
 
 export function toQueryParams<T extends ResourceFilterCriteria>(
@@ -457,12 +457,12 @@ export function toQueryParams<T extends ResourceFilterCriteria>(
   return queryParams.length > 0 ? '?' + queryParams : '';
 }
 
-export function usePatientLaboratoryOrders(filter: LaboratoryOrderFilter) {
+export function usePatientProcedureOrders(filter: ProcedureOrderFilter) {
   const config = useConfig();
-  const { laboratoryEncounterTypeUuid } = config;
+  const { procedureResultEncounterType } = config;
 
-  const apiUrl = `${restBaseUrl}/encounter?patient=${filter.patientUuid}&encounterType=${laboratoryEncounterTypeUuid}&v=${filter.v}&totalCount=true`;
-  const { data, error, isLoading } = useSWR<{ data: LaboratoryResponse }, Error>(apiUrl, openmrsFetch, {
+  const apiUrl = `${restBaseUrl}/encounter?patient=${filter.patientUuid}&encounterType=${procedureResultEncounterType}&v=${filter.v}&totalCount=true`;
+  const { data, error, isLoading } = useSWR<{ data: ProcedureOrderResponse }, Error>(apiUrl, openmrsFetch, {
     refreshInterval: 3000,
   });
 

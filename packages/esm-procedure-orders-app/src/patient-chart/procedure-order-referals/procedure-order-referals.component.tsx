@@ -34,11 +34,11 @@ import { useReactToPrint } from 'react-to-print';
 import PrintResultsSummary from '../results-summary/print-results-summary.component';
 import { useGetPatientByUuid } from '../../utils/functions';
 import { ResourceRepresentation, type Result, getOrderColor } from '../patient-procedure-order-results.resource';
-import { useLaboratoryOrderResultsPages } from '../patient-procedure-order-results-table.resource';
+import { useProcedureOrderResultsPages } from '../patient-procedure-order-results-table.resource';
 import { CardHeader } from '@openmrs/esm-patient-common-lib';
 import { mutate } from 'swr';
 
-interface LaboratoryOrderReferalResultsProps {
+interface ProcedureOrderReferralResultsProps {
   patientUuid: string;
 }
 
@@ -51,12 +51,12 @@ interface PrintProps {
   encounter: Result;
 }
 
-const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps> = ({ patientUuid }) => {
+const ProcedureOrderReferralResults: React.FC<ProcedureOrderReferralResultsProps> = ({ patientUuid }) => {
   const { t } = useTranslation();
 
-  const { enableSendingLabTestsByEmail, laboratoryEncounterTypeUuid } = useConfig();
+  const { enableSendingTestResultsByEmail, procedureResultEncounterType } = useConfig();
 
-  const displayText = t('referralLaboratoryTestsDisplayTextTitle', 'Laboratory Referral Tests');
+  const displayText = t('referralProcedureTestsDisplayTextTitle', 'Procedure Referral Tests');
 
   const {
     items,
@@ -69,26 +69,26 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
     setPageSize,
     isLoading,
     isError,
-  } = useLaboratoryOrderResultsPages({
+  } = useProcedureOrderResultsPages({
     v: ResourceRepresentation.Full,
     totalCount: true,
     patientUuid: patientUuid,
-    laboratoryEncounterTypeUuid: laboratoryEncounterTypeUuid,
+    procedureEncounterTypeUuid: procedureResultEncounterType,
   });
 
-  const sortedLabRequests = useMemo(() => {
+  const sortedProcedureRequests = useMemo(() => {
     return [...items]
-      ?.filter((item) => item?.encounterType?.uuid === laboratoryEncounterTypeUuid)
+      ?.filter((item) => item?.encounterType?.uuid === procedureResultEncounterType)
       ?.sort((a, b) => {
         const dateA = new Date(a.encounterDatetime);
         const dateB = new Date(b.encounterDatetime);
         return dateB.getTime() - dateA.getTime();
       });
-  }, [items, laboratoryEncounterTypeUuid]);
+  }, [items, procedureResultEncounterType]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [laboratoryOrders, setLaboratoryOrders] = useState(sortedLabRequests);
-  const [initialTests, setInitialTests] = useState(sortedLabRequests);
+  const [procedureOrders, setProcedureOrders] = useState(sortedProcedureRequests);
+  const [initialTests, setInitialTests] = useState(sortedProcedureRequests);
 
   const handleChange = useCallback((event) => {
     const searchText = event?.target?.value?.trim().toLowerCase();
@@ -97,18 +97,18 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
 
   useEffect(() => {
     if (!searchTerm) {
-      setLaboratoryOrders(initialTests);
+      setProcedureOrders(initialTests);
     } else {
       const filteredItems = initialTests.filter((item) =>
         item?.orders?.some((order) => order?.concept?.display.toLowerCase().includes(searchTerm)),
       );
-      setLaboratoryOrders(filteredItems);
+      setProcedureOrders(filteredItems);
     }
   }, [searchTerm, initialTests]);
 
   useEffect(() => {
-    setInitialTests(sortedLabRequests);
-  }, [sortedLabRequests]);
+    setInitialTests(sortedProcedureRequests);
+  }, [sortedProcedureRequests]);
 
   const EmailButtonAction: React.FC = () => {
     const launchSendEmailModal = useCallback(() => {
@@ -129,7 +129,7 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
 
   const EditReferralAction: React.FC<EditReferralActionProps> = ({ formUuid, encounterUuid }) => {
     const launchForm = () => {
-      launchWorkspace('patient-laboratory-referral-workspace', {
+      launchWorkspace('patient-procedure-referral-workspace', {
         workspaceTitle: 'Edit Referral Form',
         mutateForm: () => {
           mutate((key) => true, undefined, {
@@ -146,7 +146,7 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
     return <Button kind="ghost" size="sm" onClick={launchForm} renderIcon={(props) => <Edit size={16} {...props} />} />;
   };
 
-  const LaunchLabRequestForm: React.FC = () => {
+  const LaunchProcedureRequestForm: React.FC = () => {
     return (
       <IconButton label="Add">
         <Add />
@@ -208,7 +208,7 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
   );
 
   const tableRows = useMemo(() => {
-    return laboratoryOrders?.map((entry, index) => ({
+    return procedureOrders?.map((entry, index) => ({
       ...entry,
       id: entry?.uuid,
       orderDate: formatDate(parseDate(entry.encounterDatetime), {
@@ -239,11 +239,11 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
         <div style={{ display: 'flex' }}>
           <EditReferralAction formUuid={entry[index]?.form?.uuid} encounterUuid={entry[index]?.uuid} />
           <PrintButtonAction encounter={entry} />
-          {enableSendingLabTestsByEmail && <EmailButtonAction />}
+          {enableSendingTestResultsByEmail && <EmailButtonAction />}
         </div>
       ),
     }));
-  }, [enableSendingLabTestsByEmail, laboratoryOrders]);
+  }, [enableSendingTestResultsByEmail, procedureOrders]);
 
   if (isLoading) {
     return <DataTableSkeleton role="progressbar" />;
@@ -347,9 +347,10 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
                         </TableExpandRow>
                         {row.isExpanded ? (
                           <TableExpandedRow className={styles.expandedActiveVisitRow} colSpan={headers.length + 2}>
-                            {sortedLabRequests[index]?.obs !== null && sortedLabRequests[index]?.obs.length > 0 && (
-                              <TestsResults obs={sortedLabRequests[index]?.obs} />
-                            )}{' '}
+                            {sortedProcedureRequests[index]?.obs !== null &&
+                              sortedProcedureRequests[index]?.obs.length > 0 && (
+                                <TestsResults obs={sortedProcedureRequests[index]?.obs} />
+                              )}{' '}
                           </TableExpandedRow>
                         ) : (
                           <TableExpandedRow className={styles.hiddenRow} colSpan={headers.length + 2} />
@@ -391,4 +392,4 @@ const LaboratoryOrderReferalResults: React.FC<LaboratoryOrderReferalResultsProps
   }
 };
 
-export default LaboratoryOrderReferalResults;
+export default ProcedureOrderReferralResults;

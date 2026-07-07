@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from './laboratory-past-test-order-results.scss';
+import styles from './procedure-past-test-order-results.scss';
 import { formatDate, parseDate, ErrorState, showModal, useConfig, usePagination } from '@openmrs/esm-framework';
 
 import {
@@ -36,10 +36,10 @@ import { useReactToPrint } from 'react-to-print';
 import PrintResultsSummary from '../results-summary/print-results-summary.component';
 import { useGetPatientByUuid } from '../../utils/functions';
 import { ResourceRepresentation, type Result, getOrderColor } from '../patient-procedure-order-results.resource';
-import { useLaboratoryOrderResultsPages } from '../patient-procedure-order-results-table.resource';
+import { useProcedureOrderResultsPages } from '../patient-procedure-order-results-table.resource';
 import { CardHeader } from '@openmrs/esm-patient-common-lib';
 
-interface LaboratoryPastTestOrderResultsProps {
+interface ProcedurePastOrderResultsProps {
   patientUuid: string;
 }
 
@@ -47,34 +47,34 @@ interface PrintProps {
   encounter: Result;
 }
 
-const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsProps> = ({ patientUuid }) => {
+const ProcedurePastOrderResults: React.FC<ProcedurePastOrderResultsProps> = ({ patientUuid }) => {
   const { t } = useTranslation();
 
-  const { enableSendingLabTestsByEmail, laboratoryEncounterTypeUuid } = useConfig();
+  const { enableSendingTestResultsByEmail, procedureResultEncounterType } = useConfig();
 
-  const displayText = t('pastLaboratoryTestsDisplayTextTitle', 'Past Laboratory Tests');
-  const { items, tableHeaders, isLoading, isError } = useLaboratoryOrderResultsPages({
+  const displayText = t('pastProcedureTestsDisplayTextTitle', 'Past Procedure Tests');
+  const { items, tableHeaders, isLoading, isError } = useProcedureOrderResultsPages({
     v: ResourceRepresentation.Full,
     totalCount: true,
     patientUuid: patientUuid,
-    laboratoryEncounterTypeUuid: laboratoryEncounterTypeUuid,
+    procedureEncounterTypeUuid: procedureResultEncounterType,
   });
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
 
-  const sortedLabRequests = useMemo(() => {
+  const sortedProcedureRequests = useMemo(() => {
     return [...items]
-      ?.filter((item) => item?.encounterType?.uuid === laboratoryEncounterTypeUuid)
+      ?.filter((item) => item?.encounterType?.uuid === procedureResultEncounterType)
       ?.sort((a, b) => {
         const dateA = new Date(a.encounterDatetime);
         const dateB = new Date(b.encounterDatetime);
         return dateB.getTime() - dateA.getTime();
       });
-  }, [items, laboratoryEncounterTypeUuid]);
+  }, [items, procedureResultEncounterType]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [laboratoryOrders, setLaboratoryOrders] = useState(sortedLabRequests);
-  const [initialTests, setInitialTests] = useState(sortedLabRequests);
+  const [procedureOrders, setProcedureOrders] = useState(sortedProcedureRequests);
+  const [initialTests, setInitialTests] = useState(sortedProcedureRequests);
 
   const handleChange = useCallback((event) => {
     const searchText = event?.target?.value?.trim().toLowerCase();
@@ -83,18 +83,18 @@ const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsPro
 
   useEffect(() => {
     if (!searchTerm) {
-      setLaboratoryOrders(initialTests);
+      setProcedureOrders(initialTests);
     } else {
       const filteredItems = initialTests.filter((item) =>
         item?.orders?.some((order) => order?.concept?.display.toLowerCase().includes(searchTerm)),
       );
-      setLaboratoryOrders(filteredItems);
+      setProcedureOrders(filteredItems);
     }
   }, [searchTerm, initialTests]);
 
   useEffect(() => {
-    setInitialTests(sortedLabRequests);
-  }, [sortedLabRequests]);
+    setInitialTests(sortedProcedureRequests);
+  }, [sortedProcedureRequests]);
 
   const oneDayBeforeDate = new Date();
   oneDayBeforeDate.setDate(oneDayBeforeDate.getDate() - 1);
@@ -116,7 +116,7 @@ const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsPro
     );
   };
 
-  const LaunchLabRequestForm: React.FC = () => {
+  const LaunchProcedureRequestForm: React.FC = () => {
     return (
       <IconButton label="Add">
         <Add />
@@ -172,11 +172,11 @@ const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsPro
   const twentyFourHoursAgo = currentDateTime - 24 * 60 * 60 * 1000;
 
   const filteredPastTestOrderResults = useMemo(() => {
-    return laboratoryOrders?.filter((entry) => {
+    return procedureOrders?.filter((entry) => {
       const entryDate = new Date(entry.encounterDatetime).getTime();
       return entryDate < twentyFourHoursAgo;
     });
-  }, [laboratoryOrders, twentyFourHoursAgo]);
+  }, [procedureOrders, twentyFourHoursAgo]);
   const {
     goTo,
     results: paginatedPastTestOrderResults,
@@ -213,11 +213,11 @@ const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsPro
       actions: (
         <div style={{ display: 'flex' }}>
           <PrintButtonAction encounter={entry} />
-          {enableSendingLabTestsByEmail && <EmailButtonAction />}
+          {enableSendingTestResultsByEmail && <EmailButtonAction />}
         </div>
       ),
     }));
-  }, [enableSendingLabTestsByEmail, paginatedPastTestOrderResults]);
+  }, [enableSendingTestResultsByEmail, paginatedPastTestOrderResults]);
 
   if (isLoading) {
     return <DataTableSkeleton role="progressbar" />;
@@ -319,9 +319,10 @@ const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsPro
                         </TableExpandRow>
                         {row.isExpanded ? (
                           <TableExpandedRow className={styles.expandedActiveVisitRow} colSpan={headers.length + 2}>
-                            {sortedLabRequests[index]?.obs !== null && sortedLabRequests[index]?.obs?.length > 0 && (
-                              <TestsResults obs={sortedLabRequests[index]?.obs} />
-                            )}{' '}
+                            {sortedProcedureRequests[index]?.obs !== null &&
+                              sortedProcedureRequests[index]?.obs?.length > 0 && (
+                                <TestsResults obs={sortedProcedureRequests[index]?.obs} />
+                              )}{' '}
                           </TableExpandedRow>
                         ) : (
                           <TableExpandedRow className={styles.hiddenRow} colSpan={headers.length + 2} />
@@ -363,4 +364,4 @@ const LaboratoryPastTestOrderResults: React.FC<LaboratoryPastTestOrderResultsPro
   }
 };
 
-export default LaboratoryPastTestOrderResults;
+export default ProcedurePastOrderResults;

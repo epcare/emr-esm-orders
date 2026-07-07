@@ -103,7 +103,7 @@ export default function ImagingOrderBasketPanelExtension() {
     [patient],
   );
 
-  const removeLabOrder = useCallback(
+  const removeImagingOrder = useCallback(
     (order: ImagingOrderBasketItem) => {
       const newOrders = [...orders];
       newOrders.splice(orders.indexOf(order), 1);
@@ -160,7 +160,7 @@ export default function ImagingOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openImagingOrderFormForEditing(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeImagingOrder(order)}
                     />
                   ))}
                 </>
@@ -172,7 +172,7 @@ export default function ImagingOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openImagingOrderFormForEditing(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeImagingOrder(order)}
                     />
                   ))}
                 </>
@@ -185,7 +185,7 @@ export default function ImagingOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openImagingOrderFormForEditing(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeImagingOrder(order)}
                     />
                   ))}
                 </>
@@ -198,7 +198,7 @@ export default function ImagingOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openImagingOrderFormForEditing(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeImagingOrder(order)}
                     />
                   ))}
                 </>
@@ -211,7 +211,7 @@ export default function ImagingOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openImagingOrderFormForEditing(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeImagingOrder(order)}
                     />
                   ))}
                 </>

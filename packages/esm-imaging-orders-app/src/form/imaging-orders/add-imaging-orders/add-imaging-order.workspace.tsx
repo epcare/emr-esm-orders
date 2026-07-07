@@ -82,7 +82,7 @@ export default function AddImagingOrderWorkspace({
   const initialOrder = workspaceProps?.order;
   const formContext = workspaceProps?.formContext ?? 'creating';
 
-  const [currentLabOrder, setCurrentLabOrder] = useState<ImagingOrderBasketItem | undefined>(initialOrder);
+  const [currentImagingOrder, setCurrentImagingOrder] = useState<ImagingOrderBasketItem | undefined>(initialOrder);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const handleCancel = useCallback(() => {
@@ -130,11 +130,11 @@ export default function AddImagingOrderWorkspace({
             </Button>
           </div>
         )}
-        {!currentLabOrder ? (
-          <TestTypeSearch openLabForm={setCurrentLabOrder} />
+        {!currentImagingOrder ? (
+          <TestTypeSearch openImagingForm={setCurrentImagingOrder} />
         ) : (
           <ImagingOrderForm
-            initialOrder={currentLabOrder}
+            initialOrder={currentImagingOrder}
             closeWorkspace={handleCancel}
             closeWorkspaceWithSavedChanges={handleCloseWorkspaceWithSavedChanges}
             onDirtyChange={setHasUnsavedChanges}

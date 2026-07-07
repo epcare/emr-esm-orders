@@ -7,7 +7,7 @@ import { useLayoutType, closeWorkspace, launchWorkspace2, usePatient } from '@op
 import { type OrderBasketItem, useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { ProceduresOrderBasketItemTile } from './procedures-order-basket-item-tile.component';
 import { prepProceduresOrderPostData } from '../api';
-import LabIcon from './procedures-icon.component';
+import ProcedureIcon from './procedures-icon.component';
 import styles from './procedures-order-basket-panel.scss';
 import { type ProcedureOrderBasketItem } from '../../../types';
 
@@ -100,7 +100,7 @@ export default function ProceduresOrderBasketPanelExtension() {
     [patient],
   );
 
-  const removeLabOrder = useCallback(
+  const removeProcedureOrder = useCallback(
     (order: ProcedureOrderBasketItem) => {
       const newOrders = [...orders];
       newOrders.splice(orders.indexOf(order), 1);
@@ -120,7 +120,7 @@ export default function ProceduresOrderBasketPanelExtension() {
       })}>
       <div className={styles.container}>
         <div className={styles.iconAndLabel}>
-          <LabIcon isTablet={isTablet} />
+          <ProcedureIcon isTablet={isTablet} />
           <h4 className={styles.heading}>{`${t('proceduresOrders', 'Procedures orders')} (${orders.length})`}</h4>
         </div>
         <div className={styles.buttonContainer}>
@@ -157,7 +157,7 @@ export default function ProceduresOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openEditProceduresForm(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeProcedureOrder(order)}
                     />
                   ))}
                 </>
@@ -169,7 +169,7 @@ export default function ProceduresOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openEditProceduresForm(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeProcedureOrder(order)}
                     />
                   ))}
                 </>
@@ -182,7 +182,7 @@ export default function ProceduresOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openEditProceduresForm(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeProcedureOrder(order)}
                     />
                   ))}
                 </>
@@ -195,7 +195,7 @@ export default function ProceduresOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openEditProceduresForm(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeProcedureOrder(order)}
                     />
                   ))}
                 </>
@@ -208,7 +208,7 @@ export default function ProceduresOrderBasketPanelExtension() {
                       key={order.uuid}
                       orderBasketItem={order}
                       onItemClick={() => openEditProceduresForm(order)}
-                      onRemoveClick={() => removeLabOrder(order)}
+                      onRemoveClick={() => removeProcedureOrder(order)}
                     />
                   ))}
                 </>

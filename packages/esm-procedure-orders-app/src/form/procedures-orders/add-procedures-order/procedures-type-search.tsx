@@ -14,15 +14,15 @@ import {
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { prepProceduresOrderPostData } from '../api';
 import { type ProceduresType, useProceduresTypes } from './useProceduresTypes';
-import { createEmptyLabOrder } from './procedures-order';
+import { createEmptyProcedureOrder } from './procedures-order';
 import styles from './procedures-type-search.scss';
 import { type ProcedureOrderBasketItem } from '../../../types';
 
 export interface TestTypeSearchProps {
-  openLabForm: (searchResult: ProcedureOrderBasketItem) => void;
+  openProcedureForm: (searchResult: ProcedureOrderBasketItem) => void;
 }
 
-export function TestTypeSearch({ openLabForm }: TestTypeSearchProps) {
+export function TestTypeSearch({ openProcedureForm }: TestTypeSearchProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,7 +53,7 @@ export function TestTypeSearch({ openLabForm }: TestTypeSearchProps) {
       </ResponsiveWrapper>
       <TestTypeSearchResults
         searchTerm={debouncedSearchTerm}
-        openOrderForm={openLabForm}
+        openOrderForm={openProcedureForm}
         focusAndClearSearchInput={focusAndClearSearchInput}
       />
     </>
@@ -160,9 +160,9 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
     [orders, testType],
   );
 
-  const createLabOrder = useCallback(
+  const createProcedureOrder = useCallback(
     (testType: ProceduresType) => {
-      return createEmptyLabOrder(testType, session.currentProvider.uuid);
+      return createEmptyProcedureOrder(testType, session.currentProvider.uuid);
     },
     [session.currentProvider?.uuid],
   );
@@ -170,14 +170,14 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
   const { t } = useTranslation();
 
   const addToBasket = useCallback(() => {
-    const labOrder = createLabOrder(testType);
-    labOrder.isOrderIncomplete = true;
-    setOrders([...orders, labOrder]);
+    const procedureOrder = createProcedureOrder(testType);
+    procedureOrder.isOrderIncomplete = true;
+    setOrders([...orders, procedureOrder]);
     closeWorkspace('add-procedures-order', {
       ignoreChanges: true,
       onWorkspaceClose: () => launchWorkspace('order-basket'),
     });
-  }, [orders, setOrders, createLabOrder, testType]);
+  }, [orders, setOrders, createProcedureOrder, testType]);
 
   const removeFromBasket = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== testType.conceptUuid));
@@ -214,7 +214,7 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
         <Button
           kind="ghost"
           renderIcon={(props) => <ArrowRight size={16} {...props} />}
-          onClick={() => openOrderForm(createLabOrder(testType))}>
+          onClick={() => openOrderForm(createProcedureOrder(testType))}>
           {t('goToDrugOrderForm', 'Order form')}
         </Button>
       </div>

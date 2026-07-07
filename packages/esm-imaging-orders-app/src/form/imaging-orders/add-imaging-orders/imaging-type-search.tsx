@@ -14,15 +14,15 @@ import {
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { prepImagingOrderPostData } from '../api';
 import { type ImagingType, useImagingTypes } from './useImagingTypes';
-import { createEmptyLabOrder } from './imaging-order';
+import { createEmptyImagingOrder } from './imaging-order';
 import styles from './imaging-type-search.scss';
 import { type ImagingOrderBasketItem } from '../../../types';
 
 export interface TestTypeSearchProps {
-  openLabForm: (searchResult: ImagingOrderBasketItem) => void;
+  openImagingForm: (searchResult: ImagingOrderBasketItem) => void;
 }
 
-export function TestTypeSearch({ openLabForm }: TestTypeSearchProps) {
+export function TestTypeSearch({ openImagingForm }: TestTypeSearchProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
@@ -52,7 +52,7 @@ export function TestTypeSearch({ openLabForm }: TestTypeSearchProps) {
       </ResponsiveWrapper>
       <TestTypeSearchResults
         searchTerm={debouncedSearchTerm}
-        openOrderForm={openLabForm}
+        openOrderForm={openImagingForm}
         focusAndClearSearchInput={focusAndClearSearchInput}
       />
     </>
@@ -159,9 +159,9 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
     [orders, testType],
   );
 
-  const createLabOrder = useCallback(
+  const createImagingOrder = useCallback(
     (testType: ImagingType) => {
-      return createEmptyLabOrder(testType, session.currentProvider.uuid);
+      return createEmptyImagingOrder(testType, session.currentProvider.uuid);
     },
     [session.currentProvider?.uuid],
   );
@@ -169,14 +169,14 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
   const { t } = useTranslation();
 
   const addToBasket = useCallback(() => {
-    const labOrder = createLabOrder(testType);
-    labOrder.isOrderIncomplete = true;
-    setOrders([...orders, labOrder]);
+    const imagingOrder = createImagingOrder(testType);
+    imagingOrder.isOrderIncomplete = true;
+    setOrders([...orders, imagingOrder]);
     closeWorkspace('add-imaging-order', {
       ignoreChanges: true,
       onWorkspaceClose: () => launchWorkspace('order-basket'),
     });
-  }, [orders, setOrders, createLabOrder, testType]);
+  }, [orders, setOrders, createImagingOrder, testType]);
 
   const removeFromBasket = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== testType.conceptUuid));
@@ -213,7 +213,7 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
         <Button
           kind="ghost"
           renderIcon={(props) => <ArrowRight size={16} {...props} />}
-          onClick={() => openOrderForm(createLabOrder(testType))}>
+          onClick={() => openOrderForm(createImagingOrder(testType))}>
           {t('goToDrugOrderForm', 'Order form')}
         </Button>
       </div>

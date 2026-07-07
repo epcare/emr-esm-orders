@@ -29,7 +29,7 @@ export function ProceduresOrderBasketItemTile({
   // Hence, we manually prevent the handleClick callback from being invoked as soon as the button is pressed once.
   const shouldOnClickBeCalled = useRef(true);
 
-  const labTile = (
+  const procedureTile = (
     <div className={styles.orderBasketItemTile}>
       <div className={styles.clipTextWithEllipsis}>
         <OrderActionLabel orderBasketItem={orderBasketItem} />
@@ -64,7 +64,7 @@ export function ProceduresOrderBasketItemTile({
   );
 
   return orderBasketItem.action === 'DISCONTINUE' ? (
-    <Tile>{labTile}</Tile>
+    <Tile>{procedureTile}</Tile>
   ) : (
     <ClickableTile
       role="listitem"
@@ -73,7 +73,7 @@ export function ProceduresOrderBasketItemTile({
         [styles.clickableTileDesktop]: !isTablet,
       })}
       onClick={() => shouldOnClickBeCalled.current && onItemClick()}>
-      {labTile}
+      {procedureTile}
     </ClickableTile>
   );
 }
