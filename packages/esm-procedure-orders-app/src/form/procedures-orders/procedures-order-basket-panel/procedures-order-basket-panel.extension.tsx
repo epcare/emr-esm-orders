@@ -54,21 +54,19 @@ export default function ProceduresOrderBasketPanelExtension() {
   }, [orders]);
 
   const openNewProceduresForm = useCallback(() => {
-    if (!closeWorkspace || !launchWorkspace2 || !patient) {
+    if (!closeWorkspace || !launchWorkspace2) {
       alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
       return;
     }
     closeWorkspace('order-basket', {
       ignoreChanges: true,
       onWorkspaceClose: () => {
-        // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
         launchWorkspace2(
           'add-procedures-order',
-          { formContext: 'creating' }, // workspaceProps
+          { formContext: 'creating' },
           {
-            // windowProps
-            patientUuid: (patient as any)?.uuid,
-            patient: patient,
+            patientUuid: patient?.id,
+            patient,
           },
         );
       },
@@ -77,21 +75,19 @@ export default function ProceduresOrderBasketPanelExtension() {
 
   const openEditProceduresForm = useCallback(
     (order: OrderBasketItem) => {
-      if (!closeWorkspace || !launchWorkspace2 || !patient) {
+      if (!closeWorkspace || !launchWorkspace2) {
         alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
         return;
       }
       closeWorkspace('order-basket', {
         ignoreChanges: true,
         onWorkspaceClose: () => {
-          // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
           launchWorkspace2(
             'add-procedures-order',
-            { order, formContext: 'editing' }, // workspaceProps
+            { order, formContext: 'editing' },
             {
-              // windowProps
-              patientUuid: (patient as any)?.uuid,
-              patient: patient,
+              patientUuid: patient?.id,
+              patient,
             },
           );
         },

@@ -57,21 +57,19 @@ export default function ImagingOrderBasketPanelExtension() {
   }, [orders]);
 
   const launchImagingOrderForm = useCallback(() => {
-    if (!closeWorkspace || !launchWorkspace2 || !patient) {
+    if (!closeWorkspace || !launchWorkspace2) {
       alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
       return;
     }
     closeWorkspace('order-basket', {
       ignoreChanges: true,
       onWorkspaceClose: () => {
-        // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
         launchWorkspace2(
           'add-imaging-order',
-          { formContext: 'creating' }, // workspaceProps
+          { formContext: 'creating' },
           {
-            // windowProps
-            patientUuid: (patient as any)?.uuid,
-            patient: patient,
+            patientUuid: patient?.id,
+            patient,
           },
         );
       },
@@ -80,21 +78,19 @@ export default function ImagingOrderBasketPanelExtension() {
 
   const openImagingOrderFormForEditing = useCallback(
     (order: OrderBasketItem) => {
-      if (!closeWorkspace || !launchWorkspace2 || !patient) {
+      if (!closeWorkspace || !launchWorkspace2) {
         alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
         return;
       }
       closeWorkspace('order-basket', {
         ignoreChanges: true,
         onWorkspaceClose: () => {
-          // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
           launchWorkspace2(
             'add-imaging-order',
-            { order, formContext: 'editing' }, // workspaceProps
+            { order, formContext: 'editing' },
             {
-              // windowProps
-              patientUuid: (patient as any)?.uuid,
-              patient: patient,
+              patientUuid: patient?.id,
+              patient,
             },
           );
         },
