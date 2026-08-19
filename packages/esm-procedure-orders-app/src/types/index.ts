@@ -249,7 +249,7 @@ export interface PatientProgram {
 
 export interface AppointmentCountMap {
   allAppointmentsCount: number;
-  missedAppointmentsCount;
+  missedAppointmentsCount: number;
   appointmentDate: number;
   appointmentServiceUuid: string;
 }
@@ -762,8 +762,11 @@ export interface BaseOrderWorkspaceProps {
  * patient information passing.
  */
 export interface BaseOrderWindowProps {
-  /** The patient UUID - required for all workspace operations */
-  patientUuid: string;
+  /**
+   * The patient UUID for the active workspace context.
+   * This can be absent when the workspace is launched without a chart context.
+   */
+  patientUuid?: string;
   /** Optional full patient object - can be passed to avoid additional API calls */
   patient?: any;
   /** Optional encounter UUID - used for procedure results and orders */
