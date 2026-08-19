@@ -122,7 +122,7 @@ export default function ProceduresOrderBasketPanelExtension() {
         <div className={styles.buttonContainer}>
           <Button
             kind="ghost"
-            renderIcon={(props) => <Add size={16} {...props} />}
+            renderIcon={() => <Add size={16} />}
             iconDescription="Add procedures order"
             onClick={openNewProceduresForm}
             size={isTablet ? 'md' : 'sm'}>
@@ -132,9 +132,7 @@ export default function ProceduresOrderBasketPanelExtension() {
             className={styles.chevron}
             hasIconOnly
             kind="ghost"
-            renderIcon={(props) =>
-              isExpanded ? <ChevronUp size={16} {...props} /> : <ChevronDown size={16} {...props} />
-            }
+            renderIcon={() => (isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
             iconDescription="View"
             disabled={orders.length === 0}
             onClick={() => setIsExpanded(!isExpanded)}>

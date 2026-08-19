@@ -125,7 +125,7 @@ export default function ImagingOrderBasketPanelExtension() {
         <div className={styles.buttonContainer}>
           <Button
             kind="ghost"
-            renderIcon={(props) => <Add size={16} {...props} />}
+            renderIcon={() => <Add size={16} />}
             iconDescription="Add imaging order"
             onClick={launchImagingOrderForm}
             size={isTablet ? 'md' : 'sm'}>
@@ -135,9 +135,7 @@ export default function ImagingOrderBasketPanelExtension() {
             className={styles.chevron}
             hasIconOnly
             kind="ghost"
-            renderIcon={(props) =>
-              isExpanded ? <ChevronUp size={16} {...props} /> : <ChevronDown size={16} {...props} />
-            }
+            renderIcon={() => (isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
             iconDescription="View"
             disabled={orders.length === 0}
             onClick={() => setIsExpanded(!isExpanded)}>

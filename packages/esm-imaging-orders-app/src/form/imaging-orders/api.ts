@@ -44,7 +44,7 @@ export interface ImagingOrderPost extends OrderPost {
 export function prepImagingOrderPostData(
   order: ImagingOrderBasketItem,
   patientUuid: string,
-  encounterUuid: string,
+  encounterUuid: string | null,
 ): ImagingOrderPost {
   let payload = {};
   if (order.action === 'NEW' || order.action === 'RENEW') {
@@ -124,7 +124,7 @@ export function getConceptReferenceUrls(conceptUuids: Array<string>) {
 export type PostDataPrepImagingOrderFunction = (
   order: ImagingOrderBasketItem,
   patientUuid: string,
-  encounterUuid: string,
+  encounterUuid: string | null,
 ) => OrderPost;
 
 export interface ConceptAnswers {
