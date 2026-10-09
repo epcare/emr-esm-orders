@@ -8,7 +8,7 @@ import {
   showModal,
   useConfig,
   usePagination,
-  launchWorkspace,
+  launchWorkspace2,
 } from '@openmrs/esm-framework';
 import { mutate } from 'swr';
 import {
@@ -123,7 +123,7 @@ const ProcedureActiveOrderResults: React.FC<ProcedureActiveOrderResultsProps> = 
   };
 
   const launchProcedureRequestForm = () => {
-    launchWorkspace('patient-procedure-referral-workspace', {
+    launchWorkspace2('patient-procedure-referral-workspace', {
       workspaceTitle: 'Lab Request Form',
       mutateForm: () => {
         mutate((key) => true, undefined, {

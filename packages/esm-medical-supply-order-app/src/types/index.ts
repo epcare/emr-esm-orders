@@ -11,6 +11,8 @@ export interface MedicalSupplyOrderBasketItem extends OrderBasketItem {
     label: string;
     conceptUuid: string;
   };
+  orderer?: string;
+  careSetting?: string;
   urgency?: OrderUrgency;
   instructions?: string;
   quantity?: number;

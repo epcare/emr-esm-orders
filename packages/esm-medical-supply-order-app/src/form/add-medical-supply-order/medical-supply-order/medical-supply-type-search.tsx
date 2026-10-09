@@ -3,14 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, ButtonSkeleton, Search, SkeletonText, Tile } from '@carbon/react';
 import { ArrowRight, ShoppingCartArrowDown, ShoppingCartArrowUp } from '@carbon/react/icons';
-import {
-  useDebounce,
-  useLayoutType,
-  useSession,
-  ResponsiveWrapper,
-  closeWorkspace,
-  launchWorkspace,
-} from '@openmrs/esm-framework';
+import { useDebounce, useLayoutType, useSession, ResponsiveWrapper, launchWorkspace2 } from '@openmrs/esm-framework';
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import styles from './medical-supply-type-search.scss';
 import { type MedicalSupplyOrderBasketItem } from '../../../types';
@@ -20,9 +13,10 @@ import { prepMedicalSupplyOrderPostData } from '../api';
 
 export interface MedicalSupplyTypeSearchProps {
   openMedicalSupplyForm: (searchResult: MedicalSupplyOrderBasketItem) => void;
+  patient: fhir.Patient | null;
 }
 
-export function MedicalSupplyTypeSearch({ openMedicalSupplyForm }: MedicalSupplyTypeSearchProps) {
+export function MedicalSupplyTypeSearch({ openMedicalSupplyForm, patient }: MedicalSupplyTypeSearchProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
@@ -54,6 +48,7 @@ export function MedicalSupplyTypeSearch({ openMedicalSupplyForm }: MedicalSupply
         searchTerm={debouncedSearchTerm}
         openOrderForm={openMedicalSupplyForm}
         focusAndClearSearchInput={focusAndClearSearchInput}
+        patient={patient}
       />
     </>
   );
@@ -63,12 +58,14 @@ interface MedicalSupplyTypeSearchResultsProps {
   searchTerm: string;
   openOrderForm: (searchResult: MedicalSupplyOrderBasketItem) => void;
   focusAndClearSearchInput: () => void;
+  patient: fhir.Patient | null;
 }
 
 function MedicalSupplyTypeSearchResults({
   searchTerm,
   openOrderForm,
   focusAndClearSearchInput,
+  patient,
 }: MedicalSupplyTypeSearchResultsProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
@@ -118,6 +115,7 @@ function MedicalSupplyTypeSearchResults({
                 key={testType.conceptUuid}
                 testType={testType}
                 openOrderForm={openOrderForm}
+                patient={patient}
               />
             ))}
           </div>
@@ -144,7 +142,7 @@ function MedicalSupplyTypeSearchResults({
       {isTablet && (
         <div className={styles.separatorContainer}>
           <p className={styles.separator}>{t('or', 'or')}</p>
-          <Button kind="ghost" onClick={() => launchWorkspace('order-basket')}>
+          <Button kind="ghost" onClick={() => launchWorkspace2('order-basket')}>
             {t('returnToOrderBasket', 'Return to order basket')}
           </Button>
         </div>
@@ -156,15 +154,18 @@ function MedicalSupplyTypeSearchResults({
 interface MedicalSupplyTypeSearchResultItemProps {
   testType: MedicalSupplyType;
   openOrderForm: (searchResult: MedicalSupplyOrderBasketItem) => void;
+  patient: fhir.Patient | null;
 }
 
 const MedicalSupplyTypeSearchResultItem: React.FC<MedicalSupplyTypeSearchResultItemProps> = ({
   testType,
   openOrderForm,
+  patient,
 }) => {
   const isTablet = useLayoutType() === 'tablet';
   const session = useSession();
   const { orders, setOrders } = useOrderBasket<MedicalSupplyOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
     'medicalsupply',
     prepMedicalSupplyOrderPostData,
   );
@@ -186,10 +187,7 @@ const MedicalSupplyTypeSearchResultItem: React.FC<MedicalSupplyTypeSearchResultI
     const medicalSupplyOrder = createMedicalSupplyOrder(testType);
     medicalSupplyOrder.isOrderIncomplete = true;
     setOrders([...orders, medicalSupplyOrder]);
-    closeWorkspace('add-medical-supply-order', {
-      ignoreChanges: true,
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
+    launchWorkspace2('order-basket');
   }, [orders, setOrders, createMedicalSupplyOrder, testType]);
 
   const removeFromBasket = useCallback(() => {

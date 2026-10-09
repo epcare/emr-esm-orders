@@ -7,8 +7,7 @@ import {
   useSession,
   useConfig,
   ExtensionSlot,
-  type DefaultWorkspaceProps,
-  launchWorkspace,
+  launchWorkspace2,
 } from '@openmrs/esm-framework';
 import { careSettingUuid, prepProceduresOrderPostData, useOrderReasons, useConceptById, type Concept } from '../api';
 import {
@@ -39,22 +38,28 @@ import { moduleName } from '../../../constants';
 
 export interface ProceduresOrderFormProps {
   initialOrder: ProcedureOrderBasketItem;
-  closeWorkspace: DefaultWorkspaceProps['closeWorkspace'];
-  closeWorkspaceWithSavedChanges: DefaultWorkspaceProps['closeWorkspaceWithSavedChanges'];
-  promptBeforeClosing: DefaultWorkspaceProps['promptBeforeClosing'];
+  closeWorkspace: () => void;
+  closeWorkspaceWithSavedChanges: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
+  patient: fhir.Patient | null;
 }
 
 export function ProceduresOrderForm({
   initialOrder,
   closeWorkspace,
   closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
+  onDirtyChange,
+  patient,
 }: ProceduresOrderFormProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const session = useSession();
   const { orderConfigObject, isLoading: isLoadingOrderConfig, error: errorFetchingOrderConfig } = useOrderConfig();
-  const { orders, setOrders } = useOrderBasket<ProcedureOrderBasketItem>('procedures', prepProceduresOrderPostData);
+  const { orders, setOrders } = useOrderBasket<ProcedureOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
+    'procedures',
+    prepProceduresOrderPostData,
+  );
   const { testTypes, isLoading: isLoadingTestTypes, error: errorLoadingTestTypes } = useProceduresTypes();
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const {
@@ -166,18 +171,16 @@ export function ProceduresOrderForm({
       const orderIndex = existingOrder ? orders.indexOf(existingOrder) : orders.length;
       newOrders[orderIndex] = data;
       setOrders(newOrders);
-      closeWorkspaceWithSavedChanges({
-        onWorkspaceClose: () => launchWorkspace('order-basket'),
-      });
+      closeWorkspaceWithSavedChanges();
+      launchWorkspace2('order-basket');
     },
     [orders, setOrders, closeWorkspace, session?.currentProvider?.uuid, defaultValues],
   );
 
   const cancelOrder = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== defaultValues.testType.conceptUuid));
-    closeWorkspace({
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
+    closeWorkspace();
+    launchWorkspace2('order-basket');
   }, [closeWorkspace, orders, setOrders, defaultValues]);
 
   const onError = (errors: FieldErrors<ProcedureOrderBasketItem>) => {
@@ -187,8 +190,8 @@ export function ProceduresOrderForm({
   };
 
   useEffect(() => {
-    promptBeforeClosing(() => isDirty);
-  }, [isDirty]);
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const [showScheduleDate, setShowScheduleDate] = useState(false);
 

@@ -3,3 +3,4 @@ src/**/*.spec.tsx
 **/*.d.tsx
 **/node_modules/**/*
 test/**/*
+rspack.config.js

@@ -131,13 +131,14 @@ export default function AddImagingOrderWorkspace({
           </div>
         )}
         {!currentImagingOrder ? (
-          <TestTypeSearch openImagingForm={setCurrentImagingOrder} />
+          <TestTypeSearch openImagingForm={setCurrentImagingOrder} patient={patientData} />
         ) : (
           <ImagingOrderForm
             initialOrder={currentImagingOrder}
             closeWorkspace={handleCancel}
             closeWorkspaceWithSavedChanges={handleCloseWorkspaceWithSavedChanges}
             onDirtyChange={setHasUnsavedChanges}
+            patient={patientData}
           />
         )}
       </div>

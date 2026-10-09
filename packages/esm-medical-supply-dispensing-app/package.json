@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "homepage": "https://github.com/epcare/epcare-esm-orders#readme",
   "scripts": {
-    "start": "openmrs develop",
+    "start": "openmrs develop --use-rspack --port 8090",
     "serve": "rspack serve --mode=development --config ../../rspack.config.js",
     "debug": "npm run serve",
     "build": "rspack --mode production --config ../../rspack.config.js",
@@ -42,7 +42,7 @@
     "react-to-print": "^3.1.1"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "10.x",
+    "@openmrs/esm-framework": "11.x",
     "react": "18.x",
     "react-i18next": "16.x",
     "react-router-dom": "6.x",

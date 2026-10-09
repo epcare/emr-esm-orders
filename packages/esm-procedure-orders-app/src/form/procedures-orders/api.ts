@@ -46,7 +46,7 @@ export function useOrderReasons(conceptUuids: Array<string>) {
 export function prepProceduresOrderPostData(
   order: ProcedureOrderBasketItem,
   patientUuid: string,
-  encounterUuid: string,
+  encounterUuid: string | null,
 ): ProcedureOrderPost {
   let payload = {};
   if (order.action === 'NEW' || order.action === 'RENEW') {

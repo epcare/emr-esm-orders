@@ -3,14 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, ButtonSkeleton, Search, SkeletonText, Tile } from '@carbon/react';
 import { ArrowRight, ShoppingCartArrowDown, ShoppingCartArrowUp } from '@carbon/react/icons';
-import {
-  useDebounce,
-  useLayoutType,
-  useSession,
-  ResponsiveWrapper,
-  closeWorkspace,
-  launchWorkspace,
-} from '@openmrs/esm-framework';
+import { useDebounce, useLayoutType, useSession, ResponsiveWrapper, launchWorkspace2 } from '@openmrs/esm-framework';
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { prepProceduresOrderPostData } from '../api';
 import { type ProceduresType, useProceduresTypes } from './useProceduresTypes';
@@ -20,9 +13,10 @@ import { type ProcedureOrderBasketItem } from '../../../types';
 
 export interface TestTypeSearchProps {
   openProcedureForm: (searchResult: ProcedureOrderBasketItem) => void;
+  patient: fhir.Patient | null;
 }
 
-export function TestTypeSearch({ openProcedureForm }: TestTypeSearchProps) {
+export function TestTypeSearch({ openProcedureForm, patient }: TestTypeSearchProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,6 +49,7 @@ export function TestTypeSearch({ openProcedureForm }: TestTypeSearchProps) {
         searchTerm={debouncedSearchTerm}
         openOrderForm={openProcedureForm}
         focusAndClearSearchInput={focusAndClearSearchInput}
+        patient={patient}
       />
     </>
   );
@@ -64,9 +59,15 @@ interface TestTypeSearchResultsProps {
   searchTerm: string;
   openOrderForm: (searchResult: ProcedureOrderBasketItem) => void;
   focusAndClearSearchInput: () => void;
+  patient: fhir.Patient | null;
 }
 
-function TestTypeSearchResults({ searchTerm, openOrderForm, focusAndClearSearchInput }: TestTypeSearchResultsProps) {
+function TestTypeSearchResults({
+  searchTerm,
+  openOrderForm,
+  focusAndClearSearchInput,
+  patient,
+}: TestTypeSearchResultsProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const { testTypes, isLoading, error } = useProceduresTypes(searchTerm);
@@ -111,7 +112,12 @@ function TestTypeSearchResults({ searchTerm, openOrderForm, focusAndClearSearchI
           )}
           <div className={styles.resultsContainer}>
             {testTypes.map((testType) => (
-              <TestTypeSearchResultItem key={testType.conceptUuid} testType={testType} openOrderForm={openOrderForm} />
+              <TestTypeSearchResultItem
+                key={testType.conceptUuid}
+                testType={testType}
+                openOrderForm={openOrderForm}
+                patient={patient}
+              />
             ))}
           </div>
         </div>
@@ -137,7 +143,7 @@ function TestTypeSearchResults({ searchTerm, openOrderForm, focusAndClearSearchI
       {isTablet && (
         <div className={styles.separatorContainer}>
           <p className={styles.separator}>{t('or', 'or')}</p>
-          <Button kind="ghost" onClick={() => launchWorkspace('order-basket')}>
+          <Button kind="ghost" onClick={() => launchWorkspace2('order-basket')}>
             {t('returnToOrderBasket', 'Return to order basket')}
           </Button>
         </div>
@@ -149,12 +155,17 @@ function TestTypeSearchResults({ searchTerm, openOrderForm, focusAndClearSearchI
 interface TestTypeSearchResultItemProps {
   testType: ProceduresType;
   openOrderForm: (searchResult: ProcedureOrderBasketItem) => void;
+  patient: fhir.Patient | null;
 }
 
-const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ testType, openOrderForm }) => {
+const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ testType, openOrderForm, patient }) => {
   const isTablet = useLayoutType() === 'tablet';
   const session = useSession();
-  const { orders, setOrders } = useOrderBasket<ProcedureOrderBasketItem>('procedures', prepProceduresOrderPostData);
+  const { orders, setOrders } = useOrderBasket<ProcedureOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
+    'procedures',
+    prepProceduresOrderPostData,
+  );
   const testTypeAlreadyInBasket = useMemo(
     () => orders?.some((order) => order.testType.conceptUuid === testType.conceptUuid),
     [orders, testType],
@@ -173,10 +184,7 @@ const TestTypeSearchResultItem: React.FC<TestTypeSearchResultItemProps> = ({ tes
     const procedureOrder = createProcedureOrder(testType);
     procedureOrder.isOrderIncomplete = true;
     setOrders([...orders, procedureOrder]);
-    closeWorkspace('add-procedures-order', {
-      ignoreChanges: true,
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
+    launchWorkspace2('order-basket');
   }, [orders, setOrders, createProcedureOrder, testType]);
 
   const removeFromBasket = useCallback(() => {

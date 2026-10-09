@@ -41,7 +41,7 @@ export interface MedicalSupplyOrderPost extends OrderPost {
 export function prepMedicalSupplyOrderPostData(
   order: MedicalSupplyOrderBasketItem,
   patientUuid: string,
-  encounterUuid: string,
+  encounterUuid: string | null,
 ): MedicalSupplyOrderPost {
   let payload = {};
   if (order.action === 'NEW' || order.action === 'RENEW') {

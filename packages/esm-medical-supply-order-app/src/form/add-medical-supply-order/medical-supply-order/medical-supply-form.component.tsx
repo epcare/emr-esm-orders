@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { type DefaultPatientWorkspaceProps, useOrderBasket } from '@openmrs/esm-patient-common-lib';
+import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import {
   translateFrom,
   useLayoutType,
   useSession,
   useConfig,
   ExtensionSlot,
-  launchWorkspace,
+  launchWorkspace2,
 } from '@openmrs/esm-framework';
 import {
   Button,
@@ -36,9 +36,10 @@ import { useQuantityUnits } from '../../../hooks/useMedicalSupplyTypes';
 
 export interface MedicalSupplyOrderFormProps {
   initialOrder: MedicalSupplyOrderBasketItem;
-  closeWorkspace: DefaultPatientWorkspaceProps['closeWorkspace'];
-  closeWorkspaceWithSavedChanges: DefaultPatientWorkspaceProps['closeWorkspaceWithSavedChanges'];
-  promptBeforeClosing: DefaultPatientWorkspaceProps['promptBeforeClosing'];
+  closeWorkspace: () => void;
+  closeWorkspaceWithSavedChanges: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
+  patient: fhir.Patient | null;
 }
 
 // Designs:
@@ -48,12 +49,14 @@ export function MedicalSupplyOrderForm({
   initialOrder,
   closeWorkspace,
   closeWorkspaceWithSavedChanges,
-  promptBeforeClosing,
+  onDirtyChange,
+  patient,
 }: MedicalSupplyOrderFormProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const session = useSession();
   const { orders, setOrders } = useOrderBasket<MedicalSupplyOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
     'medicalsupply',
     prepMedicalSupplyOrderPostData,
   );
@@ -112,18 +115,16 @@ export function MedicalSupplyOrderForm({
       const orderIndex = existingOrder ? orders.indexOf(existingOrder) : orders.length;
       newOrders[orderIndex] = data;
       setOrders(newOrders);
-      closeWorkspaceWithSavedChanges({
-        onWorkspaceClose: () => launchWorkspace('order-basket'),
-      });
+      closeWorkspaceWithSavedChanges();
+      launchWorkspace2('order-basket');
     },
     [orders, setOrders, session?.currentProvider?.uuid, defaultValues, closeWorkspaceWithSavedChanges],
   );
 
   const cancelOrder = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== defaultValues.testType.conceptUuid));
-    closeWorkspace({
-      onWorkspaceClose: () => launchWorkspace('order-basket'),
-    });
+    closeWorkspace();
+    launchWorkspace2('order-basket');
   }, [closeWorkspace, orders, setOrders, defaultValues]);
 
   const onError = (errors: FieldErrors<MedicalSupplyOrderBasketItem>) => {
@@ -133,8 +134,8 @@ export function MedicalSupplyOrderForm({
   };
 
   useEffect(() => {
-    promptBeforeClosing(() => isDirty);
-  }, [isDirty, promptBeforeClosing]);
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   return (
     <>

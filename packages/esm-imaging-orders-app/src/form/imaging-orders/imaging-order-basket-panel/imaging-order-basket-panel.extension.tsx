@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Tile } from '@carbon/react';
 import { Add, ChevronDown, ChevronUp } from '@carbon/react/icons';
-import { useLayoutType, closeWorkspace, launchWorkspace2, usePatient } from '@openmrs/esm-framework';
+import { useLayoutType, launchWorkspace2, usePatient } from '@openmrs/esm-framework';
 import { type OrderBasketItem, useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { ImagingOrderBasketItemTile } from './imaging-order-basket-item-tile.component';
 import { prepImagingOrderPostData } from '../api';
@@ -17,8 +17,12 @@ import { type ImagingOrderBasketItem } from '../../../types';
 export default function ImagingOrderBasketPanelExtension() {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
-  const { orders, setOrders } = useOrderBasket<ImagingOrderBasketItem>('imaging', prepImagingOrderPostData);
   const { patient } = usePatient();
+  const { orders, setOrders } = useOrderBasket<ImagingOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
+    'imaging',
+    prepImagingOrderPostData,
+  );
   const [isExpanded, setIsExpanded] = useState(orders.length > 0);
   const {
     incompleteOrderBasketItems,
@@ -57,48 +61,24 @@ export default function ImagingOrderBasketPanelExtension() {
   }, [orders]);
 
   const launchImagingOrderForm = useCallback(() => {
-    if (!closeWorkspace || !launchWorkspace2 || !patient) {
-      alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
+    if (!patient) {
+      alert('Unable to open form: patient is still loading. Please try again.');
       return;
     }
-    closeWorkspace('order-basket', {
-      ignoreChanges: true,
-      onWorkspaceClose: () => {
-        // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
-        launchWorkspace2(
-          'add-imaging-order',
-          { formContext: 'creating' }, // workspaceProps
-          {
-            // windowProps
-            patientUuid: (patient as any)?.uuid,
-            patient: patient,
-          },
-        );
-      },
-    });
+    // launchWorkspace2 replaces whatever else is open in the order-basket window
+    // (prompting only if there are unsaved changes)
+    launchWorkspace2('add-imaging-order', { formContext: 'creating' });
   }, [patient]);
 
   const openImagingOrderFormForEditing = useCallback(
     (order: OrderBasketItem) => {
-      if (!closeWorkspace || !launchWorkspace2 || !patient) {
-        alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
+      if (!patient) {
+        alert('Unable to open form: patient is still loading. Please try again.');
         return;
       }
-      closeWorkspace('order-basket', {
-        ignoreChanges: true,
-        onWorkspaceClose: () => {
-          // Pass both workspaceProps (for workspace-specific data) and windowProps (for patient context)
-          launchWorkspace2(
-            'add-imaging-order',
-            { order, formContext: 'editing' }, // workspaceProps
-            {
-              // windowProps
-              patientUuid: (patient as any)?.uuid,
-              patient: patient,
-            },
-          );
-        },
-      });
+      // launchWorkspace2 replaces whatever else is open in the order-basket window
+      // (prompting only if there are unsaved changes)
+      launchWorkspace2('add-imaging-order', { order, formContext: 'editing' });
     },
     [patient],
   );

@@ -1,14 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
-import {
-  translateFrom,
-  useLayoutType,
-  useSession,
-  type DefaultWorkspaceProps,
-  ExtensionSlot,
-  launchWorkspace,
-} from '@openmrs/esm-framework';
+import { translateFrom, useLayoutType, useSession, ExtensionSlot } from '@openmrs/esm-framework';
 import { careSettingUuid, prepImagingOrderPostData, useConceptById } from '../api';
 import {
   Button,
@@ -38,6 +31,7 @@ export interface ImagingOrderFormProps {
   closeWorkspace: () => void;
   closeWorkspaceWithSavedChanges: () => void;
   onDirtyChange?: (isDirty: boolean) => void;
+  patient: fhir.Patient | null;
 }
 
 // Designs:
@@ -48,11 +42,16 @@ export function ImagingOrderForm({
   closeWorkspace,
   closeWorkspaceWithSavedChanges,
   onDirtyChange,
+  patient,
 }: ImagingOrderFormProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
   const session = useSession();
-  const { orders, setOrders } = useOrderBasket<ImagingOrderBasketItem>('imaging', prepImagingOrderPostData);
+  const { orders, setOrders } = useOrderBasket<ImagingOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
+    'imaging',
+    prepImagingOrderPostData,
+  );
   const { testTypes, isLoading: isLoadingTestTypes, error: errorLoadingTestTypes } = useImagingTypes();
   const [showErrorNotification, setShowErrorNotification] = useState(false);
 

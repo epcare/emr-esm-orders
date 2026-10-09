@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Tile } from '@carbon/react';
 import { Add, ChevronDown, ChevronUp } from '@carbon/react/icons';
-import { useLayoutType, closeWorkspace, launchWorkspace2 } from '@openmrs/esm-framework';
+import { useLayoutType, launchWorkspace2, usePatient } from '@openmrs/esm-framework';
 import { type OrderBasketItem, useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { prepMedicalSupplyOrderPostData } from '../api';
 import styles from './medical-supply-order-basket-panel.scss';
@@ -17,7 +17,9 @@ import { MedicalSupplyOrderBasketItemTile } from './medical-supply-order-basket-
 export default function MedicalSupplyOrderBasketPanelExtension() {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
+  const { patient } = usePatient();
   const { orders, setOrders } = useOrderBasket<MedicalSupplyOrderBasketItem>(
+    patient ?? ({ id: '' } as fhir.Patient),
     'medicalsupply',
     prepMedicalSupplyOrderPostData,
   );
@@ -59,29 +61,15 @@ export default function MedicalSupplyOrderBasketPanelExtension() {
   }, [orders]);
 
   const openNewMedicalSupplyForm = useCallback(() => {
-    if (!closeWorkspace || !launchWorkspace2) {
-      alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
-      return;
-    }
-    closeWorkspace('order-basket', {
-      ignoreChanges: true,
-      onWorkspaceClose: () => {
-        launchWorkspace2('add-medical-supply-order', {});
-      },
-    });
+    // launchWorkspace2 replaces whatever else is open in the order-basket window
+    // (prompting only if there are unsaved changes)
+    launchWorkspace2('add-medical-supply-order', {});
   }, []);
 
   const openEditMedicalSupplyForm = useCallback((order: OrderBasketItem) => {
-    if (!closeWorkspace || !launchWorkspace2) {
-      alert('Unable to open form: Workspace functions not available. Please check OpenMRS version compatibility.');
-      return;
-    }
-    closeWorkspace('order-basket', {
-      ignoreChanges: true,
-      onWorkspaceClose: () => {
-        launchWorkspace2('add-medical-supply-order', { order });
-      },
-    });
+    // launchWorkspace2 replaces whatever else is open in the order-basket window
+    // (prompting only if there are unsaved changes)
+    launchWorkspace2('add-medical-supply-order', { order });
   }, []);
 
   const removeMedicalSupplyOrder = useCallback(

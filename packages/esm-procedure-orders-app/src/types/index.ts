@@ -419,6 +419,8 @@ export interface ProcedureOrderBasketItem extends OrderBasketItem {
     label: string;
     conceptUuid: string;
   };
+  orderer?: string;
+  careSetting?: string;
   procedureReferenceNumber?: string;
   urgency?: OrderUrgency;
   instructions?: string;

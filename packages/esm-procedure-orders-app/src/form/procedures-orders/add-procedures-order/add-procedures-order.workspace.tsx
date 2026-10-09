@@ -11,6 +11,7 @@ import {
   parseDate,
   useLayoutType,
   usePatient,
+  Workspace2,
   type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
 import { TestTypeSearch } from './procedures-type-search';
@@ -75,10 +76,15 @@ export default function AddProceduresOrderWorkspace({
   const [currentProcedureOrder, setCurrentProcedureOrder] = useState<ProcedureOrderBasketItem | undefined>(
     initialOrder,
   );
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const patientName = patientData ? getPatientName(patientData) : '';
 
   const handleCancel = useCallback(() => {
+    closeWorkspace({ discardUnsavedChanges: true });
+  }, [closeWorkspace]);
+
+  const handleCloseWorkspaceWithSavedChanges = useCallback(() => {
     closeWorkspace();
   }, [closeWorkspace]);
 
@@ -87,44 +93,52 @@ export default function AddProceduresOrderWorkspace({
     return null;
   }
 
+  const title =
+    formContext === 'editing'
+      ? t('editProcedureOrder', 'Edit Procedure Order')
+      : t('addProcedureOrder', 'Add Procedure Order');
+
   return (
-    <div className={styles.container}>
-      {isTablet && !isLoadingPatient && patientData && (
-        <div className={styles.patientHeader}>
-          <span className={styles.bodyShort02}>{patientName}</span>
-          <span className={classNames(styles.text02, styles.bodyShort01)}>
-            {capitalize(patientData.gender)} &middot; {age(patientData.birthDate)} &middot;{' '}
-            <span>
-              {formatDate(parseDate(patientData.birthDate), {
-                mode: 'wide',
-                time: false,
-              })}
+    <Workspace2 title={title} hasUnsavedChanges={hasUnsavedChanges}>
+      <div className={styles.container}>
+        {isTablet && !isLoadingPatient && patientData && (
+          <div className={styles.patientHeader}>
+            <span className={styles.bodyShort02}>{patientName}</span>
+            <span className={classNames(styles.text02, styles.bodyShort01)}>
+              {capitalize(patientData.gender)} &middot; {age(patientData.birthDate)} &middot;{' '}
+              <span>
+                {formatDate(parseDate(patientData.birthDate), {
+                  mode: 'wide',
+                  time: false,
+                })}
+              </span>
             </span>
-          </span>
-        </div>
-      )}
-      {!isTablet && (
-        <div className={styles.backButton}>
-          <Button
-            kind="ghost"
-            renderIcon={(props) => <ArrowLeft size={24} {...props} />}
-            iconDescription="Return to order basket"
-            size="sm"
-            onClick={handleCancel}>
-            <span>{t('backToOrderBasket', 'Back to order basket')}</span>
-          </Button>
-        </div>
-      )}
-      {!currentProcedureOrder ? (
-        <TestTypeSearch openProcedureForm={setCurrentProcedureOrder} />
-      ) : (
-        <ProceduresOrderForm
-          initialOrder={currentProcedureOrder}
-          closeWorkspace={handleCancel}
-          closeWorkspaceWithSavedChanges={handleCancel}
-          promptBeforeClosing={() => true}
-        />
-      )}
-    </div>
+          </div>
+        )}
+        {!isTablet && (
+          <div className={styles.backButton}>
+            <Button
+              kind="ghost"
+              renderIcon={(props) => <ArrowLeft size={24} {...props} />}
+              iconDescription="Return to order basket"
+              size="sm"
+              onClick={handleCancel}>
+              <span>{t('backToOrderBasket', 'Back to order basket')}</span>
+            </Button>
+          </div>
+        )}
+        {!currentProcedureOrder ? (
+          <TestTypeSearch openProcedureForm={setCurrentProcedureOrder} patient={patientData} />
+        ) : (
+          <ProceduresOrderForm
+            initialOrder={currentProcedureOrder}
+            closeWorkspace={handleCancel}
+            closeWorkspaceWithSavedChanges={handleCloseWorkspaceWithSavedChanges}
+            onDirtyChange={setHasUnsavedChanges}
+            patient={patientData}
+          />
+        )}
+      </div>
+    </Workspace2>
   );
 }

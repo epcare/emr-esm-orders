@@ -32,6 +32,8 @@ export interface ImagingOrderBasketItem extends OrderBasketItem {
     label: string;
     conceptUuid: string;
   };
+  orderer?: string;
+  careSetting?: string;
   urgency?: OrderUrgency;
   instructions?: string;
   orderReason?: string;

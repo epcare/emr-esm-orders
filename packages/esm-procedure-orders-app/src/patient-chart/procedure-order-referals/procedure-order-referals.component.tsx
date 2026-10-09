@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './procedure-order-referals.scss';
-import { formatDate, parseDate, ErrorState, showModal, useConfig, launchWorkspace } from '@openmrs/esm-framework';
+import { formatDate, parseDate, ErrorState, showModal, useConfig, launchWorkspace2 } from '@openmrs/esm-framework';
 
 import {
   DataTable,
@@ -129,7 +129,7 @@ const ProcedureOrderReferralResults: React.FC<ProcedureOrderReferralResultsProps
 
   const EditReferralAction: React.FC<EditReferralActionProps> = ({ formUuid, encounterUuid }) => {
     const launchForm = () => {
-      launchWorkspace('patient-procedure-referral-workspace', {
+      launchWorkspace2('patient-procedure-referral-workspace', {
         workspaceTitle: 'Edit Referral Form',
         mutateForm: () => {
           mutate((key) => true, undefined, {

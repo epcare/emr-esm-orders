@@ -18,5 +18,8 @@ export function createEmptyMedicalSupplyOrder(
     display: testType.label,
     testType,
     orderer,
-  };
+    // pcl 13 requires `visit` on OrderBasketItem, but the basket itself never reads it
+    // (see pcl's own useOrderBasket tests); our save flow passes the visit separately.
+    visit: null,
+  } as MedicalSupplyOrderBasketItem;
 }
