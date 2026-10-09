@@ -124,7 +124,7 @@ export function getConceptReferenceUrls(conceptUuids: Array<string>) {
 export type PostDataPrepImagingOrderFunction = (
   order: ImagingOrderBasketItem,
   patientUuid: string,
-  encounterUuid: string,
+  encounterUuid: string | null,
 ) => OrderPost;
 
 export interface ConceptAnswers {
