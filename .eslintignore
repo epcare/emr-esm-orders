@@ -4,3 +4,5 @@ src/**/*.spec.tsx
 **/node_modules/**/*
 test/**/*
 rspack.config.js
+__mocks__/**/*
+vitest.config.js

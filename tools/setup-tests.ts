@@ -1,3 +1,4 @@
+import React from 'react';
 import { vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
@@ -24,7 +25,7 @@ declare global {
 }
 
 // Mock swr module globally before tests run
-vi.mock('swr', () => {
+const swrMockFactory = vi.hoisted(() => () => {
   const createSWRMock = () => {
     // Default implementation
     let currentImplementation = () => ({ data: undefined, error: undefined, isLoading: false, isValidating: false });
@@ -71,10 +72,66 @@ vi.mock('swr', () => {
   const useSWR = createSWRMock();
   (useSWR as any).default = useSWR;
 
+  // Passthrough so tests that wrap hooks in <SWRConfig> render their children.
+  const SWRConfig = ({ children }: { children?: any }) => children;
+
   return {
     default: useSWR,
+    SWRConfig,
   };
 });
+
+vi.mock('swr', swrMockFactory);
+// `swr/immutable` runs real swr otherwise, whose default cache is a module-level
+// singleton shared across tests (results from one test leak into the next). Mock it
+// with a minimal hook that actually invokes the fetcher and keeps state per mount,
+// which is what fetcher-level tests expect.
+vi.mock('swr/immutable', () => ({
+  default: function useSwrImmutableMock(key: unknown, fetcher?: (...args: Array<any>) => any) {
+    const [state, setState] = React.useState<any>({
+      data: undefined,
+      error: undefined,
+      isLoading: Boolean(fetcher),
+      isValidating: Boolean(fetcher),
+      runId: 0,
+    });
+    // swr hashes keys; a stable string keeps the effect from re-running on
+    // identical array keys recreated every render.
+    const keyHash = JSON.stringify(key ?? null) ?? null;
+
+    React.useEffect(() => {
+      if (!fetcher || key == null) {
+        setState((prev: any) => ({ ...prev, isLoading: false, isValidating: false }));
+        return;
+      }
+      let alive = true;
+      setState((prev: any) => ({ ...prev, isLoading: true, isValidating: true }));
+      Promise.resolve(fetcher(key))
+        .then((data: any) => {
+          if (alive) {
+            setState((prev: any) => ({ ...prev, data, error: undefined, isLoading: false, isValidating: false }));
+          }
+        })
+        .catch((error: any) => {
+          if (alive) {
+            setState((prev: any) => ({ ...prev, data: undefined, error, isLoading: false, isValidating: false }));
+          }
+        });
+      return () => {
+        alive = false;
+      };
+    }, [keyHash, state.runId]);
+
+    return {
+      ...state,
+      mutate: () =>
+        new Promise<void>((resolve) => {
+          setState((prev: any) => ({ ...prev, runId: prev.runId + 1 }));
+          resolve();
+        }),
+    };
+  },
+}));
 
 // Intercept jest.mock calls
 const originalJest = {

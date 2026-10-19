@@ -689,6 +689,7 @@ __metadata:
   resolution: "@epcare/esm-imaging-orders-app@workspace:packages/esm-imaging-orders-app"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
+    "@openmrs/esm-patient-common-lib": "workspace:*"
     lodash-es: "npm:^4.17.21"
     react-to-print: "npm:^3.1.1"
   peerDependencies:
@@ -722,6 +723,7 @@ __metadata:
   resolution: "@epcare/esm-medical-supply-orders-app@workspace:packages/esm-medical-supply-order-app"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
+    "@openmrs/esm-patient-common-lib": "workspace:*"
     lodash-es: "npm:^4.17.21"
     react-to-print: "npm:^3.1.1"
   peerDependencies:
@@ -742,7 +744,7 @@ __metadata:
     "@carbon/pictograms-react": "npm:^11.66.0"
     "@hookform/resolvers": "npm:^3.3.4"
     "@openmrs/esm-framework": "npm:11.0.0"
-    "@openmrs/esm-patient-common-lib": "npm:13.0.0"
+    "@openmrs/esm-patient-common-lib": "workspace:*"
     "@playwright/test": "npm:^1.53.2"
     "@swc/cli": "npm:^0.1.57"
     "@swc/core": "npm:^1.2.165"
@@ -808,6 +810,7 @@ __metadata:
   resolution: "@epcare/esm-procedure-orders-app@workspace:packages/esm-procedure-orders-app"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
+    "@openmrs/esm-patient-common-lib": "workspace:*"
     lodash-es: "npm:^4.17.21"
     react-to-print: "npm:^3.1.1"
   peerDependencies:
@@ -2973,21 +2976,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-patient-common-lib@npm:13.0.0":
-  version: 13.0.0
-  resolution: "@openmrs/esm-patient-common-lib@npm:13.0.0"
+"@openmrs/esm-patient-common-lib@workspace:*, @openmrs/esm-patient-common-lib@workspace:packages/esm-patient-common-lib":
+  version: 0.0.0-use.local
+  resolution: "@openmrs/esm-patient-common-lib@workspace:packages/esm-patient-common-lib"
   dependencies:
+    "@carbon/react": "npm:^1.83.0"
     lodash-es: "npm:^4.18.1"
+    openmrs: "npm:11.0.0"
     uuid: "npm:^8.3.2"
+    vitest: "npm:^4.0.18"
   peerDependencies:
     "@carbon/react": 1.x
     "@openmrs/esm-framework": 11.x
     react: 18.x
     react-dom: 18.x
     single-spa: 6.x
-  checksum: f5f86fe56ec76595e132035cbd5dc67766fa0e2b9c7b20f3a19e1ca7a451fc85d50aa8739082cb897465bb7d64bd05427316ee4ff6545035f12ceaae11b08fe0
-  languageName: node
-  linkType: hard
+  languageName: unknown
+  linkType: soft
 
 "@openmrs/esm-react-utils@npm:11.0.0":
   version: 11.0.0

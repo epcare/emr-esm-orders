@@ -1,0 +1,47 @@
+{
+  "name": "@openmrs/esm-patient-common-lib",
+  "version": "13.0.0",
+  "license": "MPL-2.0",
+  "description": "Library for common patient chart components",
+  "browser": "dist/openmrs-esm-patient-common-lib.js",
+  "main": "src/index.ts",
+  "source": true,
+  "scripts": {
+    "lint": "eslint src --fix --max-warnings=0",
+    "test": "vitest run --passWithNoTests",
+    "typescript": "tsc"
+  },
+  "browserslist": [
+    "extends browserslist-config-openmrs"
+  ],
+  "keywords": [
+    "openmrs"
+  ],
+  "homepage": "https://github.com/epcare/epcare-esm-orders#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/epcare/epcare-esm-orders.git"
+  },
+  "bugs": {
+    "url": "https://github.com/epcare/epcare-esm-orders/issues"
+  },
+  "dependencies": {
+    "lodash-es": "^4.18.1",
+    "uuid": "^8.3.2"
+  },
+  "peerDependencies": {
+    "@carbon/react": "1.x",
+    "@openmrs/esm-framework": "11.x",
+    "react": "18.x",
+    "react-dom": "18.x",
+    "single-spa": "6.x"
+  },
+  "devDependencies": {
+    "@carbon/react": "^1.83.0",
+    "openmrs": "11.0.0",
+    "vitest": "^4.0.18"
+  }
+}

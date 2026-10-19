@@ -23,6 +23,7 @@ export default defineConfig({
     alias: {
       '@openmrs/esm-framework/src/internal': '@openmrs/esm-framework/mock',
       '@openmrs/esm-framework': '@openmrs/esm-framework/mock',
+      '__mocks__': path.resolve(rootDir, '__mocks__'),
       'react-i18next': path.resolve(rootDir, '__mocks__/react-i18next.js'),
       '@mocks/': path.resolve(rootDir, '__mocks__/'),
       '@tools/': path.resolve(rootDir, 'tools/'),
