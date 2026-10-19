@@ -1,14 +1,7 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import classNames from 'classnames';
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
-import {
-  translateFrom,
-  useLayoutType,
-  useSession,
-  useConfig,
-  ExtensionSlot,
-  launchWorkspace2,
-} from '@openmrs/esm-framework';
+import { translateFrom, useLayoutType, useSession, useConfig, ExtensionSlot } from '@openmrs/esm-framework';
 import { careSettingUuid, prepProceduresOrderPostData, useOrderReasons, useConceptById, type Concept } from '../api';
 import {
   Button,
@@ -171,16 +164,16 @@ export function ProceduresOrderForm({
       const orderIndex = existingOrder ? orders.indexOf(existingOrder) : orders.length;
       newOrders[orderIndex] = data;
       setOrders(newOrders);
+      // closing this child workspace reveals the order basket underneath
       closeWorkspaceWithSavedChanges();
-      launchWorkspace2('order-basket');
     },
-    [orders, setOrders, closeWorkspace, session?.currentProvider?.uuid, defaultValues],
+    [orders, setOrders, closeWorkspaceWithSavedChanges, session?.currentProvider?.uuid, defaultValues],
   );
 
   const cancelOrder = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== defaultValues.testType.conceptUuid));
+    // closing this child workspace reveals the order basket underneath
     closeWorkspace();
-    launchWorkspace2('order-basket');
   }, [closeWorkspace, orders, setOrders, defaultValues]);
 
   const onError = (errors: FieldErrors<ProcedureOrderBasketItem>) => {

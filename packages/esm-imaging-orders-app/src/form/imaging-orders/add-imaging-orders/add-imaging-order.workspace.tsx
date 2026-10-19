@@ -90,7 +90,8 @@ export default function AddImagingOrderWorkspace({
   }, [closeWorkspace]);
 
   const handleCloseWorkspaceWithSavedChanges = useCallback(() => {
-    closeWorkspace();
+    // Suppress the unsaved-changes prompt: the changes were just saved to the basket.
+    closeWorkspace({ discardUnsavedChanges: true });
   }, [closeWorkspace]);
 
   // Show loading state while patient data is being fetched

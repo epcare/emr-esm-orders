@@ -3,7 +3,12 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Tile } from '@carbon/react';
 import { Add, ChevronDown, ChevronUp } from '@carbon/react/icons';
-import { useLayoutType, launchWorkspace2, usePatient } from '@openmrs/esm-framework';
+import {
+  useLayoutType,
+  usePatient,
+  workspace2Store,
+  workspace2StoreActions,
+} from '@openmrs/esm-framework/src/internal';
 import { type OrderBasketItem, useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import { ProceduresOrderBasketItemTile } from './procedures-order-basket-item-tile.component';
 import { prepProceduresOrderPostData } from '../api';
@@ -14,6 +19,17 @@ import { type ProcedureOrderBasketItem } from '../../../types';
 export default function ProceduresOrderBasketPanelExtension() {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
+  // This panel is slotted into the order basket workspace. The extensions system mounts
+  // each extension as a single-spa parcel whose props provider shadows the Workspace2
+  // context, so `useWorkspace2Context()` here returns the extension's custom props (with
+  // no `launchChildWorkspace`). Launch the form the same way the workspace-provided
+  // `launchChildWorkspace` would: drive the workspace2 store directly, stacking the form
+  // as a child of the open order basket — the basket stays open underneath.
+  const launchOrderForm = useCallback((workspaceName: string, workspaceProps: Record<string, unknown>) => {
+    workspace2Store.setState((state) =>
+      workspace2StoreActions.openChildWorkspace(state, 'order-basket', workspaceName, workspaceProps),
+    );
+  }, []);
   const { patient } = usePatient();
   const { orders, setOrders } = useOrderBasket<ProcedureOrderBasketItem>(
     patient ?? ({ id: '' } as fhir.Patient),
@@ -62,10 +78,9 @@ export default function ProceduresOrderBasketPanelExtension() {
       alert('Unable to open form: patient is still loading. Please try again.');
       return;
     }
-    // launchWorkspace2 replaces whatever else is open in the order-basket window
-    // (prompting only if there are unsaved changes)
-    launchWorkspace2('add-procedures-order', { formContext: 'creating' });
-  }, [patient]);
+    // opens the form as a child workspace on top of the order basket
+    launchOrderForm('add-procedures-order', { formContext: 'creating' });
+  }, [launchOrderForm, patient]);
 
   const openEditProceduresForm = useCallback(
     (order: OrderBasketItem) => {
@@ -73,11 +88,10 @@ export default function ProceduresOrderBasketPanelExtension() {
         alert('Unable to open form: patient is still loading. Please try again.');
         return;
       }
-      // launchWorkspace2 replaces whatever else is open in the order-basket window
-      // (prompting only if there are unsaved changes)
-      launchWorkspace2('add-procedures-order', { order, formContext: 'editing' });
+      // opens the form as a child workspace on top of the order basket
+      launchOrderForm('add-procedures-order', { order, formContext: 'editing' });
     },
-    [patient],
+    [launchOrderForm, patient],
   );
 
   const removeProcedureOrder = useCallback(

@@ -9,10 +9,10 @@
   "homepage": "https://github.com/epcare/epcare-esm-orders#readme",
   "scripts": {
     "start": "openmrs develop --use-rspack --port 8090",
-    "serve": "rspack serve --mode=development --config ../../rspack.config.js",
+    "serve": "rspack serve --mode=development",
     "debug": "npm run serve",
-    "build": "rspack --mode production --config ../../rspack.config.js",
-    "analyze": "rspack --mode=production --env.analyze=true --config ../../rspack.config.js",
+    "build": "rspack --mode production",
+    "analyze": "rspack --mode=production --env.analyze=true",
     "lint": "eslint src --ext ts,tsx",
     "typescript": "tsc",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.workspace.tsx' 'src/**/*.modal.tsx' 'src/index.ts' --config ../../tools/i18next-parser.config.js",
@@ -48,5 +48,8 @@
     "react-i18next": "16.x",
     "react-router-dom": "6.x",
     "swr": "2.x"
+  },
+  "devDependencies": {
+    "@openmrs/esm-patient-common-lib": "workspace:*"
   }
 }

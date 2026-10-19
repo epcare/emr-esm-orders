@@ -3,7 +3,13 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, ButtonSkeleton, Search, SkeletonText, Tile } from '@carbon/react';
 import { ArrowRight, ShoppingCartArrowDown, ShoppingCartArrowUp } from '@carbon/react/icons';
-import { useDebounce, useLayoutType, useSession, ResponsiveWrapper, launchWorkspace2 } from '@openmrs/esm-framework';
+import {
+  useDebounce,
+  useLayoutType,
+  useSession,
+  ResponsiveWrapper,
+  useWorkspace2Context,
+} from '@openmrs/esm-framework';
 import { useOrderBasket } from '@openmrs/esm-patient-common-lib';
 import styles from './medical-supply-type-search.scss';
 import { type MedicalSupplyOrderBasketItem } from '../../../types';
@@ -18,6 +24,9 @@ export interface MedicalSupplyTypeSearchProps {
 
 export function MedicalSupplyTypeSearch({ openMedicalSupplyForm, patient }: MedicalSupplyTypeSearchProps) {
   const { t } = useTranslation();
+  // this search screen is a child workspace of the order basket, so going
+  // "back to the basket" simply means closing this workspace
+  const { closeWorkspace } = useWorkspace2Context();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
   const searchInputRef = useRef(null);
@@ -69,6 +78,9 @@ function MedicalSupplyTypeSearchResults({
 }: MedicalSupplyTypeSearchResultsProps) {
   const { t } = useTranslation();
   const isTablet = useLayoutType() === 'tablet';
+  // this search screen is a child workspace of the order basket, so going
+  // "back to the basket" simply means closing this workspace
+  const { closeWorkspace } = useWorkspace2Context();
   const { medicalSupplyTypes, isLoading, error } = useMedicalSupplyTypes(searchTerm);
 
   if (isLoading) {
@@ -142,7 +154,7 @@ function MedicalSupplyTypeSearchResults({
       {isTablet && (
         <div className={styles.separatorContainer}>
           <p className={styles.separator}>{t('or', 'or')}</p>
-          <Button kind="ghost" onClick={() => launchWorkspace2('order-basket')}>
+          <Button kind="ghost" onClick={() => closeWorkspace()}>
             {t('returnToOrderBasket', 'Return to order basket')}
           </Button>
         </div>
@@ -164,6 +176,9 @@ const MedicalSupplyTypeSearchResultItem: React.FC<MedicalSupplyTypeSearchResultI
 }) => {
   const isTablet = useLayoutType() === 'tablet';
   const session = useSession();
+  // this search screen is a child workspace of the order basket, so going
+  // "back to the basket" simply means closing this workspace
+  const { closeWorkspace } = useWorkspace2Context();
   const { orders, setOrders } = useOrderBasket<MedicalSupplyOrderBasketItem>(
     patient ?? ({ id: '' } as fhir.Patient),
     'medicalsupply',
@@ -187,8 +202,8 @@ const MedicalSupplyTypeSearchResultItem: React.FC<MedicalSupplyTypeSearchResultI
     const medicalSupplyOrder = createMedicalSupplyOrder(testType);
     medicalSupplyOrder.isOrderIncomplete = true;
     setOrders([...orders, medicalSupplyOrder]);
-    launchWorkspace2('order-basket');
-  }, [orders, setOrders, createMedicalSupplyOrder, testType]);
+    closeWorkspace();
+  }, [orders, setOrders, createMedicalSupplyOrder, testType, closeWorkspace]);
 
   const removeFromBasket = useCallback(() => {
     setOrders(orders.filter((order) => order.testType.conceptUuid !== testType.conceptUuid));

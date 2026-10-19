@@ -34,7 +34,8 @@ export default function AddMedicalSupplyOrderWorkspace({
   }, [closeWorkspace]);
 
   const handleCloseWorkspaceWithSavedChanges = useCallback(() => {
-    closeWorkspace();
+    // Suppress the unsaved-changes prompt: the changes were just saved to the basket.
+    closeWorkspace({ discardUnsavedChanges: true });
   }, [closeWorkspace]);
 
   return (

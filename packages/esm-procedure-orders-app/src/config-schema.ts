@@ -132,9 +132,8 @@ export const configSchema = {
   },
   statusConceptUuid: {
     _type: Type.ConceptUuid,
-    _description:
-      'The status concept set UUID for filtering status options. NOTE: Configured UUID (163021...) does not exist in database. Individual status concepts are configured in procedureStatusConcepts. Either: 1) Create this concept set in DB, 2) Use statusConceptSourceType="any" to bypass, or 3) Remove this config',
-    _default: '1668e2ab-0112-431a-9d21-ee7ef9ec9fe3',
+    _description: 'The status concept set UUID for filtering status options',
+    _default: '163021AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
   },
   statusConceptSourceType: {
     _type: Type.String,
